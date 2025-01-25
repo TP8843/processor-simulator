@@ -6,8 +6,8 @@ public class Simulator {
     private Decode decode;
     private Alu alu;
     private ProgramStore programStore;
-    private DataStore registers;
-    private DataStore memory;
+    private Registers registers;
+    private Memory memory;
     
     private int cycles;
     
@@ -25,14 +25,14 @@ public class Simulator {
         }
         
         public Stage getStage() {
-            switch (currentStage) {
-                case 0: return FETCH;
-                case 1: return DECODE;
-                case 2: return EXECUTE;
-                case 3: return MEMORY;
-                case 4: return WRITE_BACK;
-                default: return null;
-            }
+            return switch (currentStage) {
+                case 0 -> FETCH;
+                case 1 -> DECODE;
+                case 2 -> EXECUTE;
+                case 3 -> MEMORY;
+                case 4 -> WRITE_BACK;
+                default -> null;
+            };
         }
         
         Stage(){
@@ -40,7 +40,7 @@ public class Simulator {
         }
     }
     
-    Simulator(Decode decode, Alu alu, ProgramStore programStore, DataStore registers, DataStore memory) {
+    Simulator(Decode decode, Alu alu, ProgramStore programStore, Memory registers, Memory memory) {
         this.decode = decode;
         this.alu = alu;
         this.programStore = programStore;
@@ -60,9 +60,7 @@ public class Simulator {
             cycles += 1;
             
             // Execute
-            if (Instruction.Opcode.usesAlu(instruction.opcode)) {
-                int output = alu.execute(instruction);
-            }
+            int output = alu.execute(instruction);
         }
     }
 }

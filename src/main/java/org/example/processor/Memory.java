@@ -1,11 +1,16 @@
 package org.example.processor;
 
-public class DataStore {
-    private int size = 32;
+public class Memory {
+    private int size = 512;
 
     private int[] store;
 
-    public DataStore(int size) {
+    public Memory(int size) {
+        this.size = size;
+        store = new int[size];
+    }
+
+    public Memory() {
         store = new int[size];
     }
 

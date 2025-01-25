@@ -1,9 +1,9 @@
 package org.example.processor;
 
 public class Decode {
-    private DataStore registers;
+    private final Memory registers;
     
-    Decode(DataStore registers) {
+    Decode(Memory registers) {
         this.registers = registers;
     }
     
@@ -12,12 +12,20 @@ public class Decode {
     {
         String[] args = input.split(" ");
 
-        int address1 = Integer.parseInt(args[1]);
-        int address2 = Integer.parseInt(args[2]);
+        int inputValue1 = Integer.parseInt(args[1]);
+        int inputValue2 = Integer.parseInt(args[2]);
 
         Instruction.Opcode opcode = Instruction.parseOpcode(args[0]);
-        int operand1 = registers.getValue(address1);
-        int operand2 = registers.getValue(address2);
+
+        assert opcode != null;
+        int operand1, operand2;
+        if (opcode.getDataMode() == Instruction.Opcode.DataMode.REGISTER_REGISTER) {
+            operand1 = registers.getValue(inputValue1);
+            operand2 = registers.getValue(inputValue2);
+        } else {
+            operand1 = registers.getValue(inputValue1);
+            operand2 = Integer.parseInt(args[3]);
+        }
         
         return new Instruction(opcode, operand1, operand2);
     }
