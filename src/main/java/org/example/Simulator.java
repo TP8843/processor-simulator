@@ -40,7 +40,7 @@ public class Simulator {
         }
     }
     
-    Simulator(Decode decode, Alu alu, ProgramStore programStore, Memory registers, Memory memory) {
+    Simulator(Decode decode, Alu alu, ProgramStore programStore, Registers registers, Memory memory) {
         this.decode = decode;
         this.alu = alu;
         this.programStore = programStore;

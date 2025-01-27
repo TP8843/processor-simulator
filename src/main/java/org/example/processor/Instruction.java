@@ -24,16 +24,18 @@ public class Instruction {
 
         AND, // Performs bitwise logical AND between two registers, and stores result in third
         OR,  // Performs bitwise logical OR between two registers, and stores result in third
+        XOR,
         ANDI,  // Performs bitwise logical AND between a register and an immediate, and stores result in second register
         ORI, // Performs bitwise logical OR between a register and an immediate, and stores result in second register
-
+        XORI,
+        
         SLL, // Performs a left shift of a value in a register, using the immediate value, and stores in second register
         SRL, // Performs a right shift of a value in a register, using the immediate value, and stores in second register
 
-        STO, // Store a register into memory
+        STOR, // Store a register into memory
         LOAD, // Load a value from memory into a register
 
-
+        // TODO: Add compare instructions
 
         BEQ, // Branch if given register is equal to 0
         BNE, // Branch if given register is not equal to 0
@@ -46,16 +48,17 @@ public class Instruction {
 
         public DataMode getDataMode() {
             return switch (this) {
-                case ADD, SUB, MUL, DIV, AND, OR -> DataMode.REGISTER_REGISTER;
-                case ADDI, SUBI, ANDI, ORI, STO, LOAD, SLL, SRL, BEQ, BNE -> DataMode.REGISTER_IMMEDIATE;
+                case ADD, SUB, MUL, DIV, AND, OR, XOR -> DataMode.REGISTER_REGISTER;
+                case ADDI, SUBI, ANDI, ORI, XORI, STOR, LOAD, SLL, SRL, BEQ, BNE -> DataMode.REGISTER_IMMEDIATE;
             };
         }
-
+        
+        // For when I start pipelining
         public int getALUCycles() {
             return switch (this) {
-                case ADD, SUB, ADDI, SUBI, AND, OR, ANDI, ORI, SLL, SRL, BEQ, BNE -> 1;
+                case ADD, SUB, ADDI, SUBI, AND, OR, XOR, ANDI, ORI, XORI, SLL, SRL, BEQ, BNE -> 1;
                 case MUL, DIV -> 2;
-                case STO, LOAD -> 3;
+                case STOR, LOAD -> 3;
             };
         }
     }
@@ -66,8 +69,25 @@ public class Instruction {
             case "sub" -> Opcode.SUB;
             case "mul" -> Opcode.MUL;
             case "div" -> Opcode.DIV;
-            case "sto" -> Opcode.STO;
+            case "addi" -> Opcode.ADDI;
+            case "subi" -> Opcode.SUBI;
+            
+            case "and" -> Opcode.AND;
+            case "or" -> Opcode.OR;
+            case "xor" -> Opcode.XOR;
+            case "andi" -> Opcode.ANDI;
+            case "ori" -> Opcode.ORI;
+            case "xori" -> Opcode.XORI;
+            
+            case "sll" -> Opcode.SLL;
+            case "srl" -> Opcode.SRL;
+            
+            case "stor" -> Opcode.STOR;
             case "load" -> Opcode.LOAD;
+            
+            case "beq" -> Opcode.BEQ;
+            case "bne" -> Opcode.BNE;
+            
             default -> null;
         };
     }
