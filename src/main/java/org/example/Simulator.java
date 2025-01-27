@@ -50,6 +50,8 @@ public class Simulator {
     }
     
     public void run() {
+        int writeBackRegister = 0;
+
         while (!programStore.isEndReached()) {
             // Fetch
             String currentInstruction = programStore.getNextInstruction();
@@ -61,6 +63,11 @@ public class Simulator {
             
             // Execute
             int output = alu.execute(instruction);
+
+            // Memory Update
+            if (instruction.opcode == Instruction.Opcode.STOR) {
+
+            }
         }
     }
 }

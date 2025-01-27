@@ -19,11 +19,27 @@ public class Registers {
         $10,
         $11,
         $12,
-        $13
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20,
+        $21,
+        $22,
+        $23,
+        $24,
+        $25,
+        $26,
+        $27,
+        $28,
+        $29;
     }
 
     Registers() {
-        registers = new int[16];
+        registers = new int[32];
     }
 
     public int getValue(Address address) {

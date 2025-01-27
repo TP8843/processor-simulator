@@ -3,7 +3,7 @@ package org.example.processor;
 public class Memory {
     private int size = 512;
 
-    private int[] store;
+    private final int[] store;
 
     public Memory(int size) {
         this.size = size;
