@@ -1,9 +1,15 @@
 package org.example.processor;
 
 public class Alu {
-    public int execute(Instruction input)
-    {
-        return switch (input.opcode) {
+    public Instruction input;
+    private MemoryAccessor memoryAccessor;
+    
+    Alu (MemoryAccessor memoryAccessor) {
+        this.memoryAccessor = memoryAccessor;
+    }
+    
+    public void execute() {
+         int output = switch (input.opcode) {
             // Store and load add an immediate and register value together for the address
             case ADD, STOR, LOAD -> input.operand1 + input.operand2;
             case SUB -> input.operand1 - input.operand2;
@@ -19,5 +25,10 @@ public class Alu {
             
             default -> 0;
         };
+         
+         Instruction outputInstruction = input;
+         outputInstruction.output = output;
+         
+         memoryAccessor.input = outputInstruction;
     }
 }

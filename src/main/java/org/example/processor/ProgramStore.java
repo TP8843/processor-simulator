@@ -1,31 +1,36 @@
 package org.example.processor;
 
+import org.example.Simulator;
+
 public class ProgramStore {
     private String[] program;
+    private Decode decode;
+    private Simulator simulator;
     
-    private int currentInstruction;
-    private boolean endReached;
+    private boolean halted = false;
     
-    ProgramStore(String file){
+    public int currentInstruction;
+    
+    ProgramStore(Decode decode, Simulator simulator, String file){
         this.currentInstruction = 0;
-        this.endReached = false;
         
         // TODO: Load program from file and split on newline
     }
     
-    public boolean isEndReached() { return endReached; }
+    public boolean getHalted() {
+        return halted;
+    }
     
-    public void jump(int position) {
+    public void updatePC(int position) {
         currentInstruction = position;
     }
     
-    public String getNextInstruction() {
-        if(endReached) return null;
+    public void getInstruction() {
+        if(currentInstruction >= program.length) {
+            halted = true;
+            return;
+        }
         
-        currentInstruction++;
-        
-        if (currentInstruction >= program.length) endReached = true;
-        
-        return program[currentInstruction - 1];
+        decode.input = program[currentInstruction - 1];
     }
 }

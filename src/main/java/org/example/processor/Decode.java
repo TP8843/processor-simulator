@@ -2,13 +2,14 @@ package org.example.processor;
 
 public class Decode {
     private final Memory registers;
+    public String input;
     
     Decode(Memory registers) {
         this.registers = registers;
     }
     
     // Decode an instruction and send it to the ALU for execution
-    public Instruction decode(String input)
+    public Instruction decode()
     {
         String[] args = input.split(" ");
 

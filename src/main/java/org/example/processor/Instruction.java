@@ -7,6 +7,9 @@ public class Instruction {
     public int operand1;
     public int operand2;
     
+    public int output;
+    public Registers.Address writeBackAddress;
+    
     Instruction(Opcode opcode, int operand1, int operand2) {
         this.opcode = opcode;
         this.operand1 = operand1;
@@ -35,7 +38,8 @@ public class Instruction {
         STOR, // Store a register into memory
         LOAD, // Load a value from memory into a register
 
-        // TODO: Add compare instructions
+        SLT, // Sets a register when the first register is less than the second register, and stores in the third
+        SLTI, // Sets a register when the first register is less than the immediate value, andstores in the third
 
         BEQ, // Branch if given register is equal to 0
         BNE, // Branch if given register is not equal to 0
@@ -48,15 +52,15 @@ public class Instruction {
 
         public DataMode getDataMode() {
             return switch (this) {
-                case ADD, SUB, MUL, DIV, AND, OR, XOR -> DataMode.REGISTER_REGISTER;
-                case ADDI, SUBI, ANDI, ORI, XORI, STOR, LOAD, SLL, SRL, BEQ, BNE -> DataMode.REGISTER_IMMEDIATE;
+                case ADD, SUB, MUL, DIV, AND, OR, XOR, SLT -> DataMode.REGISTER_REGISTER;
+                case ADDI, SUBI, ANDI, ORI, XORI, STOR, LOAD, SLL, SRL, SLTI, BEQ, BNE -> DataMode.REGISTER_IMMEDIATE;
             };
         }
         
         // For when I start pipelining
         public int getALUCycles() {
             return switch (this) {
-                case ADD, SUB, ADDI, SUBI, AND, OR, XOR, ANDI, ORI, XORI, SLL, SRL, BEQ, BNE -> 1;
+                case ADD, SUB, ADDI, SUBI, AND, OR, XOR, ANDI, ORI, XORI, SLL, SRL, SLT, SLTI, BEQ, BNE -> 1;
                 case MUL, DIV -> 2;
                 case STOR, LOAD -> 3;
             };

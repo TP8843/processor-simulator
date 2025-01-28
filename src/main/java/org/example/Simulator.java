@@ -3,11 +3,18 @@ package org.example;
 import org.example.processor.*;
 
 public class Simulator {
-    private Decode decode;
-    private Alu alu;
-    private ProgramStore programStore;
     private Registers registers;
     private Memory memory;
+    
+    private ProgramStore programStore;
+    private Decode decode;
+    private CompareUnit compareUnit;
+    private Alu alu;
+    private MemoryAccessor memoryAccessor;
+    private ProgramCountUpdater programCountUpdater;
+    private RegisterWriteBack registerWriteBack;
+    
+    private boolean halt;
     
     private int cycles;
     
@@ -40,33 +47,55 @@ public class Simulator {
         }
     }
     
-    Simulator(Decode decode, Alu alu, ProgramStore programStore, Registers registers, Memory memory) {
-        this.decode = decode;
-        this.alu = alu;
-        this.programStore = programStore;
+    Simulator(Registers registers, 
+              Memory memory, 
+              ProgramStore programStore, 
+              Decode decode,
+              CompareUnit compareUnit,
+              Alu alu,
+              MemoryAccessor memoryAccessor,
+              ProgramCountUpdater programCountUpdater,
+              RegisterWriteBack registerWriteBack) {
         this.registers = registers;
         this.memory = memory;
+        this.programStore = programStore;
+        this.decode = decode;
+        this.compareUnit = compareUnit;
+        this.alu = alu;
+        this.memoryAccessor = memoryAccessor;
+        this.programCountUpdater = programCountUpdater;
+        this.registerWriteBack = registerWriteBack;
         cycles = 0;
     }
     
     public void run() {
-        int writeBackRegister = 0;
+        Stage currentStage = Stage.FETCH;
 
-        while (!programStore.isEndReached()) {
-            // Fetch
-            String currentInstruction = programStore.getNextInstruction();
-            cycles += 1;
-            
-            // Decode
-            Instruction instruction = decode.decode(currentInstruction);
-            cycles += 1;
-            
-            // Execute
-            int output = alu.execute(instruction);
-
-            // Memory Update
-            if (instruction.opcode == Instruction.Opcode.STOR) {
-
+        while (true) {
+            switch (currentStage) {
+                case FETCH -> {
+                    if (programStore.getHalted()) return;
+                    
+                    programStore.getInstruction();
+                    cycles += 1;
+                }
+                case DECODE -> {
+                    decode.decode();
+                    cycles += 1;
+                }
+                case EXECUTE -> {
+                    alu.execute();
+                    cycles += 1;
+                }
+                case MEMORY -> {
+                    memoryAccessor.processInstruction();
+                    programCountUpdater.process();
+                    cycles += 1;
+                }
+                case WRITE_BACK -> {
+                    registerWriteBack.processWriteBack();
+                    cycles += 1;
+                }
             }
         }
     }
