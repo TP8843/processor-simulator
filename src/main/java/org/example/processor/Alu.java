@@ -2,7 +2,7 @@ package org.example.processor;
 
 public class Alu {
     public Instruction input;
-    private MemoryAccessor memoryAccessor;
+    private final MemoryAccessor memoryAccessor;
     
     Alu (MemoryAccessor memoryAccessor) {
         this.memoryAccessor = memoryAccessor;

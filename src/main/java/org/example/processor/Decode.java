@@ -1,20 +1,25 @@
 package org.example.processor;
 
 public class Decode {
-    private final Memory registers;
+    private final Registers registers;
     public String input;
     
-    Decode(Memory registers) {
+    private final Alu alu;
+    private final CompareUnit compareUnit;
+    
+    Decode(Registers registers, Alu alu, CompareUnit compareUnit) {
         this.registers = registers;
+        this.alu = alu;
+        this.compareUnit = compareUnit;
     }
     
     // Decode an instruction and send it to the ALU for execution
-    public Instruction decode()
+    public void decode()
     {
         String[] args = input.split(" ");
 
-        int inputValue1 = Integer.parseInt(args[1]);
-        int inputValue2 = Integer.parseInt(args[2]);
+        byte inputValue1 = Byte.parseByte(args[1]);
+        byte inputValue2 = Byte.parseByte(args[2]);
 
         Instruction.Opcode opcode = Instruction.parseOpcode(args[0]);
 
@@ -28,6 +33,9 @@ public class Decode {
             operand2 = Integer.parseInt(args[3]);
         }
         
-        return new Instruction(opcode, operand1, operand2);
+         Instruction output = new Instruction(opcode, operand1, operand2);
+        
+        compareUnit.input = output;
+        alu.input = output;
     }
 }

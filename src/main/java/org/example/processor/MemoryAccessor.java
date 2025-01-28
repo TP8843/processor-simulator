@@ -2,13 +2,14 @@ package org.example.processor;
 
 public class MemoryAccessor {
     public Instruction input;
-    private Memory memory;
-    private RegisterWriteBack registerWriteBack;
+    private final Memory memory;
+    private final RegisterWriteBack registerWriteBack;
     
     public int storeValue;
     
-    MemoryAccessor(Memory memory) {
+    MemoryAccessor(Memory memory, RegisterWriteBack registerWriteBack) {
         this.memory = memory;
+        this.registerWriteBack = registerWriteBack;
     }
     
     public void processInstruction() {
@@ -16,7 +17,7 @@ public class MemoryAccessor {
         
         if (input.opcode == Instruction.Opcode.STOR) {
             memory.storeValue(input.output, storeValue);
-            output.writeBackAddress = Registers.Address.$0;
+            output.writeBackAddress = 0;
         }
         
         if (input.opcode == Instruction.Opcode.LOAD) {

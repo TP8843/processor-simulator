@@ -1,18 +1,16 @@
 package org.example.processor;
 
-import org.example.Simulator;
-
 public class ProgramStore {
     private String[] program;
-    private Decode decode;
-    private Simulator simulator;
+    private final Decode decode;
     
     private boolean halted = false;
     
     public int currentInstruction;
     
-    ProgramStore(Decode decode, Simulator simulator, String file){
+    ProgramStore(Decode decode, String file){
         this.currentInstruction = 0;
+        this.decode = decode;
         
         // TODO: Load program from file and split on newline
     }

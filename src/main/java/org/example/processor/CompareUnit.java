@@ -2,7 +2,11 @@ package org.example.processor;
 
 public class CompareUnit {
     public Instruction input;
-    private ProgramCountUpdater programCountUpdater;
+    private final ProgramCountUpdater programCountUpdater;
+    
+    CompareUnit(ProgramCountUpdater programCountUpdater) {
+        this.programCountUpdater = programCountUpdater;
+    }
     
     public void process() {
         Instruction output = input;

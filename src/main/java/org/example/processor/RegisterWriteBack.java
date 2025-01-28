@@ -2,7 +2,7 @@ package org.example.processor;
 
 public class RegisterWriteBack {
     public Instruction input;
-    private Registers registers;
+    private final Registers registers;
     
     RegisterWriteBack(Registers registers) {
         this.registers = registers;
@@ -10,9 +10,8 @@ public class RegisterWriteBack {
     
     public void processWriteBack() {
         switch (input.opcode) {
-            case ADD, SUB, ADDI, SUBI, MUL, DIV, AND, ANDI, OR, ORI, XOR, XORI, SLT, SLTI -> {
+            case ADD, SUB, ADDI, SUBI, MUL, DIV, AND, ANDI, OR, ORI, XOR, XORI, SLT, SLTI ->
                 registers.setValue(input.writeBackAddress, input.output);
-            }
         }
     }
 }

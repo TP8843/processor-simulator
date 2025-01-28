@@ -8,7 +8,7 @@ public class Instruction {
     public int operand2;
     
     public int output;
-    public Registers.Address writeBackAddress;
+    public byte writeBackAddress;
     
     Instruction(Opcode opcode, int operand1, int operand2) {
         this.opcode = opcode;
@@ -39,7 +39,7 @@ public class Instruction {
         LOAD, // Load a value from memory into a register
 
         SLT, // Sets a register when the first register is less than the second register, and stores in the third
-        SLTI, // Sets a register when the first register is less than the immediate value, andstores in the third
+        SLTI, // Sets a register when the first register is less than the immediate value, and stores in the third
 
         BEQ, // Branch if given register is equal to 0
         BNE, // Branch if given register is not equal to 0

@@ -3,61 +3,23 @@ package org.example;
 import org.example.processor.*;
 
 public class Simulator {
-    private Registers registers;
-    private Memory memory;
-    
-    private ProgramStore programStore;
-    private Decode decode;
-    private CompareUnit compareUnit;
-    private Alu alu;
-    private MemoryAccessor memoryAccessor;
-    private ProgramCountUpdater programCountUpdater;
-    private RegisterWriteBack registerWriteBack;
-    
-    private boolean halt;
+    private final ProgramStore programStore;
+    private final Decode decode;
+    private final CompareUnit compareUnit;
+    private final Alu alu;
+    private final MemoryAccessor memoryAccessor;
+    private final ProgramCountUpdater programCountUpdater;
+    private final RegisterWriteBack registerWriteBack;
     
     private int cycles;
     
-    private enum Stage {
-        FETCH,
-        DECODE,
-        EXECUTE,
-        MEMORY,
-        WRITE_BACK;
-        
-        int currentStage;
-        
-        public void nextStage() {
-            currentStage += currentStage % 5;
-        }
-        
-        public Stage getStage() {
-            return switch (currentStage) {
-                case 0 -> FETCH;
-                case 1 -> DECODE;
-                case 2 -> EXECUTE;
-                case 3 -> MEMORY;
-                case 4 -> WRITE_BACK;
-                default -> null;
-            };
-        }
-        
-        Stage(){
-            currentStage = 0;
-        }
-    }
-    
-    Simulator(Registers registers, 
-              Memory memory, 
-              ProgramStore programStore, 
+    Simulator(ProgramStore programStore, 
               Decode decode,
               CompareUnit compareUnit,
               Alu alu,
               MemoryAccessor memoryAccessor,
               ProgramCountUpdater programCountUpdater,
               RegisterWriteBack registerWriteBack) {
-        this.registers = registers;
-        this.memory = memory;
         this.programStore = programStore;
         this.decode = decode;
         this.compareUnit = compareUnit;
@@ -69,34 +31,37 @@ public class Simulator {
     }
     
     public void run() {
-        Stage currentStage = Stage.FETCH;
+        int currentStage = 0;
 
         while (true) {
             switch (currentStage) {
-                case FETCH -> {
+                case 0 -> {
                     if (programStore.getHalted()) return;
                     
                     programStore.getInstruction();
                     cycles += 1;
                 }
-                case DECODE -> {
+                case 1 -> {
                     decode.decode();
                     cycles += 1;
                 }
-                case EXECUTE -> {
+                case 2 -> {
                     alu.execute();
+                    compareUnit.process();
                     cycles += 1;
                 }
-                case MEMORY -> {
+                case 3 -> {
                     memoryAccessor.processInstruction();
                     programCountUpdater.process();
                     cycles += 1;
                 }
-                case WRITE_BACK -> {
+                case 4 -> {
                     registerWriteBack.processWriteBack();
                     cycles += 1;
                 }
             }
+            
+            currentStage = (currentStage + 1) % 5;
         }
     }
 }

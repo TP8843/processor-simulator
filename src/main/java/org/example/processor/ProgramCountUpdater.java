@@ -5,7 +5,7 @@ public class ProgramCountUpdater {
     public Instruction compareInput;
     public Instruction aluInput;
     
-    private ProgramStore programStore;
+    private final ProgramStore programStore;
     
     ProgramCountUpdater(ProgramStore programStore) {
         this.programStore = programStore;
