@@ -1,14 +1,12 @@
 package org.example.processor;
 
 public class ProgramCountUpdater {
-    public int currentPC;
+    private int currentPC;
     public Instruction compareInput;
     public Instruction aluInput;
     
-    private final ProgramStore programStore;
-    
-    ProgramCountUpdater(ProgramStore programStore) {
-        this.programStore = programStore;
+    public ProgramCountUpdater() {
+        this.currentPC = 0;
     }
     
     public void process() {
@@ -21,6 +19,10 @@ public class ProgramCountUpdater {
             newPC += 1;
         }
         
-        programStore.updatePC(newPC);
+        currentPC = newPC;
+    }
+    
+    public int getCurrentPC() {
+        return currentPC;
     }
 }

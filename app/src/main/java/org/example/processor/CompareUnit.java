@@ -4,7 +4,7 @@ public class CompareUnit {
     public Instruction input;
     private final ProgramCountUpdater programCountUpdater;
     
-    CompareUnit(ProgramCountUpdater programCountUpdater) {
+    public CompareUnit(ProgramCountUpdater programCountUpdater) {
         this.programCountUpdater = programCountUpdater;
     }
     

@@ -3,7 +3,7 @@ package org.example.processor;
 public class Registers {
     private final int[] registers;
 
-    Registers() {
+    public Registers() {
         registers = new int[31];
     }
 
@@ -17,5 +17,17 @@ public class Registers {
         if (address == 0) return;
 
         registers[address - 1] = value;
+
+        System.out.print("Current register values: \n" + this);
+    }
+    
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        
+        for (int i = 0; i < registers.length; i++) {
+            builder.append(String.format("%d: %d\n", i + 1, registers[i]));
+        }
+        
+        return builder.toString();
     }
 }

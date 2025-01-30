@@ -9,11 +9,13 @@ public class Instruction {
     
     public int output;
     public byte writeBackAddress;
+    public int storeValue;
     
-    Instruction(Opcode opcode, int operand1, int operand2) {
+    Instruction(Opcode opcode, int operand1, int operand2, byte writeBackAddress) {
         this.opcode = opcode;
         this.operand1 = operand1;
         this.operand2 = operand2;
+        this.writeBackAddress = writeBackAddress;
     }
 
     public enum Opcode {
@@ -94,5 +96,16 @@ public class Instruction {
             
             default -> null;
         };
+    }
+    
+    public String toString(){
+        return String.format(
+                "Instruction: %s \n" +
+                "   Store Register: %s\n" + 
+                "   Operand 1: %s\n" +
+                "   Operand 2: %s\n" +
+                "   Current Output: %s\n" +
+                "   Store Value: %s",
+                opcode, writeBackAddress, operand1, operand2, output, storeValue);
     }
 }
