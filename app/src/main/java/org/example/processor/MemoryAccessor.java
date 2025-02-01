@@ -13,9 +13,6 @@ public class MemoryAccessor {
     }
     
     public void processInstruction() {
-        System.out.println("Instruction state at start of memory accessor: " + input);
-
-
         Instruction output = input;
         
         if (input.opcode == Instruction.Opcode.STOR) {
@@ -26,9 +23,12 @@ public class MemoryAccessor {
         if (input.opcode == Instruction.Opcode.LOAD) {
             output.output = memory.getValue(input.output);
         }
-        
-        System.out.println("Instruction state in memory accessor: " + output);
-        
+
         registerWriteBack.input = output;
+    }
+
+    @Override
+    public String toString() {
+        return "Memory Accessor - Input: \n" + input + "-----------------";
     }
 }

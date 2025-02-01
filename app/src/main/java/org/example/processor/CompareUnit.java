@@ -19,4 +19,9 @@ public class CompareUnit {
         
         programCountUpdater.compareInput = output;
     }
+
+    @Override
+    public String toString() {
+        return "Compare Unit - Input: \n" + input + "-----------------";
+    }
 }

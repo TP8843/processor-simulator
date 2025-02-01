@@ -53,4 +53,9 @@ public class Decode {
         compareUnit.input = outputAlu;
         alu.input = outputCompare;
     }
+
+    @Override
+    public String toString() {
+        return "Decode - Input: \n" + input + "-----------------";
+    }
 }

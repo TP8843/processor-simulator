@@ -36,4 +36,9 @@ public class Alu {
          
          memoryAccessor.input = outputInstruction;
     }
+
+    @Override
+    public String toString() {
+        return "ALU - Input: \n" + input + "-----------------";
+    }
 }

@@ -64,4 +64,36 @@ public class Simulator {
             currentStage = (currentStage + 1) % 5;
         }
     }
+
+    private void runCycle(){
+//        switch (currentStage) {
+//            case 0 -> {
+//                if (programStore.getHalted()) return;
+//
+//                programStore.getInstruction();
+//                cycles += 1;
+//            }
+//            case 1 -> {
+//                decode.decode();
+//                cycles += 1;
+//            }
+//            case 2 -> {
+//                alu.execute();
+//                compareUnit.process();
+//                cycles += 1;
+//            }
+//            case 3 -> {
+//                memoryAccessor.processInstruction();
+//                programCountUpdater.process();
+//                cycles += 1;
+//            }
+//            case 4 -> {
+//                registerWriteBack.processWriteBack();
+//                cycles += 1;
+//            }
+//        }
+//
+//        currentStage = (currentStage + 1) % 5;
+//    }
+    }
 }

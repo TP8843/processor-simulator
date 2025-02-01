@@ -25,4 +25,9 @@ public class ProgramCountUpdater {
     public int getCurrentPC() {
         return currentPC;
     }
+
+    @Override
+    public String toString() {
+        return "Program Count Updater: \nCurrent Value: " + currentPC + "\nCompare Input: " + compareInput + "\nALU Input: " + aluInput;
+    }
 }

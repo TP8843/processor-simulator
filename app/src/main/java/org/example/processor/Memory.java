@@ -21,7 +21,6 @@ public class Memory {
 
         store.put(position, value);
 
-        System.out.println("Current memory values: \n" + this);
     }
     
     public String toString() {
