@@ -29,6 +29,8 @@ public class Main {
                 compareUnit,
                 alu,
                 memoryAccessor,
+                memory,
+                registers,
                 programCountUpdater,
                 registerWriteBack
         );

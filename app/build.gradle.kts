@@ -25,6 +25,10 @@ application {
     mainClass.set("org.example.Main")
 }
 
+val run by tasks.getting(JavaExec::class) {
+    standardInput = System.`in`
+}
+
 tasks.test {
     useJUnitPlatform()
 }
