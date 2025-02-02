@@ -1,21 +1,29 @@
 package org.example.processor;
 
-public class Instruction {
-    public Opcode opcode;
+public final class Instruction {
+    public final Opcode opcode;
     
     // Stores the value of the two operands
-    public int operand1;
-    public int operand2;
+    public final int operand1;
+    public final int operand2;
     
-    public int output;
-    public byte writeBackAddress;
-    public int storeValue;
-    
+    public final int output;
+    public final byte writeBackAddress;
+    public final int storeValue;
+    public final int branchCheck;
+
     Instruction(Opcode opcode, int operand1, int operand2, byte writeBackAddress) {
+        this(opcode, operand1, operand2, writeBackAddress, 0, 0, 0);
+    }
+    
+    Instruction(Opcode opcode, int operand1, int operand2, byte writeBackAddress, int output, int storeValue, int branchCheck) {
         this.opcode = opcode;
         this.operand1 = operand1;
         this.operand2 = operand2;
         this.writeBackAddress = writeBackAddress;
+        this.output = output;
+        this.storeValue = storeValue;
+        this.branchCheck = branchCheck;
     }
 
     public enum Opcode {
@@ -101,11 +109,13 @@ public class Instruction {
     public String toString(){
         return String.format(
                 "Instruction: %s \n" +
-                "   Store Register: %s\n" + 
-                "   Operand 1: %s\n" +
-                "   Operand 2: %s\n" +
-                "   Current Output: %s\n" +
-                "   Store Value: %s",
-                opcode, writeBackAddress, operand1, operand2, output, storeValue);
+                "      Operand 1: %s\n" +
+                "      Operand 2: %s\n" +
+                "      Current Output: %s\n" +
+
+                "      Store Register: %s\n" +
+                "      Store Value: %s\n" +
+                "      Branch Check: %s",
+                opcode, operand1, operand2, output, writeBackAddress, storeValue, branchCheck);
     }
 }

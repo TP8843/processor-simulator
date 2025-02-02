@@ -12,6 +12,8 @@ public class ProgramStore {
     private final Decode decode;
     private final ProgramCountUpdater programCountUpdater;
     
+    private String latestInstruction;
+    
     private boolean halted = false;
     
     public ProgramStore(Decode decode, ProgramCountUpdater programCountUpdater, String file){
@@ -48,6 +50,16 @@ public class ProgramStore {
             return;
         }
         
-        decode.input = program.get(programCountUpdater.getCurrentPC());
+        latestInstruction = program.get(programCountUpdater.getCurrentPC());
+        
+        decode.input = latestInstruction;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("""
+                Program Store:
+                    Latest Instruction: %s
+                """, latestInstruction);
     }
 }

@@ -1,11 +1,6 @@
 package org.example;
 
 import org.example.processor.*;
-
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class Simulator {
@@ -66,46 +61,55 @@ public class Simulator {
     
     public void run() {
         Scanner scanner = new Scanner(System.in);
-        while (!programStore.getHalted()) {
-            if (!autoRun) {
-                System.out.print("> ");
-                String line = scanner. nextLine();
-                line = line.toLowerCase().trim();
-                
-                // Print a unit's contents if starts with print
-                if (line.startsWith("print"))
-                    processPrint(line.substring("print".length()).trim());
-                else if (line.startsWith("step"))
-                    runCycle();
-                else if (line.startsWith("continue")) {
-                    autoRun = true;
-                    runCycle();
-                } else {
-                    System.out.println("Unknown command: " + line);
-                    System.out.print(generalError);
-                }
-            } else {
+        while (true) {
+            System.out.print("> ");
+            String line = scanner. nextLine();
+            line = line.toLowerCase().trim();
+            
+            // Print a unit's contents if starts with print
+            if (line.startsWith("print"))
+                processPrint(line.substring("print".length()).trim());
+            else if (line.startsWith("step")) {
                 runCycle();
+                printState();
+            } else if (line.startsWith("continue")) {
+                while (!programStore.getHalted()) {
+                    runCycle();
+                }
+            } else if (line.startsWith("exit")) {
+                return;
+            } else {
+                System.out.println("Unknown command: " + line);
+                System.out.print(generalError);
             }
         }
     }
     
     private void processPrint(String unit) {
         switch (unit) {
-            case "alu": System.out.println(alu);
-            case "memory": System.out.println(memory);
-            case "registers": System.out.println(registers);
-            case "memoryAccessor", "memory-accessor": System.out.println(memoryAccessor);
-            case "programCountUpdater", "program-count-updater": System.out.println(programCountUpdater);
-            case "registerWriteBack", "register-write-back": System.out.println(registerWriteBack);
-            case "compareUnit", "compare-unit": System.out.println(compareUnit);
-            case "decode": System.out.println(decode);
-            case "programStore", "program-store": System.out.println(programStore);
+            case "alu": System.out.println(alu); break;
+            case "memory": System.out.println(memory); break;
+            case "registers": System.out.println(registers); break;
+            case "memoryaccessor", "memory-accessor": System.out.println(memoryAccessor); break;
+            case "programcountupdater", "program-count-updater": System.out.println(programCountUpdater); break;
+            case "registerwriteback", "register-write-back": System.out.println(registerWriteBack); break;
+            case "compareunit", "compare-unit": System.out.println(compareUnit); break;
+            case "decode": System.out.println(decode); break;
+            case "programstore", "program-store": System.out.println(programStore); break;
+            case "state": printState(); break;
             default: {
                 System.out.println("Unknown command: " + unit);
                 System.out.print(printError);
+                break;
             }
         }
+    }
+    
+    private void printState() {
+        System.out.println(String.format("""
+                        Current Stage: %s
+                        Current PC: %s
+                        Current Cycle Count: %s""", currentStage, programCountUpdater.getCurrentPC(), cycles));
     }
 
     private void runCycle(){

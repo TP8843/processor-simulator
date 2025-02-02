@@ -15,4 +15,12 @@ public class RegisterWriteBack {
             }
         }
     }
+    
+    @Override
+    public String toString() {
+        return String.format("""
+                Register Write Back:
+                    Input: %s   
+                """, input);
+    }
 }

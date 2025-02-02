@@ -28,6 +28,11 @@ public class ProgramCountUpdater {
 
     @Override
     public String toString() {
-        return "Program Count Updater: \nCurrent Value: " + currentPC + "\nCompare Input: " + compareInput + "\nALU Input: " + aluInput;
+        return String.format("""
+                Program Count Updater:
+                    Current PC: %s
+                    Instruction from compare unit: %s
+                    Instruction from ALU: %s""", getCurrentPC(), compareInput, aluInput);
+        
     }
 }

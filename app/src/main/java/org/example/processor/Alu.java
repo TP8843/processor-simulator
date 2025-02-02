@@ -3,9 +3,11 @@ package org.example.processor;
 public class Alu {
     public Instruction input;
     private final MemoryAccessor memoryAccessor;
+    private final ProgramCountUpdater programCountUpdater;
     
-    public Alu(MemoryAccessor memoryAccessor) {
+    public Alu(MemoryAccessor memoryAccessor, ProgramCountUpdater programCountUpdater) {
         this.memoryAccessor = memoryAccessor;
+        this.programCountUpdater = programCountUpdater;
     }
     
     public void execute() {
@@ -28,14 +30,33 @@ public class Alu {
             default -> output = 0;
         };
          
-         Instruction outputInstruction = input;
-         outputInstruction.output = output;
+         Instruction memoryAccessorInstruction = new Instruction(
+                 input.opcode, 
+                 input.operand1, 
+                 input.operand2, 
+                 input.writeBackAddress, 
+                 output, 
+                 input.storeValue, 
+                 0);
+
+        Instruction programCountUpdaterInstruction = new Instruction(
+                input.opcode,
+                input.operand1,
+                input.operand2,
+                input.writeBackAddress,
+                output,
+                input.storeValue,
+                0);
          
-         memoryAccessor.input = outputInstruction;
+         memoryAccessor.input = memoryAccessorInstruction;
+         programCountUpdater.aluInput = programCountUpdaterInstruction;
     }
 
     @Override
     public String toString() {
-        return "ALU - Input: \n" + input + "-----------------";
+        return String.format("""
+                ALU:
+                    Input: %s
+                """, input);
     }
 }

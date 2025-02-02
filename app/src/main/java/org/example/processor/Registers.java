@@ -22,8 +22,13 @@ public class Registers {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         
-        for (int i = 0; i < registers.length; i++) {
-            builder.append(String.format("%d: %d\n", i + 1, registers[i]));
+        builder.append("Register Values:\n");
+        
+        for (int i = 0; i <= registers.length; i++) {
+            if (i == 0) builder.append(String.format("%-2s: %-6s ", i, 0));
+            else builder.append(String.format("%-2s: %-6s ", i, registers[i - 1]));
+            
+            if (i % 8 == 7) builder.append("\n");
         }
         
         return builder.toString();

@@ -41,13 +41,36 @@ public class Decode {
         else 
             operand2 = inputValue2;
         
-         Instruction outputAlu = new Instruction(opcode, operand1, operand2, writeBackAddress);
-        Instruction outputCompare = new Instruction(opcode, operand1, operand2, writeBackAddress);
+         Instruction outputAlu;
+         
+        Instruction outputCompare;
 
         if (opcode == Instruction.Opcode.STOR) {
-            System.out.println("Store instruction");
-            outputAlu.storeValue = registers.getValue(writeBackAddress);
-            outputCompare.storeValue = registers.getValue(writeBackAddress);
+            outputAlu = new Instruction(
+                    opcode,
+                    operand1,
+                    operand2,
+                    writeBackAddress,
+                    0,
+                    registers.getValue(writeBackAddress),
+                    0
+            );
+
+            outputCompare = new Instruction(
+                    opcode, 
+                    operand1, 
+                    operand2, 
+                    writeBackAddress, 
+                    0, 
+                    registers.getValue(writeBackAddress), 
+                    0
+            );
+        } else {
+            outputAlu = new Instruction(
+                    opcode, operand1, operand2, writeBackAddress);
+            
+            outputCompare = new Instruction(
+                    opcode, operand1, operand2, writeBackAddress);
         }
 
         compareUnit.input = outputAlu;
@@ -56,6 +79,8 @@ public class Decode {
 
     @Override
     public String toString() {
-        return "Decode - Input: \n" + input + "-----------------";
+        return String.format("""
+                Decode:
+                    Input: %s""", input);
     }
 }

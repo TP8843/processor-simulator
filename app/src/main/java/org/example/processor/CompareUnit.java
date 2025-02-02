@@ -9,19 +9,29 @@ public class CompareUnit {
     }
     
     public void process() {
-        Instruction output = input;
+        int output;
         
-        output.output = switch (input.opcode) {
+        output = switch (input.opcode) {
             case BEQ -> (input.operand1 == input.operand2) ? 1 : 0;
             case BNE -> input.operand1 != input.operand2 ? 1 : 0;
             default -> 0;
         };
         
-        programCountUpdater.compareInput = output;
+        programCountUpdater.compareInput = new Instruction(
+                input.opcode, 
+                input.operand1, 
+                input.operand2, 
+                input.writeBackAddress, 
+                input.output, 
+                input.storeValue, 
+                output
+        );
     }
 
     @Override
     public String toString() {
-        return "Compare Unit - Input: \n" + input + "-----------------";
+        return String.format("""
+                Compare Unit:
+                    Input: %s""", input);
     }
 }

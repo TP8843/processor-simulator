@@ -13,22 +13,27 @@ public class MemoryAccessor {
     }
     
     public void processInstruction() {
-        Instruction output = input;
+        byte writeBackAddress = input.writeBackAddress;
+        int output = input.output;
         
         if (input.opcode == Instruction.Opcode.STOR) {
             memory.storeValue(input.output, input.storeValue);
-            output.writeBackAddress = 0;
+            writeBackAddress = 0;
         }
         
         if (input.opcode == Instruction.Opcode.LOAD) {
-            output.output = memory.getValue(input.output);
+            output = memory.getValue(input.output);
         }
 
-        registerWriteBack.input = output;
+        registerWriteBack.input = new Instruction(
+                input.opcode, input.operand1, input.operand2, writeBackAddress, output, input.storeValue, input.branchCheck 
+        );
     }
 
     @Override
     public String toString() {
-        return "Memory Accessor - Input: \n" + input + "-----------------";
+        return String.format("""
+                Memory Accessor:
+                    Input: %s""", input);
     }
 }

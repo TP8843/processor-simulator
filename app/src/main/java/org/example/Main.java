@@ -13,7 +13,7 @@ public class Main {
         MemoryAccessor memoryAccessor = new MemoryAccessor(memory, registerWriteBack);
         ProgramCountUpdater programCountUpdater = new ProgramCountUpdater();
         CompareUnit compareUnit = new CompareUnit(programCountUpdater);
-        Alu alu = new Alu(memoryAccessor);
+        Alu alu = new Alu(memoryAccessor, programCountUpdater);
 
         Decode decode = new Decode(registers, alu, compareUnit);
         ProgramStore programStore = new ProgramStore(decode, programCountUpdater, path);
