@@ -11,7 +11,6 @@ public class RegisterWriteBack {
     public void processWriteBack() {
         switch (input.opcode) {
             case ADD, SUB, ADDI, SUBI, MUL, DIV, AND, ANDI, OR, ORI, XOR, XORI, SLT, SLTI -> {
-                System.out.println(String.format("Writing to register %d: %d", input.writeBackAddress, input.output));
                 registers.setValue(input.writeBackAddress, input.output);
             }
         }

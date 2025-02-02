@@ -31,9 +31,6 @@ public class Alu {
          Instruction outputInstruction = input;
          outputInstruction.output = output;
          
-         System.out.println("Alu output value: " + output);
-         System.out.println(outputInstruction);
-         
          memoryAccessor.input = outputInstruction;
     }
 

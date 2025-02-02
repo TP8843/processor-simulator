@@ -17,8 +17,6 @@ public class Registers {
         if (address == 0) return;
 
         registers[address - 1] = value;
-
-        System.out.print("Current register values: \n" + this);
     }
     
     public String toString() {
