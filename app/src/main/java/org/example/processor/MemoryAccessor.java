@@ -13,20 +13,20 @@ public class MemoryAccessor {
     }
     
     public void processInstruction() {
-        byte writeBackAddress = input.writeBackAddress;
-        int output = input.output;
+        byte writeBackAddress = input.destination;
+        int output = input.aluOutput;
         
         if (input.opcode == Instruction.Opcode.STOR) {
-            memory.storeValue(input.output, input.storeValue);
+            memory.storeValue(input.aluOutput, input.memoryStoreValue);
             writeBackAddress = 0;
         }
         
         if (input.opcode == Instruction.Opcode.LOAD) {
-            output = memory.getValue(input.output);
+            output = memory.getValue(input.aluOutput);
         }
 
         registerWriteBack.input = new Instruction(
-                input.opcode, input.operand1, input.operand2, writeBackAddress, output, input.storeValue, input.branchCheck 
+                input.opcode, input.aluInput1, input.aluInput2, writeBackAddress, output, input.memoryStoreValue, input.compareUnitOutput 
         );
     }
 

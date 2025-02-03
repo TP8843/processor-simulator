@@ -11,45 +11,50 @@ public class Alu {
     }
     
     public void execute() {
-         int output;
-         
-         switch (input.opcode) {
-            // Store and load add an immediate and register value together for the address
-            case ADD, ADDI, STOR, LOAD -> output = input.operand1 + input.operand2;
-            case SUB, SUBI -> output = input.operand1 - input.operand2;
-            
-            case MUL -> output = input.operand1 * input.operand2;
-            case DIV -> output = input.operand1 / input.operand2;
-            case SLL -> output = input.operand1 << input.operand2;
-            case SRL -> output = input.operand1 >> input.operand2;
-            
-            case AND, ANDI -> output = input.operand1 & input.operand2;
-            case OR,ORI -> output = input.operand1 | input.operand2;
-            case XOR, XORI -> output = input.operand1 ^ input.operand2;
-            
-            default -> output = 0;
-        };
+        int output = getOutput(input.opcode, input.aluInput1, input.aluInput2);
          
          Instruction memoryAccessorInstruction = new Instruction(
                  input.opcode, 
-                 input.operand1, 
-                 input.operand2, 
-                 input.writeBackAddress, 
+                 input.aluInput1, 
+                 input.aluInput2, 
+                 input.destination, 
                  output, 
-                 input.storeValue, 
+                 input.memoryStoreValue, 
                  0);
 
         Instruction programCountUpdaterInstruction = new Instruction(
                 input.opcode,
-                input.operand1,
-                input.operand2,
-                input.writeBackAddress,
+                input.aluInput1,
+                input.aluInput2,
+                input.destination,
                 output,
-                input.storeValue,
+                input.memoryStoreValue,
                 0);
          
          memoryAccessor.input = memoryAccessorInstruction;
          programCountUpdater.aluInput = programCountUpdaterInstruction;
+    }
+
+    private static int getOutput(Instruction.Opcode opcode, int operand1, int operand2) {
+        int output;
+
+        switch (opcode) {
+           // Store and load add an immediate and register value together for the address
+           case ADD, ADDI, STOR, LOAD -> output = operand1 + operand2;
+           case SUB, SUBI -> output = operand1 - operand2;
+           
+           case MUL -> output = operand1 * operand2;
+           case DIV -> output = operand1 / operand2;
+           case SLL -> output = operand1 << operand2;
+           case SRL -> output = operand1 >> operand2;
+           
+           case AND, ANDI -> output = operand1 & operand2;
+           case OR,ORI -> output = operand1 | operand2;
+           case XOR, XORI -> output = operand1 ^ operand2;
+           
+           default -> output = 0;
+       }
+        return output;
     }
 
     @Override

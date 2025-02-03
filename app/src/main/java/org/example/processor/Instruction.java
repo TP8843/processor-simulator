@@ -4,26 +4,35 @@ public final class Instruction {
     public final Opcode opcode;
     
     // Stores the value of the two operands
-    public final int operand1;
-    public final int operand2;
+    public final int aluInput1;
+    public final int aluInput2;
     
-    public final int output;
-    public final byte writeBackAddress;
-    public final int storeValue;
-    public final int branchCheck;
+    public final int aluOutput;
+    public final byte destination;
+    public final int memoryStoreValue;
+    public final int compareUnitOutput;
 
-    Instruction(Opcode opcode, int operand1, int operand2, byte writeBackAddress) {
-        this(opcode, operand1, operand2, writeBackAddress, 0, 0, 0);
+    Instruction(Opcode opcode, int aluInput1, int aluInput2, byte destination) {
+        this(opcode, aluInput1, aluInput2, destination, 0, 0, 0);
     }
     
-    Instruction(Opcode opcode, int operand1, int operand2, byte writeBackAddress, int output, int storeValue, int branchCheck) {
+    Instruction(Opcode opcode, 
+                int aluInput1, 
+                int aluInput2, 
+                byte destination, 
+                int aluOutput, 
+                int memoryStoreValue, 
+                int compareUnitOutput) {
         this.opcode = opcode;
-        this.operand1 = operand1;
-        this.operand2 = operand2;
-        this.writeBackAddress = writeBackAddress;
-        this.output = output;
-        this.storeValue = storeValue;
-        this.branchCheck = branchCheck;
+        
+        this.aluInput1 = aluInput1;
+        this.aluInput2 = aluInput2;
+        this.aluOutput = aluOutput;
+        
+        this.destination = destination;
+        this.memoryStoreValue = memoryStoreValue;
+        
+        this.compareUnitOutput = compareUnitOutput;
     }
 
     public enum Opcode {
@@ -53,6 +62,10 @@ public final class Instruction {
 
         BEQ, // Branch if given register is equal to 0
         BNE, // Branch if given register is not equal to 0
+        BGEZ, // Branch if given register is greater than or equal to 0
+        BGTZ, // Branch if given register is greater than 0
+        BLEZ, // Branch if given register is less than 0
+        BLTZ // Branch if given register is less than 0
         ;
 
         public enum DataMode {
@@ -64,13 +77,15 @@ public final class Instruction {
             return switch (this) {
                 case ADD, SUB, MUL, DIV, AND, OR, XOR, SLT -> DataMode.REGISTER_REGISTER;
                 case ADDI, SUBI, ANDI, ORI, XORI, STOR, LOAD, SLL, SRL, SLTI, BEQ, BNE -> DataMode.REGISTER_IMMEDIATE;
+                default -> DataMode.REGISTER_REGISTER;
             };
         }
         
         // For when I start pipelining
         public int getALUCycles() {
             return switch (this) {
-                case ADD, SUB, ADDI, SUBI, AND, OR, XOR, ANDI, ORI, XORI, SLL, SRL, SLT, SLTI, BEQ, BNE -> 1;
+                case ADD, SUB, ADDI, SUBI, AND, OR, XOR, ANDI, ORI, XORI, 
+                     SLL, SRL, SLT, SLTI, BEQ, BNE, BGTZ, BGEZ, BLEZ, BLTZ -> 1;
                 case MUL, DIV -> 2;
                 case STOR, LOAD -> 3;
             };
@@ -101,6 +116,10 @@ public final class Instruction {
             
             case "beq" -> Opcode.BEQ;
             case "bne" -> Opcode.BNE;
+            case "bgez" -> Opcode.BGEZ;
+            case "blez" -> Opcode.BLEZ;
+            case "bgtz" -> Opcode.BGTZ;
+            case "bltz" -> Opcode.BLTZ;
             
             default -> null;
         };
@@ -116,6 +135,6 @@ public final class Instruction {
                 "      Store Register: %s\n" +
                 "      Store Value: %s\n" +
                 "      Branch Check: %s",
-                opcode, operand1, operand2, output, writeBackAddress, storeValue, branchCheck);
+                opcode, aluInput1, aluInput2, aluOutput, destination, memoryStoreValue, compareUnitOutput);
     }
 }

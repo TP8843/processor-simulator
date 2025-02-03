@@ -12,18 +12,22 @@ public class CompareUnit {
         int output;
         
         output = switch (input.opcode) {
-            case BEQ -> (input.operand1 == input.operand2) ? 1 : 0;
-            case BNE -> input.operand1 != input.operand2 ? 1 : 0;
+            case BEQ -> (input.aluInput1 == input.aluInput2) ? 1 : 0;
+            case BNE -> input.aluInput1 != input.aluInput2 ? 1 : 0;
+            case BGEZ -> input.aluInput1 >= 0 ? 1 : 0;
+            case BGTZ -> input.aluInput1 > 0 ? 1 : 0;
+            case BLEZ -> input.aluInput1 <= 0 ? 1 : 0;
+            case BLTZ -> input.aluInput1 < 0 ? 1 : 0;
             default -> 0;
         };
         
-        programCountUpdater.compareInput = new Instruction(
+        programCountUpdater.compareUnitInput = new Instruction(
                 input.opcode, 
-                input.operand1, 
-                input.operand2, 
-                input.writeBackAddress, 
-                input.output, 
-                input.storeValue, 
+                input.aluInput1, 
+                input.aluInput2, 
+                input.destination, 
+                input.aluOutput, 
+                input.memoryStoreValue, 
                 output
         );
     }
