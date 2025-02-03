@@ -1,20 +1,21 @@
 package org.example.processor;
 
 public class Alu {
-    public Instruction input;
+    public DecodedInstruction input;
     private final MemoryAccessor memoryAccessor;
-    private final ProgramCountUpdater programCountUpdater;
+    private final BranchUnit branchUnit;
     
-    public Alu(MemoryAccessor memoryAccessor, ProgramCountUpdater programCountUpdater) {
+    public Alu(MemoryAccessor memoryAccessor, BranchUnit branchUnit) {
         this.memoryAccessor = memoryAccessor;
-        this.programCountUpdater = programCountUpdater;
+        this.branchUnit = branchUnit;
     }
     
     public void execute() {
         int output = getOutput(input.opcode, input.aluInput1, input.aluInput2);
          
-         Instruction memoryAccessorInstruction = new Instruction(
-                 input.opcode, 
+         DecodedInstruction memoryAccessorDecodedInstruction = new DecodedInstruction(
+                 input.opcode,
+                 input.currentPC,
                  input.aluInput1, 
                  input.aluInput2, 
                  input.destination, 
@@ -22,8 +23,9 @@ public class Alu {
                  input.memoryStoreValue, 
                  0);
 
-        Instruction programCountUpdaterInstruction = new Instruction(
+        DecodedInstruction programCountUpdaterDecodedInstruction = new DecodedInstruction(
                 input.opcode,
+                input.currentPC,
                 input.aluInput1,
                 input.aluInput2,
                 input.destination,
@@ -31,11 +33,11 @@ public class Alu {
                 input.memoryStoreValue,
                 0);
          
-         memoryAccessor.input = memoryAccessorInstruction;
-         programCountUpdater.aluInput = programCountUpdaterInstruction;
+         memoryAccessor.input = memoryAccessorDecodedInstruction;
+         branchUnit.aluInput = programCountUpdaterDecodedInstruction;
     }
 
-    private static int getOutput(Instruction.Opcode opcode, int operand1, int operand2) {
+    private static int getOutput(DecodedInstruction.Opcode opcode, int operand1, int operand2) {
         int output;
 
         switch (opcode) {

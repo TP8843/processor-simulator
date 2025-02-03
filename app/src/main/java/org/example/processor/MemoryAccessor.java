@@ -1,7 +1,7 @@
 package org.example.processor;
 
 public class MemoryAccessor {
-    public Instruction input;
+    public DecodedInstruction input;
     private final Memory memory;
     private final RegisterWriteBack registerWriteBack;
     
@@ -16,17 +16,24 @@ public class MemoryAccessor {
         byte writeBackAddress = input.destination;
         int output = input.aluOutput;
         
-        if (input.opcode == Instruction.Opcode.STOR) {
+        if (input.opcode == DecodedInstruction.Opcode.STOR) {
             memory.storeValue(input.aluOutput, input.memoryStoreValue);
             writeBackAddress = 0;
         }
         
-        if (input.opcode == Instruction.Opcode.LOAD) {
+        if (input.opcode == DecodedInstruction.Opcode.LOAD) {
             output = memory.getValue(input.aluOutput);
         }
 
-        registerWriteBack.input = new Instruction(
-                input.opcode, input.aluInput1, input.aluInput2, writeBackAddress, output, input.memoryStoreValue, input.compareUnitOutput 
+        registerWriteBack.input = new DecodedInstruction(
+                input.opcode,
+                input.currentPC,
+                input.aluInput1, 
+                input.aluInput2, 
+                writeBackAddress, 
+                output, 
+                input.memoryStoreValue, 
+                input.compareUnitOutput 
         );
     }
 

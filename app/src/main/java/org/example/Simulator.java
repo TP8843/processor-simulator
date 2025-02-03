@@ -11,7 +11,7 @@ public class Simulator {
     private final Memory memory;
     private final Registers registers;
     private final MemoryAccessor memoryAccessor;
-    private final ProgramCountUpdater programCountUpdater;
+    private final BranchUnit branchUnit;
     private final RegisterWriteBack registerWriteBack;
     
     private int currentStage = 0;
@@ -27,7 +27,7 @@ public class Simulator {
                 compareUnit/compare-unit                  - Compare Unit (handles = and != for branching)
                 alu                                       - ALU (handles general computation)
                 memoryAccessor/memory-accessor            - Handles memory writes/reads
-                programCountUpdater/program-count-updater - Handles updating PC (incrementing or setting on branch)
+                branchUnit/program-count-updater - Handles updating PC (incrementing or setting on branch)
                 registerWriteBack/register-write-back     - Handles writing back to the registers
             """;
     
@@ -45,7 +45,7 @@ public class Simulator {
               MemoryAccessor memoryAccessor,
               Memory memory,
               Registers registers,
-              ProgramCountUpdater programCountUpdater,
+              BranchUnit branchUnit,
               RegisterWriteBack registerWriteBack) {
         this.programStore = programStore;
         this.decode = decode;
@@ -54,7 +54,7 @@ public class Simulator {
         this.memory = memory;
         this.registers = registers;
         this.memoryAccessor = memoryAccessor;
-        this.programCountUpdater = programCountUpdater;
+        this.branchUnit = branchUnit;
         this.registerWriteBack = registerWriteBack;
         cycles = 0;
     }
@@ -91,7 +91,7 @@ public class Simulator {
             case "memory": System.out.println(memory); break;
             case "registers": System.out.println(registers); break;
             case "memoryaccessor", "memory-accessor": System.out.println(memoryAccessor); break;
-            case "programcountupdater", "program-count-updater": System.out.println(programCountUpdater); break;
+            case "branchunit", "branch-unit": System.out.println(branchUnit); break;
             case "registerwriteback", "register-write-back": System.out.println(registerWriteBack); break;
             case "compareunit", "compare-unit": System.out.println(compareUnit); break;
             case "decode": System.out.println(decode); break;
@@ -109,7 +109,7 @@ public class Simulator {
         System.out.println(String.format("""
                         Current Stage: %s
                         Current PC: %s
-                        Current Cycle Count: %s""", currentStage, programCountUpdater.getCurrentPC(), cycles));
+                        Current Cycle Count: %s""", currentStage, programStore.getCurrentPC(), cycles));
     }
 
     private void runCycle(){
@@ -129,7 +129,7 @@ public class Simulator {
             }
             case 3 -> {
                 memoryAccessor.processInstruction();
-                programCountUpdater.process();
+                branchUnit.process();
                 cycles += 1;
             }
             case 4 -> {

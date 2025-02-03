@@ -1,11 +1,11 @@
 package org.example.processor;
 
 public class CompareUnit {
-    public Instruction input;
-    private final ProgramCountUpdater programCountUpdater;
+    public DecodedInstruction input;
+    private final BranchUnit branchUnit;
     
-    public CompareUnit(ProgramCountUpdater programCountUpdater) {
-        this.programCountUpdater = programCountUpdater;
+    public CompareUnit(BranchUnit branchUnit) {
+        this.branchUnit = branchUnit;
     }
     
     public void process() {
@@ -21,8 +21,9 @@ public class CompareUnit {
             default -> 0;
         };
         
-        programCountUpdater.compareUnitInput = new Instruction(
-                input.opcode, 
+        branchUnit.compareUnitInput = new DecodedInstruction(
+                input.opcode,
+                input.currentPC,
                 input.aluInput1, 
                 input.aluInput2, 
                 input.destination, 

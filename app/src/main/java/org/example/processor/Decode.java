@@ -4,7 +4,10 @@ import java.util.Arrays;
 
 public class Decode {
     private final Registers registers;
+    
+    // Input values for decode
     public String input;
+    public int inputPC;
     
     private final Alu alu;
     private final CompareUnit compareUnit;
@@ -20,7 +23,7 @@ public class Decode {
     {
         String[] args = input.split(" ");
 
-        Instruction.Opcode opcode = Instruction.parseOpcode(args[0]);
+        DecodedInstruction.Opcode opcode = DecodedInstruction.parseOpcode(args[0]);
         String[] operands = Arrays
                 .stream(args[1].split(","))
                 .map(String::trim)
@@ -36,18 +39,19 @@ public class Decode {
         int operand1, operand2;
         operand1 = inputValue1;
         
-        if (opcode.getDataMode() == Instruction.Opcode.DataMode.REGISTER_REGISTER) 
+        if (opcode.getDataMode() == DecodedInstruction.Opcode.DataMode.REGISTER_REGISTER) 
             operand2 = registers.getValue(inputValue2);
         else 
             operand2 = inputValue2;
         
-         Instruction outputAlu;
+         DecodedInstruction outputAlu;
          
-        Instruction outputCompare;
+        DecodedInstruction outputCompare;
 
-        if (opcode == Instruction.Opcode.STOR) {
-            outputAlu = new Instruction(
+        if (opcode == DecodedInstruction.Opcode.STOR) {
+            outputAlu = new DecodedInstruction(
                     opcode,
+                    inputPC,
                     operand1,
                     operand2,
                     writeBackAddress,
@@ -56,8 +60,9 @@ public class Decode {
                     0
             );
 
-            outputCompare = new Instruction(
-                    opcode, 
+            outputCompare = new DecodedInstruction(
+                    opcode,
+                    inputPC,
                     operand1, 
                     operand2, 
                     writeBackAddress, 
@@ -66,16 +71,23 @@ public class Decode {
                     0
             );
         } else {
-            outputAlu = new Instruction(
-                    opcode, operand1, operand2, writeBackAddress);
+            outputAlu = new DecodedInstruction(
+                    opcode, inputPC, operand1, operand2, writeBackAddress);
             
-            outputCompare = new Instruction(
-                    opcode, operand1, operand2, writeBackAddress);
+            outputCompare = new DecodedInstruction(
+                    opcode, inputPC, operand1, operand2, writeBackAddress);
         }
 
         compareUnit.input = outputAlu;
         alu.input = outputCompare;
     }
+    
+//    public void newDecode() {
+//        String[] tokens = input.split(" ");
+//        DecodedInstruction.Opcode opcode = DecodedInstruction.parseOpcode(args[0]);
+//        
+//        
+//    }
 
     @Override
     public String toString() {

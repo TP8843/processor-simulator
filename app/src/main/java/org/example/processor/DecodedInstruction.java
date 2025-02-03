@@ -1,7 +1,8 @@
 package org.example.processor;
 
-public final class Instruction {
+public final class DecodedInstruction {
     public final Opcode opcode;
+    public final int currentPC;
     
     // Stores the value of the two operands
     public final int aluInput1;
@@ -12,18 +13,20 @@ public final class Instruction {
     public final int memoryStoreValue;
     public final int compareUnitOutput;
 
-    Instruction(Opcode opcode, int aluInput1, int aluInput2, byte destination) {
-        this(opcode, aluInput1, aluInput2, destination, 0, 0, 0);
+    DecodedInstruction(Opcode opcode, int currentPC, int aluInput1, int aluInput2, byte destination) {
+        this(opcode, currentPC, aluInput1, aluInput2, destination, 0, 0, 0);
     }
     
-    Instruction(Opcode opcode, 
-                int aluInput1, 
-                int aluInput2, 
-                byte destination, 
-                int aluOutput, 
-                int memoryStoreValue, 
-                int compareUnitOutput) {
+    DecodedInstruction(Opcode opcode,
+                       int currentPC,
+                       int aluInput1,
+                       int aluInput2,
+                       byte destination,
+                       int aluOutput,
+                       int memoryStoreValue,
+                       int compareUnitOutput) {
         this.opcode = opcode;
+        this.currentPC = currentPC;
         
         this.aluInput1 = aluInput1;
         this.aluInput2 = aluInput2;
@@ -69,8 +72,11 @@ public final class Instruction {
         ;
 
         public enum DataMode {
+            REGISTER,
             REGISTER_REGISTER,
             REGISTER_IMMEDIATE,
+            REGISTER_VALUE, // Value can be register or immediate
+            DATA, // In format const(reg), where final value is const + reg. For load store operations
         }
 
         public DataMode getDataMode() {
@@ -133,8 +139,8 @@ public final class Instruction {
                 "      Current Output: %s\n" +
 
                 "      Store Register: %s\n" +
-                "      Store Value: %s\n" +
-                "      Branch Check: %s",
+                "      Memory Store Value: %s\n" +
+                "      Compare Unit Output: %s",
                 opcode, aluInput1, aluInput2, aluOutput, destination, memoryStoreValue, compareUnitOutput);
     }
 }

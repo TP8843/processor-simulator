@@ -11,12 +11,14 @@ public class Main {
 
         RegisterWriteBack registerWriteBack = new RegisterWriteBack(registers);
         MemoryAccessor memoryAccessor = new MemoryAccessor(memory, registerWriteBack);
-        ProgramCountUpdater programCountUpdater = new ProgramCountUpdater();
-        CompareUnit compareUnit = new CompareUnit(programCountUpdater);
-        Alu alu = new Alu(memoryAccessor, programCountUpdater);
+        BranchUnit branchUnit = new BranchUnit();
+        CompareUnit compareUnit = new CompareUnit(branchUnit);
+        Alu alu = new Alu(memoryAccessor, branchUnit);
 
         Decode decode = new Decode(registers, alu, compareUnit);
-        ProgramStore programStore = new ProgramStore(decode, programCountUpdater, path);
+        ProgramStore programStore = new ProgramStore(decode, path);
+        
+        branchUnit.setProgramStore(programStore);
 
         Simulator simulator = new Simulator(
                 programStore,
@@ -26,7 +28,7 @@ public class Main {
                 memoryAccessor,
                 memory,
                 registers,
-                programCountUpdater,
+                branchUnit,
                 registerWriteBack
         );
 

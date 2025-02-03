@@ -1,7 +1,7 @@
 package org.example.processor;
 
 public class RegisterWriteBack {
-    public Instruction input;
+    public DecodedInstruction input;
     private final Registers registers;
     
     public RegisterWriteBack(Registers registers) {
