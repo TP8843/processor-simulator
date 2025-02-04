@@ -72,4 +72,12 @@ public interface Instruction {
     static public byte decodeRd(int instruction) {
         return (byte) ((instruction >> 7) & 0b11111);
     }
+
+    static public int decodeFunct3(int instruction) {
+        return (instruction >> 12) & 0b111;
+    }
+
+    static public int decodeFunct7(int instruction) {
+        return (instruction >> 25) & 0b1111111;
+    }
 }
