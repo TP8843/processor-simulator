@@ -12,22 +12,44 @@ public class Memory {
     public int getWord(int pos) {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
         
-        return memory[pos / 4];
+        return memory[pos / wordLength];
     }
     
-    public int getHalfWord(int pos) {
+    public int getHalfWord(int pos, boolean unsigned) {
         if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
         
-        return (memory[pos / 4] >> ((pos % 4) * 8) & 0b1111111111111111);
+        int value = (memory[pos / wordLength] >> ((pos % wordLength) * 8) & 0b1111111111111111);
+        
+        if (unsigned) {
+            return value;
+        } else {
+            return (value << 16) >> 16;
+        }
     }
 
-    public int getByte(int pos) {
-        return (memory[pos / 4] >> ((pos % 4) * 8) & 0b11111111);
+    public int getByte(int pos, boolean unsigned) {
+        int value = (memory[pos / wordLength] >> ((pos % wordLength) * 8) & 0b11111111);
+        
+        if (unsigned) {
+            return value;
+        } else {
+            return (value << 16) >> 16;
+        }
     }
     
-    public void storeWord(int pos, int word) {
+    public void storeWord(int pos, int input) {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
         
-        memory[pos / 4] = word;
+        memory[pos / wordLength] = input;
+    }
+
+    public void storeHalfWord(int pos, int input) {
+        if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
+
+        memory[pos / wordLength] = memory[pos / wordLength] | ((input & 0xFF) << (((pos % wordLength) / 2) * 16));
+    }
+
+    public void storeByte(int pos, int input) {
+        memory[pos / wordLength] = memory[pos / wordLength] | ((input & 0xF) << ((pos % wordLength) * 8));
     }
 }
