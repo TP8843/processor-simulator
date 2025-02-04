@@ -67,10 +67,19 @@ public class BInstruction implements Instruction {
         return PC;
     }
 
-    static public int decodeImmediate(int instruction){
+    static private int decodeImmediate(int instruction){
         return (((instruction >> 7) & 0b1) << 11) |
                 (((instruction >> 8) & 0b1111) << 1) |
                 (((instruction >> 25) & 0b111111) << 5) |
                 ((instruction >> 31) << 12);
+    }
+    
+    static public BInstruction decode(int instruction, int PC){
+        Instruction.Opcode opcode = Instruction.Opcode.getOpcode(instruction);
+        int rs1 = Instruction.decodeRs1(instruction);
+        int rs2 = Instruction.decodeRs2(instruction);
+        int imm = decodeImmediate(instruction);
+        
+        return new BInstruction(opcode, PC, rs1, rs2, imm);
     }
 }

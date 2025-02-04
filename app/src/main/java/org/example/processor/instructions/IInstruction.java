@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class IInstruction implements Instruction {
     public enum Type {
         ADDI,
@@ -75,7 +77,7 @@ public class IInstruction implements Instruction {
     
     private final int PC;
 
-    /// Data from first source register for instruction
+    /// First source register for instruction
     public final int rs1;
     
     /// Immediate value for instruction
@@ -115,7 +117,16 @@ public class IInstruction implements Instruction {
         return PC;
     }
     
-    public static int decodeImmediate(int instruction) {
+    static private int decodeImmediate(int instruction) {
         return (instruction >> 20);
+    }
+    
+    static public IInstruction decode(int instruction, int PC, Registers registers) {
+        Opcode opcode = Opcode.getOpcode(instruction);
+        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
+        int imm = decodeImmediate(instruction);
+        byte rd = Instruction.decodeRd(instruction);
+        
+        return new IInstruction(opcode, PC, rs1, imm, rd);
     }
 }

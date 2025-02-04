@@ -1,11 +1,24 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class UInstruction implements Instruction{
+    public enum Type {
+        LOAD_UPPER_IMMEDIATE,
+        ADD_UPPER_IMMEDIATE_TO_PC;
+        
+        static public Type decodeType(int instruction) {
+            return switch (Opcode.getOpcode(instruction)) {
+                case LOAD_UPPER_IMMEDIATE -> LOAD_UPPER_IMMEDIATE;
+                case ADD_UPPER_IMMEDIATE_TO_PC -> ADD_UPPER_IMMEDIATE_TO_PC;
+                default -> throw new IllegalArgumentException("Unknown opcode " + instruction);
+            };
+        }
+    }
+    
     private final Opcode opcode;
 
     private final int PC;
-
-    // TODO: Add funct
 
     /// Immediate value for instruction
     public final int imm;
@@ -42,7 +55,14 @@ public class UInstruction implements Instruction{
         return PC;
     }
 
-    static public int decodeImmediate(int instruction){
+    static private int decodeImmediate(int instruction){
         return ((instruction >> 12) << 12);
+    }
+    
+    static public UInstruction decode(int instruction, int PC) {
+        Opcode opcode = Opcode.getOpcode(instruction);
+        int imm = decodeImmediate(instruction);
+        byte rd = Instruction.decodeRd(instruction);
+        return new UInstruction(opcode, PC, imm, rd);
     }
 }

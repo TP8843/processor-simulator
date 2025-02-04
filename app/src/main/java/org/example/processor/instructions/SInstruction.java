@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class SInstruction implements Instruction{
     public enum Type {
         STORE_BYTE,
@@ -60,8 +62,17 @@ public class SInstruction implements Instruction{
         return PC;
     }
     
-    static public int decodeImmediate(int instruction){
+    static private int decodeImmediate(int instruction){
         return ((instruction >> 7) & 0b11111) |
                 (instruction >> 25);
+    }
+    
+    static public SInstruction decode(int instruction, int PC, Registers registers){
+        Opcode opcode = Opcode.getOpcode(instruction);
+        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
+        int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
+        int imm = decodeImmediate(instruction);
+        
+        return new SInstruction(opcode, PC, rs1, rs2, imm);
     }
 }

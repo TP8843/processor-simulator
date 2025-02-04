@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class JInstruction implements Instruction {
     public enum Type {
         JUMP_AND_LINK;
@@ -48,10 +50,17 @@ public class JInstruction implements Instruction {
         return PC;
     }
 
-    static public int decodeImmediate(int instruction){
+    static private int decodeImmediate(int instruction){
         return (((instruction >> 12) & 0b11111111) << 12) |
                 (((instruction >> 20) & 0b1) << 11) |
                 (((instruction >> 21) & 0b1111111111) << 1) |
                 ((instruction >> 31) << 20);
+    }
+    
+    static public JInstruction decode(int instruction, int PC){
+        Opcode opcode = Opcode.getOpcode(instruction);
+        int imm = decodeImmediate(instruction);
+        byte rd = Instruction.decodeRd(instruction);
+        return new JInstruction(opcode, PC, imm, rd, imm);
     }
 }
