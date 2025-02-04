@@ -1,6 +1,6 @@
 package org.example.processor.instructions;
 
-public class ITypeInstruction implements Instruction {
+public class IInstruction implements Instruction {
     public enum Type {
         ADDI,
         XORI,
@@ -87,7 +87,7 @@ public class ITypeInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
-    public ITypeInstruction(Opcode opcode, int PC, int rs1, int imm, byte rd) {
+    public IInstruction(Opcode opcode, int PC, int rs1, int imm, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
@@ -96,7 +96,7 @@ public class ITypeInstruction implements Instruction {
         this.aluResult = 0;
     }
 
-    public ITypeInstruction(Opcode opcode, int PC, int rs1, int imm, byte rd, int aluResult) {
+    public IInstruction(Opcode opcode, int PC, int rs1, int imm, byte rd, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;

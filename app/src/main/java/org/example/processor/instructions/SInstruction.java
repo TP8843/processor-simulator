@@ -1,6 +1,6 @@
 package org.example.processor.instructions;
 
-public class STypeInstruction implements Instruction{
+public class SInstruction implements Instruction{
     public enum Type {
         STORE_BYTE,
         STORE_HALF_WORD,
@@ -32,7 +32,7 @@ public class STypeInstruction implements Instruction{
     /// Result of processing 
     public final int aluResult;
 
-    public STypeInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm) {
+    public SInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
@@ -41,7 +41,7 @@ public class STypeInstruction implements Instruction{
         this.aluResult = 0;
     }
 
-    public STypeInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
+    public SInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;

@@ -1,11 +1,17 @@
 package org.example.processor.instructions;
 
-public class JTypeInstruction implements Instruction {
+public class JInstruction implements Instruction {
+    public enum Type {
+        JUMP_AND_LINK;
+        
+        static public Type decodeType(int instruction) {
+            return JUMP_AND_LINK;
+        }
+    }
+    
     private final Opcode opcode;
 
     private final int PC;
-
-    // TODO: Add funct
 
     /// Immediate value for instruction
     public final int imm;
@@ -16,7 +22,7 @@ public class JTypeInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
-    public JTypeInstruction(Opcode opcode, int PC, int imm, byte rd) {
+    public JInstruction(Opcode opcode, int PC, int imm, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
         this.imm = imm;
@@ -24,7 +30,7 @@ public class JTypeInstruction implements Instruction {
         this.aluResult = 0;
     }
 
-    public JTypeInstruction(Opcode opcode, int PC, int imm, byte rd, int aluResult) {
+    public JInstruction(Opcode opcode, int PC, int imm, byte rd, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.imm = imm;

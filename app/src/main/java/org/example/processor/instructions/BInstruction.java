@@ -1,6 +1,6 @@
 package org.example.processor.instructions;
 
-public class BTypeInstruction implements Instruction {
+public class BInstruction implements Instruction {
     public enum Type {
         BRANCH_EQ,
         BRANCH_NE,
@@ -39,7 +39,7 @@ public class BTypeInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
-    public BTypeInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm) {
+    public BInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
@@ -48,7 +48,7 @@ public class BTypeInstruction implements Instruction {
         this.aluResult = 0;
     }
 
-    public BTypeInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
+    public BInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;

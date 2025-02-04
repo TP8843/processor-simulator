@@ -1,6 +1,6 @@
 package org.example.processor.instructions;
 
-public class UTypeInstruction implements Instruction{
+public class UInstruction implements Instruction{
     private final Opcode opcode;
 
     private final int PC;
@@ -16,7 +16,7 @@ public class UTypeInstruction implements Instruction{
     /// Result of processing 
     public final int aluResult;
 
-    public UTypeInstruction(Opcode opcode, int PC, int imm, byte rd) {
+    public UInstruction(Opcode opcode, int PC, int imm, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
         this.imm = imm;
@@ -24,7 +24,7 @@ public class UTypeInstruction implements Instruction{
         this.aluResult = 0;
     }
 
-    public UTypeInstruction(Opcode opcode, int PC, int imm, byte rd, int aluResult) {
+    public UInstruction(Opcode opcode, int PC, int imm, byte rd, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.imm = imm;

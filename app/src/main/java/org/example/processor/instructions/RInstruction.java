@@ -1,6 +1,6 @@
 package org.example.processor.instructions;
 
-public class RTypeInstruction implements Instruction {
+public class RInstruction implements Instruction {
     public enum Type {
         ADD,
         SUB,
@@ -53,7 +53,7 @@ public class RTypeInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
     
-    public RTypeInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd) {
+    public RInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
@@ -62,7 +62,7 @@ public class RTypeInstruction implements Instruction {
         this.aluResult = 0;
     }
 
-    public RTypeInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd, int aluResult) {
+    public RInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd, int aluResult) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
