@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class RInstruction implements Instruction {
     public enum Type {
         ADD,
@@ -79,5 +81,14 @@ public class RInstruction implements Instruction {
     @Override
     public int getPC() {
         return PC;
+    }
+    
+    static public RInstruction decode(int instruction, int PC, Registers registers) {
+        Opcode opcode = Opcode.getOpcode(instruction);
+        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
+        int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
+        byte rd = Instruction.decodeRd(instruction);
+        
+        return new RInstruction(opcode, PC, rs1, rs2, rd);
     }
 }
