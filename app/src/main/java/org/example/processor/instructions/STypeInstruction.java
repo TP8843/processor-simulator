@@ -1,11 +1,24 @@
 package org.example.processor.instructions;
 
 public class STypeInstruction implements Instruction{
+    public enum Type {
+        STORE_BYTE,
+        STORE_HALF_WORD,
+        STORE_WORD;
+        
+        static public Type decodeType(int instruction) {
+            return switch (Instruction.decodeFunct3(instruction)) {
+                case 0x0 -> STORE_BYTE;
+                case 0x1 -> STORE_HALF_WORD;
+                case 0x2 -> STORE_WORD;
+                default -> throw new IllegalArgumentException("Invalid funct for S type instruction: " + instruction);
+            };
+        }
+    }
+    
     private final Opcode opcode;
     
     private final int PC;
-
-    // TODO: Add funct
 
     /// Data from first source register for instruction
     public final int rs1;

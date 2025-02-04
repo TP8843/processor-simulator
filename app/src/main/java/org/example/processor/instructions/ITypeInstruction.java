@@ -16,12 +16,28 @@ public class ITypeInstruction implements Instruction {
         LOAD_HALF_WORD,
         LOAD_HALF_WORD_UNSIGNED,
         LOAD_WORD,
-        LOAD_WORD_UNSIGNED;
+        LOAD_WORD_UNSIGNED,
+        
+        JUMP_AND_LINK_REGISTER,
+        ENVIRONMENT_CALL,
+        ENVIRONMENT_BREAK;
         
         static public Type decodeType(int instruction) {
-            if (Instruction.Opcode.getOpcode(instruction) == Opcode.LOAD)
-                return decodeLoad(instruction);
-            else return decodeArithmetic(instruction);
+            return switch (Instruction.Opcode.getOpcode(instruction)) {
+                case LOAD -> decodeLoad(instruction);
+                case ARITHMETIC_LOGICAL_IMMEDIATE -> decodeArithmetic(instruction);
+                case ENVIRONMENT -> decodeEnvironment(instruction);
+                case JUMP_AND_LINK_REGISTER -> JUMP_AND_LINK_REGISTER;
+                default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
+            };
+        }
+        
+        static private Type decodeEnvironment(int instruction) {
+            return switch (Instruction.decodeFunct7(instruction)) {
+                case 0x0 -> ENVIRONMENT_CALL;
+                case 0x1 -> ENVIRONMENT_BREAK;
+                default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
+            };
         }
 
         static private Type decodeLoad(int instruction) {

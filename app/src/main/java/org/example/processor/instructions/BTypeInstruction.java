@@ -1,11 +1,31 @@
 package org.example.processor.instructions;
 
 public class BTypeInstruction implements Instruction {
+    public enum Type {
+        BRANCH_EQ,
+        BRANCH_NE,
+        BRANCH_LT,
+        BRANCH_GTE,
+        BRANCH_LT_UNSIGNED,
+        BRANCH_GTE_UNSIGNED;
+        
+
+        static public Type decodeType(int instruction) {
+            return switch (Instruction.decodeFunct3(instruction)) {
+                case 0x0 -> BRANCH_EQ;
+                case 0x1 -> BRANCH_NE;
+                case 0x4 -> BRANCH_LT;
+                case 0x5 -> BRANCH_GTE;
+                case 0x6 -> BRANCH_LT_UNSIGNED;
+                case 0x7 -> BRANCH_GTE_UNSIGNED;
+                default -> throw new IllegalArgumentException("Invalid funct for B type instruction: " + instruction);
+            };
+        }
+    }
+    
     private final Instruction.Opcode opcode;
 
     private final int PC;
-
-    // TODO: Add funct
 
     /// Data from first source register for instruction
     public final int rs1;
