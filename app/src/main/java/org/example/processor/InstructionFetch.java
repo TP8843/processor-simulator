@@ -18,7 +18,7 @@ public class InstructionFetch {
     }
 
     public void updatePC(int PC) {
-        this.PC = PC;
+        this.PC = PC - 4;
     }
 
     public int getPC() {
