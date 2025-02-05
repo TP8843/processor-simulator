@@ -3,6 +3,7 @@ package org.example.processor;
 public class InstructionFetch {
     private final Memory memory;
     private int PC;
+    private boolean halted = false;
 
     public int output;
 
@@ -12,6 +13,10 @@ public class InstructionFetch {
     }
 
     public void process() {
+        if (PC == 0) {
+            halted = true;
+        }
+
         output = memory.getWord(PC);
 
         PC += 4;
@@ -23,5 +28,9 @@ public class InstructionFetch {
 
     public int getPC() {
         return PC;
+    }
+
+    public boolean isHalted() {
+        return halted;
     }
 }

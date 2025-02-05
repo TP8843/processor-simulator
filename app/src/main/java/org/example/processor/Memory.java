@@ -58,14 +58,14 @@ public class Memory {
     }
 
     /// Load program into memory, starting at 0
-    public void loadProgram(String filename) {
+    public void loadProgram(String filename, int startPosition) {
         try(Scanner scanner = new Scanner(new File(filename))) {
             int lineCount = 0;
 
             while(scanner.hasNextInt()) {
                 int instruction = scanner.nextInt();
 
-                memory[lineCount] = instruction;
+                memory[lineCount + startPosition] = instruction;
                 lineCount += 1;
             }
         } catch (FileNotFoundException e) {

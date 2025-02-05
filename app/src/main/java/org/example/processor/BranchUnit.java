@@ -7,26 +7,30 @@ import org.example.processor.instructions.JInstruction;
 public class BranchUnit {
     private final InstructionFetch instructionFetch;
 
-    public Instruction input;
+    public Instruction compareInput;
+    public Instruction aluInput;
 
     public BranchUnit(InstructionFetch instructionFetch) {
         this.instructionFetch = instructionFetch;
     }
 
     public void updatePC() {
-        switch (input.getType()){
-            case B_TYPE -> updatePCBType((BInstruction) input);
-            case J_TYPE -> updatePCJType((JInstruction) input);
+        switch (compareInput.getType()){
+            case B_TYPE -> updatePCBType(
+                    (BInstruction) compareInput,
+                    (BInstruction) aluInput);
+
+            case J_TYPE -> updatePCJType((JInstruction) aluInput);
         }
     }
 
-    private void updatePCBType(BInstruction instruction) {
-        if (instruction.compareResult) {
-            instructionFetch.updatePC(instruction.aluResult);
+    private void updatePCBType(BInstruction compare, BInstruction alu ) {
+        if (compare.compareResult) {
+            instructionFetch.updatePC(alu.aluResult);
         }
     }
 
-    private void updatePCJType(JInstruction instruction) {
-        instructionFetch.updatePC(instruction.aluResult);
+    private void updatePCJType(JInstruction alu ) {
+        instructionFetch.updatePC(alu.aluResult);
     }
 }
