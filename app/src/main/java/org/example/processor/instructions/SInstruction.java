@@ -19,6 +19,8 @@ public class SInstruction implements Instruction{
     }
     
     private final Opcode opcode;
+
+    public final Type type;
     
     private final int PC;
 
@@ -34,8 +36,9 @@ public class SInstruction implements Instruction{
     /// Result of processing 
     public final int aluResult;
 
-    public SInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm) {
+    public SInstruction(Opcode opcode, Type type, int PC, int rs1, int rs2, int imm) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
@@ -43,13 +46,18 @@ public class SInstruction implements Instruction{
         this.aluResult = 0;
     }
 
-    public SInstruction(Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
+    public SInstruction(Opcode opcode, Type type, int PC, int rs1, int rs2, int imm, int aluResult) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
         this.imm = imm;
         this.aluResult = aluResult;
+    }
+
+    public SInstruction addAluResult(int aluResult) {
+        return new SInstruction(opcode, type, PC, rs1, rs2, imm, aluResult);
     }
 
     @Override
@@ -69,10 +77,11 @@ public class SInstruction implements Instruction{
     
     static public SInstruction decode(int instruction, int PC, Registers registers){
         Opcode opcode = Opcode.getOpcode(instruction);
+        Type type = Type.decodeType(instruction);
         int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
         int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
         int imm = decodeImmediate(instruction);
         
-        return new SInstruction(opcode, PC, rs1, rs2, imm);
+        return new SInstruction(opcode, type, PC, rs1, rs2, imm);
     }
 }

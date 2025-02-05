@@ -7,7 +7,7 @@ public class Memory {
     /// Number of bytes in word of memory
     public final int wordLength = 4;
     
-    private int[] memory = new int[size];
+    private final int[] memory = new int[size];
     
     public int getWord(int pos) {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");

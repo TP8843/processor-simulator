@@ -42,6 +42,8 @@ public class RInstruction implements Instruction {
     private final Opcode opcode;
     
     private final int PC;
+
+    public final Type type;
     
     /// Data from first source register for instruction
     public final int rs1;
@@ -55,8 +57,9 @@ public class RInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
     
-    public RInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd) {
+    public RInstruction(Opcode opcode, Type type, int PC, int rs1, int rs2, byte rd) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
@@ -64,13 +67,18 @@ public class RInstruction implements Instruction {
         this.aluResult = 0;
     }
 
-    public RInstruction(Opcode opcode, int PC, int rs1, int rs2, byte rd, int aluResult) {
+    public RInstruction(Opcode opcode, Type type, int PC, int rs1, int rs2, byte rd, int aluResult) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
         this.rd = rd;
         this.aluResult = aluResult;
+    }
+
+    public RInstruction addAluResult(int aluResult) {
+        return new RInstruction(opcode, type, PC, rs1, rs2, rd, aluResult);
     }
 
     @Override
@@ -85,10 +93,11 @@ public class RInstruction implements Instruction {
     
     static public RInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
+        Type type = Type.decodeType(instruction);
         int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
         int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
         byte rd = Instruction.decodeRd(instruction);
         
-        return new RInstruction(opcode, PC, rs1, rs2, rd);
+        return new RInstruction(opcode, type, PC, rs1, rs2, rd);
     }
 }

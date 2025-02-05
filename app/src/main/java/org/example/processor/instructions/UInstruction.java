@@ -18,6 +18,8 @@ public class UInstruction implements Instruction{
     
     private final Opcode opcode;
 
+    public final Type type;
+
     private final int PC;
 
     /// Immediate value for instruction
@@ -29,20 +31,26 @@ public class UInstruction implements Instruction{
     /// Result of processing 
     public final int aluResult;
 
-    public UInstruction(Opcode opcode, int PC, int imm, byte rd) {
+    public UInstruction(Opcode opcode, Type type, int PC, int imm, byte rd) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.imm = imm;
         this.rd = rd;
         this.aluResult = 0;
     }
 
-    public UInstruction(Opcode opcode, int PC, int imm, byte rd, int aluResult) {
+    public UInstruction(Opcode opcode, Type type, int PC, int imm, byte rd, int aluResult) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.imm = imm;
         this.rd = rd;
         this.aluResult = aluResult;
+    }
+
+    public UInstruction addAluResult(int aluResult) {
+        return new UInstruction(opcode, type, PC, imm, rd, aluResult);
     }
 
     @Override
@@ -61,8 +69,10 @@ public class UInstruction implements Instruction{
     
     static public UInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
+        Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
-        return new UInstruction(opcode, PC, imm, rd);
+
+        return new UInstruction(opcode, type, PC, imm, rd);
     }
 }

@@ -25,6 +25,8 @@ public class BInstruction implements Instruction {
     
     private final Instruction.Opcode opcode;
 
+    public final Type type;
+
     private final int PC;
 
     /// Data from first source register for instruction
@@ -39,22 +41,43 @@ public class BInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
-    public BInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm) {
+    public final int compareResult;
+
+    public BInstruction(Instruction.Opcode opcode, Type type, int PC, int rs1, int rs2, int imm) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
         this.imm = imm;
         this.aluResult = 0;
+        this.compareResult = 0;
     }
 
-    public BInstruction(Instruction.Opcode opcode, int PC, int rs1, int rs2, int imm, int aluResult) {
+    public BInstruction(Instruction.Opcode opcode,
+                        Type type,
+                        int PC,
+                        int rs1,
+                        int rs2,
+                        int imm,
+                        int aluResult,
+                        int compareResult) {
         this.opcode = opcode;
+        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
         this.imm = imm;
         this.aluResult = aluResult;
+        this.compareResult = compareResult;
+    }
+
+    public BInstruction addAluResult(int aluResult) {
+        return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
+    }
+
+    public BInstruction addCompareResult(int compareResult) {
+        return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
     }
 
     @Override
@@ -76,10 +99,11 @@ public class BInstruction implements Instruction {
     
     static public BInstruction decode(int instruction, int PC){
         Instruction.Opcode opcode = Instruction.Opcode.getOpcode(instruction);
+        Type type = Type.decodeType(instruction);
         int rs1 = Instruction.decodeRs1(instruction);
         int rs2 = Instruction.decodeRs2(instruction);
         int imm = decodeImmediate(instruction);
         
-        return new BInstruction(opcode, PC, rs1, rs2, imm);
+        return new BInstruction(opcode, type, PC, rs1, rs2, imm);
     }
 }

@@ -1,7 +1,7 @@
 package org.example.processor;
 
 public class Registers {
-    private int[] registers;
+    private final int[] registers;
     
     public Registers() {
         registers = new int[31];
