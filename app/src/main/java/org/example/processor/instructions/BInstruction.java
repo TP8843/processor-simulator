@@ -41,7 +41,7 @@ public class BInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
-    public final int compareResult;
+    public final boolean compareResult;
 
     public BInstruction(Instruction.Opcode opcode, Type type, int PC, int rs1, int rs2, int imm) {
         this.opcode = opcode;
@@ -51,7 +51,7 @@ public class BInstruction implements Instruction {
         this.rs2 = rs2;
         this.imm = imm;
         this.aluResult = 0;
-        this.compareResult = 0;
+        this.compareResult = false;
     }
 
     public BInstruction(Instruction.Opcode opcode,
@@ -61,7 +61,7 @@ public class BInstruction implements Instruction {
                         int rs2,
                         int imm,
                         int aluResult,
-                        int compareResult) {
+                        boolean compareResult) {
         this.opcode = opcode;
         this.type = type;
         this.PC = PC;
@@ -76,7 +76,7 @@ public class BInstruction implements Instruction {
         return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
     }
 
-    public BInstruction addCompareResult(int compareResult) {
+    public BInstruction addCompareResult(boolean compareResult) {
         return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
     }
 
