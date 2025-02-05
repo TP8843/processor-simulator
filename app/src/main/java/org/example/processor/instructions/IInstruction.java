@@ -91,6 +91,9 @@ public class IInstruction implements Instruction {
     /// Result of processing 
     public final int aluResult;
 
+    /// Result of a load from memory
+    public final int memoryResult;
+
     public IInstruction(Opcode opcode, Type type, int PC, int rs1, int imm, byte rd) {
         this.opcode = opcode;
         this.type = type;
@@ -99,9 +102,10 @@ public class IInstruction implements Instruction {
         this.imm = imm;
         this.rd = rd;
         this.aluResult = 0;
+        this.memoryResult = 0;
     }
 
-    public IInstruction(Opcode opcode, Type type, int PC, int rs1, int imm, byte rd, int aluResult) {
+    public IInstruction(Opcode opcode, Type type, int PC, int rs1, int imm, byte rd, int aluResult, int memoryResult) {
         this.opcode = opcode;
         this.type = type;
         this.PC = PC;
@@ -109,10 +113,15 @@ public class IInstruction implements Instruction {
         this.imm = imm;
         this.rd = rd;
         this.aluResult = aluResult;
+        this.memoryResult = memoryResult;
     }
 
     public IInstruction addAluResult(int aluResult) {
-        return new IInstruction(opcode, type, PC, rs1, imm, rd, aluResult);
+        return new IInstruction(opcode, type, PC, rs1, imm, rd, aluResult, memoryResult);
+    }
+
+    public IInstruction addMemoryResult(int memoryResult) {
+        return new IInstruction(opcode, type, PC, rs1, imm, rd, aluResult, memoryResult);
     }
 
     @Override
