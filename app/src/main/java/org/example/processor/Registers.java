@@ -17,7 +17,7 @@ public class Registers {
     }
     
     /// Store the value inside the corresponding register
-    public void setRegister(int index, int value) {
+    public void setRegister(byte index, int value) {
         // Do not do anything if zero register or outside range
         if (index <= 0 || index > 31) return;
         
