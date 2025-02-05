@@ -1,5 +1,9 @@
 package org.example.processor;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class Memory {
     /// Number of words in memory
     public final int size = 2048;
@@ -51,5 +55,21 @@ public class Memory {
 
     public void storeByte(int pos, int input) {
         memory[pos / wordLength] = memory[pos / wordLength] | ((input & 0xF) << ((pos % wordLength) * 8));
+    }
+
+    /// Load program into memory, starting at 0
+    public void loadProgram(String filename) {
+        try(Scanner scanner = new Scanner(new File(filename))) {
+            int lineCount = 0;
+
+            while(scanner.hasNextInt()) {
+                int instruction = scanner.nextInt();
+
+                memory[lineCount] = instruction;
+                lineCount += 1;
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
