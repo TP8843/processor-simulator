@@ -1,21 +1,23 @@
 package org.example.processor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Scanner;
 
 public class Memory {
     /// Number of words in memory
-    public final int size = 2048;
+    public final int size = 6 * 1024;
     
     /// Number of bytes in word of memory
     public final int wordLength = 4;
     
-    private final int[] memory = new int[size];
+    private int[] memory = new int[size /wordLength];
     
     public int getWord(int pos) {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
         
+        System.out.println(String.format("Memory access to array position %s, value %s", pos / wordLength, memory[pos / wordLength]));
         return memory[pos / wordLength];
     }
     
@@ -45,30 +47,46 @@ public class Memory {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
         
         memory[pos / wordLength] = input;
+        
+        System.out.println("Stored word " + input + " in memory at " + pos);
     }
 
     public void storeHalfWord(int pos, int input) {
         if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
 
         memory[pos / wordLength] = memory[pos / wordLength] | ((input & 0xFF) << (((pos % wordLength) / 2) * 16));
+        
+        System.out.println("Stored half word " + input + " in memory at " + pos);
     }
 
     public void storeByte(int pos, int input) {
         memory[pos / wordLength] = memory[pos / wordLength] | ((input & 0xF) << ((pos % wordLength) * 8));
+        
+        System.out.println("Stored byte " + input + " in memory at " + pos);
     }
 
     /// Load program into memory, starting at 0
     public void loadProgram(String filename, int startPosition) {
-        try(Scanner scanner = new Scanner(new File(filename))) {
+        System.out.println("Loading program " + filename + " at " + startPosition);
+        try(DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)))) {
             int lineCount = 0;
 
-            while(scanner.hasNextInt()) {
-                int instruction = scanner.nextInt();
+            ByteBuffer buffer = ByteBuffer.wrap(new byte[4]).order(ByteOrder.LITTLE_ENDIAN);
+            
+            while(inputStream.available() >= 4) {
+                inputStream.read(buffer.array());
+                buffer.rewind();
+                memory[lineCount + (startPosition / wordLength)] = buffer.getInt();
+                
+                System.out.println(String.format("Loaded instruction %32s into %s", 
+                        String.format("%32s", Integer.toBinaryString(memory[lineCount + startPosition])).replace(' ', '0'),
+                        lineCount + startPosition));
 
-                memory[lineCount + startPosition] = instruction;
                 lineCount += 1;
             }
         } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

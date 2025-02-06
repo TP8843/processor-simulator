@@ -13,9 +13,11 @@ public class InstructionFetch {
     }
 
     public void process() {
-        if (PC == 0) {
+        if (PC == 512) {
             halted = true;
         }
+        
+        System.out.println("Reading instruction with PC: " + PC);
 
         output = memory.getWord(PC);
 

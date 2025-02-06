@@ -37,7 +37,7 @@ public class Simulator {
         this.writeBackUnit = writeBackUnit;
     }
 
-    public void runSimulator(String fileName) {
+    public void runSimulator() {
 //        Scanner scanner = new Scanner(System.in);
 
         while (!instructionFetch.isHalted()) {
@@ -45,11 +45,14 @@ public class Simulator {
                 case 0 -> {
                     instructionFetch.process();
                     decode.input = instructionFetch.output;
+                    decode.currentPC = instructionFetch.getPC();
                 }
                 case 1 -> {
                     decode.decode();
                     alu.input = decode.output;
                     compareUnit.input = decode.output;
+
+                    System.out.println("Decoded instruction: " + decode.output);
                 }
                 case 2 -> {
                     alu.execute();
@@ -67,13 +70,16 @@ public class Simulator {
                     writeBackUnit.writeBack();
                 }
             }
+            stage = (stage + 1) % 5;
         }
+        
+        
     }
 
     static public Simulator createSimulator(String fileName) {
         Memory memory = new Memory();
         Registers registers = new Registers();
-        InstructionFetch instructionFetch = new InstructionFetch(memory, 100);
+        InstructionFetch instructionFetch = new InstructionFetch(memory, 0);
         Decode decode = new Decode(registers);
         Alu alu = new Alu();
         CompareUnit compareUnit = new CompareUnit();
@@ -81,7 +87,7 @@ public class Simulator {
         MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory);
         WriteBackUnit writeBackUnit = new WriteBackUnit(registers);
 
-        memory.loadProgram(fileName, 100);
+        memory.loadProgram(fileName, 0);
 
         return new Simulator(
                 memory,

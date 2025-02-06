@@ -147,4 +147,18 @@ public class IInstruction implements Instruction {
         
         return new IInstruction(opcode, type, PC, rs1, imm, rd);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                B Type Instruction:
+                    Opcode: %s
+                    Type: %s
+                    PC: %s
+                    RS1: %s
+                    IMM: %s
+                    RD: %s
+                    ALU Result:  %s""",
+                opcode, type, PC, rs1, imm, rd, aluResult);
+    }
 }

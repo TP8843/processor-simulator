@@ -75,4 +75,16 @@ public class UInstruction implements Instruction{
 
         return new UInstruction(opcode, type, PC, imm, rd);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                B Type Instruction:
+                    Opcode: %s
+                    Type: %s
+                    PC: %s
+                    IMM: %s
+                    ALU Result:  %s""",
+                opcode, type, PC, imm, aluResult);
+    }
 }

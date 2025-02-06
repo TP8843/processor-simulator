@@ -84,4 +84,17 @@ public class SInstruction implements Instruction{
         
         return new SInstruction(opcode, type, PC, rs1, rs2, imm);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                B Type Instruction:
+                    Opcode: %s
+                    Type: %s
+                    RS1: %s
+                    RS2: %s
+                    IMM: %s
+                    ALU Result:  %s""",
+                opcode, type, rs1, rs2, imm, aluResult);
+    }
 }
