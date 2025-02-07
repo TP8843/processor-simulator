@@ -1,6 +1,7 @@
 package org.example.processor;
 
 import org.example.processor.instructions.BInstruction;
+import org.example.processor.instructions.IInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.JInstruction;
 
@@ -21,6 +22,7 @@ public class BranchUnit {
                     (BInstruction) aluInput);
 
             case J_TYPE -> updatePCJType((JInstruction) aluInput);
+            case I_TYPE -> updatePCIType((IInstruction) aluInput);
         }
     }
 
@@ -32,5 +34,10 @@ public class BranchUnit {
 
     private void updatePCJType(JInstruction alu ) {
         instructionFetch.updatePC(alu.aluResult);
+    }
+
+    private void updatePCIType(IInstruction alu ) {
+        if (alu.type == IInstruction.Type.JUMP_AND_LINK_REGISTER)
+            instructionFetch.updatePC(alu.aluResult);
     }
 }

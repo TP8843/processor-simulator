@@ -16,8 +16,6 @@ public class Memory {
     
     public int getWord(int pos) {
         if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
-        
-        System.out.println(String.format("Memory access to array position %s, value %s", pos / wordLength, memory[pos / wordLength]));
         return memory[pos / wordLength];
     }
     
@@ -77,10 +75,14 @@ public class Memory {
                 inputStream.read(buffer.array());
                 buffer.rewind();
                 memory[lineCount + (startPosition / wordLength)] = buffer.getInt();
-                
-                System.out.println(String.format("Loaded instruction %32s into %s", 
-                        String.format("%32s", Integer.toBinaryString(memory[lineCount + startPosition])).replace(' ', '0'),
-                        lineCount + startPosition));
+
+                if (lineCount * 4 == 120){
+                    System.out.println(String.format("Loaded instruction %32s into %s",
+                            String.format("%32s", Integer.toBinaryString(memory[lineCount + startPosition])).replace(' ', '0'),
+                            lineCount * 4 + startPosition));
+
+                    System.out.println("After store " + Integer.toBinaryString(getWord(120)).replace(' ', '0'));
+                }
 
                 lineCount += 1;
             }

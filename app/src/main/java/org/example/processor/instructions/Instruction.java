@@ -34,7 +34,10 @@ public interface Instruction {
                 case 0b0110111 -> LOAD_UPPER_IMMEDIATE;
                 case 0b0010111 -> ADD_UPPER_IMMEDIATE_TO_PC;
                 case 0b1110011 -> ENVIRONMENT;
-                default -> throw new IllegalArgumentException("Unknown opcode " + instruction);
+                default -> {
+                    System.out.println("invalid opcode " + Integer.toBinaryString(instruction));
+                    throw new IllegalArgumentException("Unknown opcode " + Integer.toBinaryString(instruction & 0b1111111));
+                }
             };
         }
         

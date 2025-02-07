@@ -17,15 +17,18 @@ public class InstructionFetch {
             halted = true;
         }
         
-        System.out.println("Reading instruction with PC: " + PC);
+//        System.out.println("Reading instruction with PC: " + PC);
 
         output = memory.getWord(PC);
+
+        if (PC == 120)
+            System.out.println("During fetch " + String.format("%32s", Integer.toBinaryString(output)).replace(' ', '0'));
 
         PC += 4;
     }
 
     public void updatePC(int PC) {
-        this.PC = PC - 4;
+        this.PC = PC;
     }
 
     public int getPC() {

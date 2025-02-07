@@ -54,7 +54,7 @@ public class Alu {
 
     static private JInstruction executeJType(JInstruction instruction) {
         int result = switch (instruction.type) {
-            case JUMP_AND_LINK -> instruction.getPC() + instruction.imm;
+            case JUMP_AND_LINK -> instruction.imm + instruction.getPC();
         };
 
         return instruction.addAluResult(result);
@@ -78,7 +78,7 @@ public class Alu {
     }
 
     static private SInstruction executeSType(SInstruction instruction) {
-        int result = instruction.getPC() + instruction.imm;
+        int result = instruction.rs1 + instruction.imm;
 
         return instruction.addAluResult(result);
     }

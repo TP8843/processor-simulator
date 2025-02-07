@@ -1,6 +1,10 @@
 package org.example;
 
 import org.example.processor.*;
+import org.example.processor.instructions.IInstruction;
+import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.SInstruction;
+import org.example.processor.instructions.UInstruction;
 
 import java.util.Scanner;
 
@@ -41,39 +45,49 @@ public class Simulator {
 //        Scanner scanner = new Scanner(System.in);
 
         while (!instructionFetch.isHalted()) {
-            switch (stage){
-                case 0 -> {
-                    instructionFetch.process();
-                    decode.input = instructionFetch.output;
-                    decode.currentPC = instructionFetch.getPC();
-                }
-                case 1 -> {
-                    decode.decode();
-                    alu.input = decode.output;
-                    compareUnit.input = decode.output;
+            runCycle();
+        }
+    }
 
-                    System.out.println("Decoded instruction: " + decode.output);
-                }
-                case 2 -> {
-                    alu.execute();
-                    compareUnit.execute();
-                    branchUnit.compareInput = compareUnit.output;
-                    branchUnit.aluInput = alu.output;
-                    memoryAccessUnit.input = alu.output;
-                }
-                case 3 -> {
-                    memoryAccessUnit.process();
-                    branchUnit.updatePC();
-                    writeBackUnit.input = memoryAccessUnit.output;
-                }
-                case 4 -> {
-                    writeBackUnit.writeBack();
+    private void runCycle() {
+        switch (stage){
+            case 0 -> {
+                instructionFetch.process();
+                decode.input = instructionFetch.output;
+                decode.currentPC = instructionFetch.getPC() - 4;
+                    System.out.println("Current PC: " + Integer.toHexString(decode.currentPC) + " " + String.format("%32s", Integer.toBinaryString(instructionFetch.output)).replace(' ', '0'));
+            }
+            case 1 -> {
+                decode.decode();
+                alu.input = decode.output;
+                compareUnit.input = decode.output;
+            }
+            case 2 -> {
+                alu.execute();
+                compareUnit.execute();
+                branchUnit.compareInput = compareUnit.output;
+                branchUnit.aluInput = alu.output;
+                memoryAccessUnit.input = alu.output;
+                if(alu.output.getType() == Instruction.Type.S_TYPE || alu.output.getType() == Instruction.Type.U_TYPE)
+                    System.out.println("Alu Output: " + alu.output);
+                if(alu.output.getType() == Instruction.Type.U_TYPE)
+                    System.out.println("Alu Output U Type: " + Integer.toBinaryString(((UInstruction)alu.output).aluResult));
+
+                // Program is attempting to send the main return back to the processor. Stop execution
+                if (alu.output.getType() == Instruction.Type.S_TYPE && ((SInstruction)alu.output).aluResult == 0x3000008) {
+                    return;
                 }
             }
-            stage = (stage + 1) % 5;
+            case 3 -> {
+                memoryAccessUnit.process();
+                branchUnit.updatePC();
+                writeBackUnit.input = memoryAccessUnit.output;
+            }
+            case 4 -> {
+                writeBackUnit.writeBack();
+            }
         }
-        
-        
+        stage = (stage + 1) % 5;
     }
 
     static public Simulator createSimulator(String fileName) {

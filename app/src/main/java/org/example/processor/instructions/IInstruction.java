@@ -151,7 +151,7 @@ public class IInstruction implements Instruction {
     @Override
     public String toString() {
         return String.format("""
-                B Type Instruction:
+                I Type Instruction:
                     Opcode: %s
                     Type: %s
                     PC: %s

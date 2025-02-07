@@ -59,7 +59,7 @@ public class JInstruction implements Instruction {
     }
 
     static public int decodeImmediate(int instruction){
-        return (((instruction >> 12) & 0b11111111) << 12) |
+        return (instruction & (0b11111111 << 12)) |
                 (((instruction >> 20) & 0b1) << 11) |
                 (((instruction >> 21) & 0b1111111111) << 1) |
                 ((instruction >> 31) << 20);
@@ -71,18 +71,19 @@ public class JInstruction implements Instruction {
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
 
-        return new JInstruction(opcode, type, PC, imm, rd, imm);
+        return new JInstruction(opcode, type, PC, imm, rd);
     }
 
     @Override
     public String toString() {
         return String.format("""
-                B Type Instruction:
+                J Type Instruction:
                     Opcode: %s
                     Type: %s
                     PC %s
                     IMM: %s
+                    RD: %s
                     ALU Result:  %s""",
-                opcode, type, PC, imm, aluResult);
+                opcode, type, PC, imm, rd, aluResult);
     }
 }

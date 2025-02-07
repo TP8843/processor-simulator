@@ -72,7 +72,7 @@ public class SInstruction implements Instruction{
     
     static private int decodeImmediate(int instruction){
         return ((instruction >> 7) & 0b11111) |
-                (instruction >> 25);
+                (instruction >> 25) << 5;
     }
     
     static public SInstruction decode(int instruction, int PC, Registers registers){
@@ -88,13 +88,14 @@ public class SInstruction implements Instruction{
     @Override
     public String toString() {
         return String.format("""
-                B Type Instruction:
+                S Type Instruction:
                     Opcode: %s
                     Type: %s
+                    PC: %s
                     RS1: %s
                     RS2: %s
                     IMM: %s
                     ALU Result:  %s""",
-                opcode, type, rs1, rs2, imm, aluResult);
+                opcode, type, PC, rs1, rs2, imm, aluResult);
     }
 }
