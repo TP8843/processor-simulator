@@ -79,12 +79,13 @@ public class UInstruction implements Instruction{
     @Override
     public String toString() {
         return String.format("""
-                B Type Instruction:
+                U Type Instruction:
                     Opcode: %s
                     Type: %s
                     PC: %s
+                    RD: %s
                     IMM: %s
                     ALU Result:  %s""",
-                opcode, type, PC, imm, aluResult);
+                opcode, type, PC, rd, imm, aluResult);
     }
 }

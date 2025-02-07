@@ -3,6 +3,8 @@ package org.example.processor;
 import org.example.processor.instructions.*;
 
 public class Alu {
+    private boolean isHalted;
+    
     public Instruction input;
     public Instruction output;
 
@@ -15,6 +17,17 @@ public class Alu {
             case S_TYPE -> executeSType((SInstruction) input);
             case U_TYPE -> executeUType((UInstruction) input);
         };
+
+        // Exit program if you detect a jump to yourself
+        if (output.getType() == Instruction.Type.J_TYPE &&
+                ((JInstruction) output).aluResult == 0) {
+            System.out.println("Finish execution");
+            isHalted = true;
+        }
+    }
+    
+    public boolean isHalted() {
+        return isHalted;
     }
 
     static private BInstruction executeBType(BInstruction instruction) {

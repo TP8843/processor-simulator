@@ -27,7 +27,17 @@ public class Registers {
     
     @Override
     public String toString() {
-        // TODO: Copy implementation from MIPS version
-        return "TODO: Register toString method";
+            StringBuilder builder = new StringBuilder();
+
+            builder.append("Register Values:\n");
+
+            for (int i = 0; i <= registers.length; i++) {
+                if (i == 0) builder.append(String.format("%-2s: %-6s ", i, 0));
+                else builder.append(String.format("%-2s: %-6s ", i, registers[i - 1]));
+
+                if (i % 8 == 7) builder.append("\n");
+            }
+
+            return builder.toString();
     }
 }

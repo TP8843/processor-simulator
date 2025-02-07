@@ -7,7 +7,7 @@
 # - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
 .globl _start
-.section .text._start
+.section .text.startup
 _start:
   # Global pointer
   .option push
@@ -15,7 +15,7 @@ _start:
   la      x3, __global_pointer$
   .option pop
   # Stack pointer
-  la      x2, __stack_pointer$
+  la      x2, __stack_top
   # Reset vector
   li      x1, 0
   li      x4, 0
@@ -32,7 +32,5 @@ _start:
   li      x15, 0
   call main
 _eoc:
-  la      t0, status
-  sw      a0, 0(t0)
-  wfi
+  j 0
   

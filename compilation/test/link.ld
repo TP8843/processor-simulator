@@ -10,21 +10,21 @@
 OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
-MEMORY
-{
-   SRAM (rwxail) : ORIGIN = 0x10000000, LENGTH = 2K
+MEMORY {
+  RAM (rwx) : ORIGIN = 0x0008, LENGTH = 6K
 }
 
-SECTIONS
-{
-  /DISCARD/ : { *(.riscv.attributes) *(.comment) }
-
-  .text._start 0x10000000 : { *(.text._start) } >SRAM
-  .text : { *(.text) *(.text.*) } >SRAM
-  .misc : { *(.sdata) *(.*) } >SRAM
-
-  __global_pointer$ = ADDR(.misc)  + SIZEOF(.misc) / 2;
-  __stack_pointer$  = ORIGIN(SRAM) + LENGTH(SRAM);
-
-  status  = 0x03000008;
+SECTIONS {
+  .text :
+  { 
+      *(.text.startup); 
+      *(.text); 
+      *(.text.*) 
+  } > RAM
+  .bss : { *(.bss); *(.bss.*) } > RAM
+  .data : { *(.data); *(.data.*) } > RAM
+  .rodata : { *(.rodata); *(.rodata.*) } > RAM
+  
+  PROVIDE(__global_pointer$ = ORIGIN(RAM) + 0x800);
+  PROVIDE(__stack_top = ORIGIN(RAM) + LENGTH(RAM));
 }

@@ -1,10 +1,7 @@
 package org.example;
 
 import org.example.processor.*;
-import org.example.processor.instructions.IInstruction;
-import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.SInstruction;
-import org.example.processor.instructions.UInstruction;
+import org.example.processor.instructions.*;
 
 import java.util.Scanner;
 
@@ -44,9 +41,12 @@ public class Simulator {
     public void runSimulator() {
 //        Scanner scanner = new Scanner(System.in);
 
-        while (!instructionFetch.isHalted()) {
+        while (!alu.isHalted()) {
             runCycle();
         }
+        
+        System.out.println(registers);
+        System.out.println("Final value: " + memory);
     }
 
     private void runCycle() {
@@ -68,15 +68,8 @@ public class Simulator {
                 branchUnit.compareInput = compareUnit.output;
                 branchUnit.aluInput = alu.output;
                 memoryAccessUnit.input = alu.output;
-                if(alu.output.getType() == Instruction.Type.S_TYPE || alu.output.getType() == Instruction.Type.U_TYPE)
-                    System.out.println("Alu Output: " + alu.output);
-                if(alu.output.getType() == Instruction.Type.U_TYPE)
-                    System.out.println("Alu Output U Type: " + Integer.toBinaryString(((UInstruction)alu.output).aluResult));
 
-                // Program is attempting to send the main return back to the processor. Stop execution
-                if (alu.output.getType() == Instruction.Type.S_TYPE && ((SInstruction)alu.output).aluResult == 0x3000008) {
-                    return;
-                }
+                System.out.println(alu.output);
             }
             case 3 -> {
                 memoryAccessUnit.process();
@@ -93,7 +86,7 @@ public class Simulator {
     static public Simulator createSimulator(String fileName) {
         Memory memory = new Memory();
         Registers registers = new Registers();
-        InstructionFetch instructionFetch = new InstructionFetch(memory, 0);
+        InstructionFetch instructionFetch = new InstructionFetch(memory, 8);
         Decode decode = new Decode(registers);
         Alu alu = new Alu();
         CompareUnit compareUnit = new CompareUnit();
@@ -101,7 +94,7 @@ public class Simulator {
         MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory);
         WriteBackUnit writeBackUnit = new WriteBackUnit(registers);
 
-        memory.loadProgram(fileName, 0);
+        memory.loadProgram(fileName, 8);
 
         return new Simulator(
                 memory,

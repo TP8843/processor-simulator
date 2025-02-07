@@ -22,11 +22,10 @@ public class WriteBackUnit {
 
     private void writeBackIType(IInstruction instruction) {
         switch (instruction.type) {
-            case LOAD_BYTE, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD, LOAD_HALF_WORD_UNSIGNED, LOAD_WORD,
-                 SET_LESS_THAN_IMMEDIATE, SET_LESS_THAN_IMMEDIATE_UNSIGNED, SHIFT_LEFT_LOGICAL_IMMEDIATE,
-                 SHIFT_RIGHT_ARITHMETIC_IMMEDIATE, SHIFT_RIGHT_LOGICAL_IMMEDIATE ->
+            case LOAD_BYTE, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD, LOAD_HALF_WORD_UNSIGNED, LOAD_WORD ->
                 registers.setRegister(instruction.rd, instruction.memoryResult);
-            case ADDI, ORI, ANDI, XORI ->
+            case ADDI, ORI, ANDI, XORI, SET_LESS_THAN_IMMEDIATE, SET_LESS_THAN_IMMEDIATE_UNSIGNED, 
+                 SHIFT_LEFT_LOGICAL_IMMEDIATE, SHIFT_RIGHT_ARITHMETIC_IMMEDIATE, SHIFT_RIGHT_LOGICAL_IMMEDIATE ->
                 registers.setRegister(instruction.rd, instruction.aluResult);
             case JUMP_AND_LINK_REGISTER ->
                 registers.setRegister(instruction.rd, instruction.getPC() + 4);

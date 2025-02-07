@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Memory {
     /// Number of words in memory
-    public final int size = 6 * 1024;
+    public final int size = 6 * 1024 + 10;
     
     /// Number of bytes in word of memory
     public final int wordLength = 4;
@@ -91,5 +91,10 @@ public class Memory {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Override
+    public String toString() {
+        return Integer.toString(memory[0]);
     }
 }

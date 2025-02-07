@@ -1,0 +1,9 @@
+name: build-machine
+
+services:
+  riscv-toolchain:
+    build: ./
+    tty: true
+    command: /bin/bash
+    volumes:
+      - ./test:/app
