@@ -11,4 +11,4 @@ FILE=$(basename "$FILE_PATH")
 FILENAME=$(echo "$FILE" | cut -d. -f1)
 OUTPUT="$DIR/$FILENAME.txt"
 
-riscv64-unknown-elf-objdump -d $FILE > $OUTPUT
+riscv64-unknown-elf-objdump -d $FILE_PATH > $OUTPUT
