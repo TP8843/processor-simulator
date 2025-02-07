@@ -2,8 +2,14 @@
 
 ## Example Method to Run
 
+### For MacOS/Linux
 ```shell
-build run --args="../compilation/test/test.bin" --console=plain
+./gradlew build run --args="../compilation/test/test.bin" --console=plain
+```
+
+### For Windows
+```shell
+./gradlew.bat build run --args="../compilation/test/test.bin" --console=plain
 ```
 
 ## Architecture Definition
