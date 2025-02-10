@@ -3,6 +3,8 @@ package org.example;
 import org.example.processor.*;
 import org.example.processor.instructions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Simulator {
@@ -34,6 +36,8 @@ public class Simulator {
                 step                - runs next line of assembly
                 continue            - runs all of program without breaks
             """;
+    
+    private List<Integer> breakPoints = new ArrayList<>();
 
     private int stage = 0;
     private int cycles = 0;
@@ -78,6 +82,8 @@ public class Simulator {
             } else if (line.startsWith("exit")) {
                 System.out.println("Final value: " + memory.getWord(0));
                 return;
+            } else if (line.startsWith("breakpoint")) {
+                // TODO: Add breakpoint configuration (add, remove, list)
             } else {
                 System.out.println("Unknown command: " + line);
                 System.out.print(generalError);
