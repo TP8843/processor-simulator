@@ -44,4 +44,12 @@ public class MemoryAccessUnit {
 
         return instruction;
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Memory Access Unit:
+                    Input: %s
+                    Output: %s""", input, output);
+    }
 }

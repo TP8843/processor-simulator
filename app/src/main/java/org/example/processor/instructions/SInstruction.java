@@ -91,13 +91,13 @@ public class SInstruction implements Instruction{
     public String toString() {
         return String.format("""
                 S Type Instruction:
-                    Opcode: %s
-                    Type: %s
-                    PC: %s
-                    RS1: %s
-                    RS2: %s
-                    IMM: %s
-                    ALU Result:  %s""",
+                        Opcode: %s
+                        Type: %s
+                        PC: %s
+                        RS1: %s
+                        RS2: %s
+                        IMM: %s
+                        ALU Result:  %s""",
                 opcode, type, PC, rs1, rs2, imm, aluResult);
     }
 }

@@ -78,12 +78,12 @@ public class JInstruction implements Instruction {
     public String toString() {
         return String.format("""
                 J Type Instruction:
-                    Opcode: %s
-                    Type: %s
-                    PC %s
-                    IMM: %s
-                    RD: %s
-                    ALU Result:  %s""",
+                        Opcode: %s
+                        Type: %s
+                        PC %s
+                        IMM: %s
+                        RD: %s
+                        ALU Result:  %s""",
                 opcode, type, PC, imm, rd, aluResult);
     }
 }

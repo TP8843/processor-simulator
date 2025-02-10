@@ -105,4 +105,13 @@ public class Alu {
 
         return instruction.addAluResult(result);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                ALU:
+                    Is Halted: %s
+                    Input: %s
+                    Output: %s""", isHalted, input, output);
+    }
 }

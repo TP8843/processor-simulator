@@ -43,4 +43,11 @@ public class WriteBackUnit {
     private void writeBackUType(UInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.aluResult);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Write Back Unit:
+                    Input: %s""", input);
+    }
 }

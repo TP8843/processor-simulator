@@ -27,4 +27,13 @@ public class Decode {
             case U_TYPE -> UInstruction.decode(input, currentPC);
         };
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Decode:
+                    Current PC Input: 0x%s
+                    Input: 0x%s
+                    Output: %s""", Integer.toHexString(currentPC), Integer.toHexString(input), output);
+    }
 }

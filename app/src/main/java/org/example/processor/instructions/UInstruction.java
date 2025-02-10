@@ -80,12 +80,12 @@ public class UInstruction implements Instruction{
     public String toString() {
         return String.format("""
                 U Type Instruction:
-                    Opcode: %s
-                    Type: %s
-                    PC: %s
-                    RD: %s
-                    IMM: %s
-                    ALU Result:  %s""",
+                        Opcode: %s
+                        Type: %s
+                        PC: %s
+                        RD: %s
+                        IMM: %s
+                        ALU Result:  %s""",
                 opcode, type, PC, rd, imm, aluResult);
     }
 }

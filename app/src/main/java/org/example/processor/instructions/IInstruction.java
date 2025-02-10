@@ -152,13 +152,13 @@ public class IInstruction implements Instruction {
     public String toString() {
         return String.format("""
                 I Type Instruction:
-                    Opcode: %s
-                    Type: %s
-                    PC: %s
-                    RS1: %s
-                    IMM: %s
-                    RD: %s
-                    ALU Result:  %s""",
+                        Opcode: %s
+                        Type: %s
+                        PC: %s
+                        RS1: %s
+                        IMM: %s
+                        RD: %s
+                        ALU Result:  %s""",
                 opcode, type, PC, rs1, imm, rd, aluResult);
     }
 }

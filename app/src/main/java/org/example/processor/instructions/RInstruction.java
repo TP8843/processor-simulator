@@ -104,14 +104,14 @@ public class RInstruction implements Instruction {
     @Override
     public String toString() {
         return String.format("""
-                B Type Instruction:
-                    Opcode: %s
-                    Type: %s
-                    PC: %s
-                    RS1: %s
-                    RS2: %s
-                    RD: %s
-                    ALU Result:  %s""",
+                R Type Instruction:
+                        Opcode: %s
+                        Type: %s
+                        PC: %s
+                        RS1: %s
+                        RS2: %s
+                        RD: %s
+                        ALU Result:  %s""",
                 opcode, type, PC, rs1, rs2, rd, aluResult);
     }
 }
