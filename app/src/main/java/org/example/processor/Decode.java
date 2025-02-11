@@ -19,7 +19,7 @@ public class Decode {
         Type type = Opcode.getInstructionType(Opcode.getOpcode(input));
 
         output = switch (type){
-            case B_TYPE -> BInstruction.decode(input, currentPC);
+            case B_TYPE -> BInstruction.decode(input, currentPC, registers);
             case I_TYPE -> IInstruction.decode(input, currentPC, registers);
             case J_TYPE -> JInstruction.decode(input, currentPC);
             case R_TYPE -> RInstruction.decode(input, currentPC, registers);

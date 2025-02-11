@@ -40,4 +40,12 @@ public class BranchUnit {
         if (alu.type == IInstruction.Type.JUMP_AND_LINK_REGISTER)
             instructionFetch.updatePC(alu.aluResult);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Branch Unit:
+                    ALU Input: %s
+                    Compare Input: %s""", aluInput, compareInput);
+    }
 }

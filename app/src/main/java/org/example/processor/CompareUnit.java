@@ -30,4 +30,12 @@ public class CompareUnit {
 
         return instruction.addCompareResult(result);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Compare Unit:
+                    Input: %s
+                    Output: %s""", input, output);
+    }
 }

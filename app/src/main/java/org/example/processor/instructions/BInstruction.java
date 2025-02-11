@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public class BInstruction implements Instruction {
     public enum Type {
         BRANCH_EQ,
@@ -97,11 +99,11 @@ public class BInstruction implements Instruction {
                 ((instruction >> 31) << 12);
     }
     
-    static public BInstruction decode(int instruction, int PC){
+    static public BInstruction decode(int instruction, int PC, Registers registers){
         Instruction.Opcode opcode = Instruction.Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
-        int rs1 = Instruction.decodeRs1(instruction);
-        int rs2 = Instruction.decodeRs2(instruction);
+        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
+        int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
         int imm = decodeImmediate(instruction);
         
         return new BInstruction(opcode, type, PC, rs1, rs2, imm);

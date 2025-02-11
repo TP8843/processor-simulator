@@ -3,9 +3,7 @@ package org.example;
 import org.example.processor.*;
 import org.example.processor.instructions.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Simulator {
     private final Memory memory;
@@ -32,12 +30,19 @@ public class Simulator {
 
     private final String generalError = """
             Possible Commands:
-                print *component* - prints current state of component
+                print *component*   - prints current state of component
                 step                - runs next line of assembly
                 continue            - runs all of program without breaks
             """;
+
+    private final String breakpointError = """
+            Possible Commands:
+                add *breakpoint*    - adds breakpoint to line
+                remove *breakpoint* - removes breakpoint for line
+                list                - lists all current breakpoints
+            """;
     
-    private List<Integer> breakPoints = new ArrayList<>();
+    private Set<Integer> breakPoints = new HashSet<>();
 
     private int stage = 0;
     private int cycles = 0;
@@ -76,14 +81,14 @@ public class Simulator {
                 runCycle();
                 printState();
             } else if (line.startsWith("continue")) {
-                while (!alu.isHalted()) {
+                while (!alu.isHalted() && !breakPoints.contains(instructionFetch.getPC() - 4)) {
                     runCycle();
                 }
             } else if (line.startsWith("exit")) {
                 System.out.println("Final value: " + memory.getWord(0));
                 return;
             } else if (line.startsWith("breakpoint")) {
-                // TODO: Add breakpoint configuration (add, remove, list)
+                processBreakpoint(line.substring("breakpoint".length()).trim());
             } else {
                 System.out.println("Unknown command: " + line);
                 System.out.print(generalError);
@@ -116,6 +121,19 @@ public class Simulator {
                         Current Stage: %s
                         Current PC: 0x%s
                         Current Cycle Count: %s""", stage, Integer.toHexString(instructionFetch.getPC()), cycles));
+    }
+    
+    private void processBreakpoint(String command){
+        if(command.startsWith("add"))
+            breakPoints.add(HexFormat.fromHexDigits(command.substring("add".length()).trim()));
+        else if(command.startsWith("remove"))
+            breakPoints.remove(HexFormat.fromHexDigits(command.substring("remove".length()).trim()));
+        else if(command.startsWith("list"))
+            System.out.println(breakPoints);
+        else {
+            System.out.println("Unknown command: " + command);
+            System.out.print(breakpointError);
+        }
     }
 
     private void runCycle() {
@@ -154,6 +172,8 @@ public class Simulator {
                 writeBackUnit.writeBack();
 
                 cycles += 1;
+                
+                System.out.println("Finished processing instruction " + Integer.toHexString(instructionFetch.getPC() - 4));
             }
         }
         stage = (stage + 1) % 5;

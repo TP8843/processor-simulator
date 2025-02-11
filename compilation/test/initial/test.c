@@ -1,6 +1,4 @@
-void output(volatile int value) {
-	*(volatile int*)0x0 = value;
-}
+#include "../tplib.c"
 
 int square(int num) {
     return num + num;
