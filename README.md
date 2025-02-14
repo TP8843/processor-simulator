@@ -4,12 +4,12 @@
 
 ### For MacOS/Linux
 ```shell
-./gradlew build run --args="../compilation/test/test.bin" --console=plain
+./gradlew build run --args="../compilation/test/iterative-fibonacci/iterative-fibonacci.bin" --console=plain
 ```
 
 ### For Windows
 ```shell
-./gradlew.bat build run --args="../compilation/test/test.bin" --console=plain
+./gradlew.bat build run --args="../compilation/test/iterative-fibonacci/iterative-fibonacci.bin" --console=plain
 ```
 
 ## Architecture Definition

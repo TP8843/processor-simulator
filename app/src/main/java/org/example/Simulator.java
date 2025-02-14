@@ -30,9 +30,10 @@ public class Simulator {
 
     private final String generalError = """
             Possible Commands:
-                print *component*   - prints current state of component
-                step                - runs next line of assembly
-                continue            - runs all of program without breaks
+                print *component*    - prints current state of component
+                step                 - runs next line of assembly
+                continue             - runs all of program, only stopping at breakpoints
+                breakpoint *command* - adds, removes, and lists breakpoints (type breakpoint for help)
             """;
 
     private final String breakpointError = """
