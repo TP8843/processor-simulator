@@ -10,6 +10,10 @@ public class Registers {
     public Registers() {
         registers = new int[31];
         valid = new boolean[31];
+        
+        for (int i = 0; i < 31; i++) {
+            valid[i] = true;
+        }
     }
     
     /// Returns if register value is valid for reading (not waiting for instruction)
@@ -25,7 +29,7 @@ public class Registers {
     
     /// Sets a register as invalid (to ensure no erroneous reads)
     public void setInvalid(int index) {
-        if(index > 0 && index < 31) valid[index - 1] = false;
+        if(index > 0 && index <= 31) valid[index - 1] = false;
     }
     
     /// Returns the value currently stored inside the register
@@ -41,6 +45,9 @@ public class Registers {
     public void setRegister(byte index, int value) {
         // Do not do anything if zero register or outside range
         if (index <= 0 || index > 31) return;
+        
+        if (index == 1)
+            System.out.println("Writing to register 1 with value " + value);
         
         // Account for zero register
         registers[index - 1] = value;

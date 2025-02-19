@@ -17,33 +17,41 @@ public class BranchUnit {
         this.instructionFetch = instructionFetch;
     }
 
-    public void updatePC() {
+    /// Updates the PC in instruction fetch if required. Returns true if PC updated
+    public boolean updatePC() {
         // Do not do any processing if either input is null (something has stalled)
-        if(compareInput == null || aluInput == null) return;
+        if(compareInput == null || aluInput == null) return false;
         
-        switch (compareInput.getType()){
+        return switch (compareInput.getType()){
             case B_TYPE -> updatePCBType(
                     (BInstruction) compareInput,
                     (BInstruction) aluInput);
 
             case J_TYPE -> updatePCJType((JInstruction) aluInput);
             case I_TYPE -> updatePCIType((IInstruction) aluInput);
-        }
+            default -> false;
+        };
     }
 
-    private void updatePCBType(BInstruction compare, BInstruction alu ) {
+    private boolean updatePCBType(BInstruction compare, BInstruction alu ) {
         if (compare.compareResult) {
             instructionFetch.updatePC(alu.aluResult);
+            return true;
         }
+        return false;
     }
 
-    private void updatePCJType(JInstruction alu ) {
+    private boolean updatePCJType(JInstruction alu ) {
         instructionFetch.updatePC(alu.aluResult);
+        return true;
     }
 
-    private void updatePCIType(IInstruction alu ) {
-        if (alu.type == IInstruction.Type.JUMP_AND_LINK_REGISTER)
+    private boolean updatePCIType(IInstruction alu ) {
+        if (alu.type == IInstruction.Type.JUMP_AND_LINK_REGISTER) {
             instructionFetch.updatePC(alu.aluResult);
+            return true;
+        }
+        return false;
     }
 
     @Override

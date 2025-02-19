@@ -12,7 +12,8 @@ public class WriteBackUnit {
     }
 
     public void writeBack() {
-        
+        // If no instruction available, do not process anything
+        if (input == null) return;
         
         switch (input.getType()) {
             case I_TYPE -> writeBackIType((IInstruction) input);

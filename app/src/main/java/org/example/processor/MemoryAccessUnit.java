@@ -43,9 +43,9 @@ public class MemoryAccessUnit {
 
     private SInstruction processSType(SInstruction instruction) {
         switch (instruction.type) {
-            case STORE_BYTE -> memory.storeByte(instruction.aluResult, instruction.rs2);
-            case STORE_HALF_WORD -> memory.storeHalfWord(instruction.aluResult, instruction.rs2);
-            case STORE_WORD -> memory.storeWord(instruction.aluResult, instruction.rs2);
+            case STORE_BYTE -> memory.storeByte(instruction.aluResult, instruction.rs2Data);
+            case STORE_HALF_WORD -> memory.storeHalfWord(instruction.aluResult, instruction.rs2Data);
+            case STORE_WORD -> memory.storeWord(instruction.aluResult, instruction.rs2Data);
         }
 
         return instruction;

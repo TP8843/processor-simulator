@@ -67,6 +67,21 @@ public class UInstruction implements Instruction{
     public boolean canBranch() {
         return false;
     }
+    
+    @Override
+    public boolean hasData() {
+        return true;
+    }
+    
+    @Override
+    public UInstruction addDataIfAvailable(Registers registers) {
+        return this;
+    }
+
+    @Override
+    public void reserveDestination(Registers registers) {
+        registers.setInvalid(rd);
+    }
 
     static private int decodeImmediate(int instruction){
         return ((instruction >> 12) << 12);
@@ -77,8 +92,6 @@ public class UInstruction implements Instruction{
         Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
-        
-        registers.setInvalid(rd);
 
         return new UInstruction(opcode, type, PC, imm, rd);
     }

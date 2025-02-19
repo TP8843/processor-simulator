@@ -1,5 +1,7 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public interface Instruction {
     enum Type {
         B_TYPE,
@@ -66,6 +68,15 @@ public interface Instruction {
     
     /// Returns if instruction can cause a branch
     boolean canBranch();
+    
+    /// Returns if register data has been loaded to instruction
+    boolean hasData();
+    
+    /// Adds data to the registers if required
+    Instruction addDataIfAvailable(Registers registers);
+    
+    /// Reserves the destination register for instruction
+    default void reserveDestination(Registers registers) {}
 
     static byte decodeRs1(int instruction) {
         return (byte) ((instruction >> 15) & 0b11111);

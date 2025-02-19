@@ -31,11 +31,20 @@ public class BInstruction implements Instruction {
 
     private final int PC;
 
-    /// Data from first source register for instruction
-    public final int rs1;
+    /// True if register data has been loaded into instruction
+    public final boolean hasRegisterData;
+    
+    /// First source register for instruction
+    public final byte rs1;
+    
+    /// Data for first source register for instruction
+    public final int rs1Data;
 
-    /// Data from second source register for instruction
-    public final int rs2;
+    /// Second source register for instruction
+    public final byte rs2;
+    
+    /// Data for second source register for instruction
+    public final int rs2Data;
 
     /// Immediate value for instruction
     public final int imm;
@@ -45,12 +54,15 @@ public class BInstruction implements Instruction {
 
     public final boolean compareResult;
 
-    public BInstruction(Instruction.Opcode opcode, Type type, int PC, int rs1, int rs2, int imm) {
+    public BInstruction(Instruction.Opcode opcode, Type type, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
         this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
+        this.rs1Data = 0;
+        this.rs2Data = 0;
+        this.hasRegisterData = false;
         this.imm = imm;
         this.aluResult = 0;
         this.compareResult = false;
@@ -59,8 +71,11 @@ public class BInstruction implements Instruction {
     public BInstruction(Instruction.Opcode opcode,
                         Type type,
                         int PC,
-                        int rs1,
-                        int rs2,
+                        byte rs1,
+                        byte rs2,
+                        boolean hasRegisterData,
+                        int rs1Data,
+                        int rs2Data,
                         int imm,
                         int aluResult,
                         boolean compareResult) {
@@ -69,19 +84,67 @@ public class BInstruction implements Instruction {
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
+        this.hasRegisterData = hasRegisterData;
+        this.rs1Data = rs1Data;
+        this.rs2Data = rs2Data;
         this.imm = imm;
         this.aluResult = aluResult;
         this.compareResult = compareResult;
     }
 
     public BInstruction addAluResult(int aluResult) {
-        return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
+        return new BInstruction(
+                opcode, 
+                type, 
+                PC, 
+                rs1, 
+                rs2, 
+                hasRegisterData, 
+                rs1Data, 
+                rs2Data, 
+                imm, 
+                aluResult, 
+                compareResult);
     }
 
     public BInstruction addCompareResult(boolean compareResult) {
-        return new BInstruction(opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
+        return new BInstruction(
+                opcode, 
+                type, 
+                PC, 
+                rs1, 
+                rs2, 
+                hasRegisterData, 
+                rs1Data, 
+                rs2Data, 
+                imm, 
+                aluResult, 
+                compareResult);
     }
-
+    
+    @Override
+    public boolean hasData() {
+        return hasRegisterData;
+    }
+    
+    @Override
+    public BInstruction addDataIfAvailable(Registers registers) {
+        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return this;
+        
+        return new BInstruction(
+                opcode, 
+                type, 
+                PC, 
+                rs1, 
+                rs2,
+                true,
+                registers.getRegister(rs1),
+                registers.getRegister(rs2),
+                imm,
+                aluResult,
+                compareResult);
+    }
+    
     @Override
     public Instruction.Opcode getOpcode() {
         return opcode;
@@ -107,8 +170,8 @@ public class BInstruction implements Instruction {
     static public BInstruction decode(int instruction, int PC, Registers registers){
         Instruction.Opcode opcode = Instruction.Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
-        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
-        int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
+        byte rs1 = Instruction.decodeRs1(instruction);
+        byte rs2 = Instruction.decodeRs2(instruction);
         int imm = decodeImmediate(instruction);
         
         return new BInstruction(opcode, type, PC, rs1, rs2, imm);
@@ -123,9 +186,22 @@ public class BInstruction implements Instruction {
                         PC: %s
                         RS1: %s
                         RS2: %s
+                        Has Data: %s
+                        RS1 Data: %s
+                        RS2 Data: %s
                         IMM: %s
                         ALU Result:  %s
                         Compare Result: %s""",
-                opcode, type, PC, rs1, rs2, imm, aluResult, compareResult);
+                opcode, 
+                type, 
+                PC, 
+                rs1, 
+                rs2,
+                hasRegisterData? "True": "False",
+                rs1Data,
+                rs2Data,
+                imm, 
+                aluResult, 
+                compareResult);
     }
 }

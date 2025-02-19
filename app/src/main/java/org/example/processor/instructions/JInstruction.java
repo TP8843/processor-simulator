@@ -62,6 +62,21 @@ public class JInstruction implements Instruction {
     public boolean canBranch() {
         return true;
     }
+    
+    @Override
+    public boolean hasData() {
+        return true;
+    }
+    
+    @Override
+    public JInstruction addDataIfAvailable(Registers registers) {
+        return this;
+    }
+
+    @Override
+    public void reserveDestination(Registers registers) {
+        registers.setInvalid(rd);
+    }
 
     static public int decodeImmediate(int instruction){
         return (instruction & (0b11111111 << 12)) |
@@ -75,8 +90,6 @@ public class JInstruction implements Instruction {
         Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
-        
-        registers.setInvalid(rd);
 
         return new JInstruction(opcode, type, PC, imm, rd);
     }

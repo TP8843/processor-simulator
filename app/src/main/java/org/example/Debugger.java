@@ -10,6 +10,7 @@ public class Debugger {
 
     private final String printError = """
             Possible Commands:
+                instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
                 decode/decode-unit/decodeUnit             - Decode Unit
                 compareUnit/compare-unit/compare          - Compare Unit (handles = and != for branching)
                 alu                                       - ALU (handles general computation)
@@ -88,7 +89,7 @@ public class Debugger {
             case "writebackunit", "write-back-unit", "writeback", "write-back": System.out.println(simulator.writeBackUnit); break;
             case "compareunit", "compare-unit", "compare": System.out.println(simulator.compareUnit); break;
             case "decode-unit", "decodeunit", "decode": System.out.println(simulator.decode); break;
-            case "instruction-fetch", "instructionfetch": System.out.println(simulator.instructionFetch); break;
+            case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
             case "state": printState(); break;
             default: {
                 System.out.println("Unknown command: " + unit);
@@ -101,12 +102,13 @@ public class Debugger {
     private void printState() {
         System.out.println(
                         String.format("""
-                            Current Stage: %s
                             Current PC: 0x%s
                             Current Cycle Count: %s
-                            Halted: %s""", simulator.getStage(), 
+                            Branch Stall: %s
+                            Halted: %s""", 
                         Integer.toHexString(simulator.instructionFetch.getPC()), 
                         cycles,
+                        simulator.getBranchStall() ? "True" : "False",
                         simulator.alu.isHalted() ? "True" : "False"));
     }
 
