@@ -22,7 +22,7 @@ Disassembly of section .text:
   40:	00000693          	li	a3,0
   44:	00000713          	li	a4,0
   48:	00000793          	li	a5,0
-  4c:	070000ef          	jal	bc <main>
+  4c:	068000ef          	jal	b4 <main>
 
 00000050 <_eoc>:
   50:	fb1ff06f          	j	0 <_start-0x8>
@@ -40,30 +40,28 @@ Disassembly of section .text:
   70:	00112623          	sw	ra,12(sp)
   74:	00812423          	sw	s0,8(sp)
   78:	00050413          	mv	s0,a0
-  7c:	00200793          	li	a5,2
-  80:	00a7cc63          	blt	a5,a0,98 <fibonacci+0x2c>
-  84:	fff50513          	addi	a0,a0,-1
-  88:	00c12083          	lw	ra,12(sp)
-  8c:	00812403          	lw	s0,8(sp)
-  90:	01010113          	addi	sp,sp,16
-  94:	00008067          	ret
-  98:	00912223          	sw	s1,4(sp)
-  9c:	fff50513          	addi	a0,a0,-1
-  a0:	fcdff0ef          	jal	6c <fibonacci>
-  a4:	00050493          	mv	s1,a0
-  a8:	ffe40513          	addi	a0,s0,-2
-  ac:	fc1ff0ef          	jal	6c <fibonacci>
-  b0:	00a48533          	add	a0,s1,a0
-  b4:	00412483          	lw	s1,4(sp)
-  b8:	fd1ff06f          	j	88 <fibonacci+0x1c>
+  7c:	00100793          	li	a5,1
+  80:	02a7d263          	bge	a5,a0,a4 <fibonacci+0x38>
+  84:	00912223          	sw	s1,4(sp)
+  88:	fff50513          	addi	a0,a0,-1
+  8c:	fe1ff0ef          	jal	6c <fibonacci>
+  90:	00050493          	mv	s1,a0
+  94:	ffe40513          	addi	a0,s0,-2
+  98:	fd5ff0ef          	jal	6c <fibonacci>
+  9c:	00a48533          	add	a0,s1,a0
+  a0:	00412483          	lw	s1,4(sp)
+  a4:	00c12083          	lw	ra,12(sp)
+  a8:	00812403          	lw	s0,8(sp)
+  ac:	01010113          	addi	sp,sp,16
+  b0:	00008067          	ret
 
-000000bc <main>:
-  bc:	ff010113          	addi	sp,sp,-16
-  c0:	00112623          	sw	ra,12(sp)
-  c4:	00a00513          	li	a0,10
-  c8:	fa5ff0ef          	jal	6c <fibonacci>
-  cc:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
-  d0:	00000513          	li	a0,0
-  d4:	00c12083          	lw	ra,12(sp)
-  d8:	01010113          	addi	sp,sp,16
-  dc:	00008067          	ret
+000000b4 <main>:
+  b4:	ff010113          	addi	sp,sp,-16
+  b8:	00112623          	sw	ra,12(sp)
+  bc:	00a00513          	li	a0,10
+  c0:	fadff0ef          	jal	6c <fibonacci>
+  c4:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
+  c8:	00000513          	li	a0,0
+  cc:	00c12083          	lw	ra,12(sp)
+  d0:	01010113          	addi	sp,sp,16
+  d4:	00008067          	ret
