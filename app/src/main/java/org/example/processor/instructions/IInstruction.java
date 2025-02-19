@@ -80,7 +80,13 @@ public class IInstruction implements Instruction {
     private final int PC;
 
     /// First source register for instruction
-    public final int rs1;
+    public final byte rs1;
+    
+    /// True if the instruction has its data fetched from registers
+    public final boolean hasData;
+    
+    /// Data for first source register for instruction
+    public final int rs1Data;
     
     /// Immediate value for instruction
     public final int imm;
@@ -94,22 +100,26 @@ public class IInstruction implements Instruction {
     /// Result of a load from memory
     public final int memoryResult;
 
-    public IInstruction(Opcode opcode, Type type, int PC, int rs1, int imm, byte rd) {
+    public IInstruction(Opcode opcode, Type type, int PC, byte rs1, int imm, byte rd) {
         this.opcode = opcode;
         this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
+        this.hasData = false;
+        this.rs1Data = 0;
         this.imm = imm;
         this.rd = rd;
         this.aluResult = 0;
         this.memoryResult = 0;
     }
 
-    public IInstruction(Opcode opcode, Type type, int PC, int rs1, int imm, byte rd, int aluResult, int memoryResult) {
+    public IInstruction(Opcode opcode, Type type, int PC, byte rs1, boolean hasData, int rs1Data, int imm, byte rd, int aluResult, int memoryResult) {
         this.opcode = opcode;
         this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
+        this.hasData = hasData;
+        this.rs1Data = rs1Data;
         this.imm = imm;
         this.rd = rd;
         this.aluResult = aluResult;
@@ -117,11 +127,31 @@ public class IInstruction implements Instruction {
     }
 
     public IInstruction addAluResult(int aluResult) {
-        return new IInstruction(opcode, type, PC, rs1, imm, rd, aluResult, memoryResult);
+        return new IInstruction(
+                opcode, 
+                type, 
+                PC, 
+                rs1,
+                hasData,
+                rs1Data,
+                imm, 
+                rd, 
+                aluResult, 
+                memoryResult);
     }
 
     public IInstruction addMemoryResult(int memoryResult) {
-        return new IInstruction(opcode, type, PC, rs1, imm, rd, aluResult, memoryResult);
+        return new IInstruction(
+                opcode, 
+                type, 
+                PC, 
+                rs1,
+                hasData,
+                rs1Data,
+                imm, 
+                rd, 
+                aluResult, 
+                memoryResult);
     }
 
     @Override
@@ -134,6 +164,39 @@ public class IInstruction implements Instruction {
         return PC;
     }
     
+    @Override
+    public boolean canBranch() {
+        return type == Type.JUMP_AND_LINK_REGISTER;
+    }
+    
+    @Override
+    public boolean hasData() {
+        return hasData;
+    }
+    
+    @Override 
+    public IInstruction addDataIfAvailable(Registers registers) {
+        if(!registers.isValid(rs1)) return this;
+        
+        return new IInstruction(
+                opcode,
+                type,
+                PC,
+                rs1,
+                true,
+                registers.getRegister(rs1),
+                imm,
+                rd,
+                aluResult,
+                memoryResult
+        );
+    }
+    
+    @Override
+    public void reserveDestination(Registers registers) {
+        registers.setInvalid(rd);
+    }
+    
     static private int decodeImmediate(int instruction) {
         return (instruction >> 20);
     }
@@ -141,7 +204,7 @@ public class IInstruction implements Instruction {
     static public IInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
-        int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
+        byte rs1 = Instruction.decodeRs1(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
         
@@ -156,9 +219,12 @@ public class IInstruction implements Instruction {
                         Type: %s
                         PC: %s
                         RS1: %s
+                        Has Data: %s
+                        RS1 Data: %s
                         IMM: %s
                         RD: %s
-                        ALU Result:  %s""",
-                opcode, type, PC, rs1, imm, rd, aluResult);
+                        ALU Result:  %s
+                        Memory Result: %s""",
+                opcode, type, PC, rs1, hasData ? "True" : "False", rs1Data, imm, rd, aluResult, memoryResult);
     }
 }

@@ -1,7 +1,9 @@
 package org.example.processor.instructions;
 
+import org.example.processor.Registers;
+
 public interface Instruction {
-    public enum Type {
+    enum Type {
         B_TYPE,
         I_TYPE,
         J_TYPE,
@@ -10,7 +12,7 @@ public interface Instruction {
         U_TYPE
     }
     
-    public enum Opcode {
+    enum Opcode {
         ARITHMETIC_LOGICAL,
         ARITHMETIC_LOGICAL_IMMEDIATE,
         LOAD,
@@ -55,32 +57,44 @@ public interface Instruction {
 
 
     /// Gets the current opcode for the instruction
-    public Opcode getOpcode();
+    Opcode getOpcode();
     
-    default public Type getType() {
+    default Type getType() {
         return Opcode.getInstructionType(getOpcode());   
     }
     
     /// Gets the current PC for the instruction
-    public int getPC();
+    int getPC();
+    
+    /// Returns if instruction can cause a branch
+    boolean canBranch();
+    
+    /// Returns if register data has been loaded to instruction
+    boolean hasData();
+    
+    /// Adds data to the registers if required
+    Instruction addDataIfAvailable(Registers registers);
+    
+    /// Reserves the destination register for instruction
+    default void reserveDestination(Registers registers) {}
 
-    static public byte decodeRs1(int instruction) {
+    static byte decodeRs1(int instruction) {
         return (byte) ((instruction >> 15) & 0b11111);
     }
 
-    static public byte decodeRs2(int instruction) {
+    static byte decodeRs2(int instruction) {
         return (byte) ((instruction >> 20) & 0b11111);
     }
 
-    static public byte decodeRd(int instruction) {
+    static byte decodeRd(int instruction) {
         return (byte) ((instruction >> 7) & 0b11111);
     }
 
-    static public int decodeFunct3(int instruction) {
+    static int decodeFunct3(int instruction) {
         return (instruction >> 12) & 0b111;
     }
 
-    static public int decodeFunct7(int instruction) {
+    static int decodeFunct7(int instruction) {
         return (instruction >> 25) & 0b1111111;
     }
 }

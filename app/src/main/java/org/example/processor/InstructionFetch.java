@@ -3,7 +3,8 @@ package org.example.processor;
 public class InstructionFetch {
     private final Memory memory;
     private int PC;
-
+    
+    /// Output for InstructionFetch
     public int output;
 
     public InstructionFetch(Memory memory, int PC) {

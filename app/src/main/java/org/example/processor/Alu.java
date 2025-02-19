@@ -9,6 +9,12 @@ public class Alu {
     public Instruction output;
 
     public void execute() {
+        // If input is null, do not do any processing (currently stalled)
+        if(input == null) {
+            output = null;
+            return;
+        }
+        
         output = switch (input.getType()) {
             case B_TYPE -> executeBType((BInstruction) input);
             case I_TYPE -> executeIType((IInstruction) input);
@@ -38,26 +44,24 @@ public class Alu {
 
     static private IInstruction executeIType(IInstruction instruction) {
         int result = switch (instruction.type) {
-            case ADDI -> instruction.rs1 + instruction.imm;
+            case ADDI, LOAD_BYTE, LOAD_HALF_WORD, LOAD_WORD, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD_UNSIGNED -> 
+                    instruction.rs1Data + instruction.imm;
 
             case SET_LESS_THAN_IMMEDIATE ->
-                    instruction.rs1 < instruction.imm ? 1 : 0;
+                    instruction.rs1Data < instruction.imm ? 1 : 0;
             case SET_LESS_THAN_IMMEDIATE_UNSIGNED ->
-                    Integer.compareUnsigned(instruction.rs1, instruction.imm) < 0 ? 1 : 0;
+                    Integer.compareUnsigned(instruction.rs1Data, instruction.imm) < 0 ? 1 : 0;
 
-            case ANDI -> instruction.rs1 & instruction.imm;
-            case ORI -> instruction.rs1 | instruction.imm;
-            case XORI -> instruction.rs1 ^ instruction.imm;
+            case ANDI -> instruction.rs1Data & instruction.imm;
+            case ORI -> instruction.rs1Data | instruction.imm;
+            case XORI -> instruction.rs1Data ^ instruction.imm;
 
-            case SHIFT_LEFT_LOGICAL_IMMEDIATE -> instruction.rs1 << (instruction.imm & 0b11111);
-            case SHIFT_RIGHT_LOGICAL_IMMEDIATE -> instruction.rs1 >>> (instruction.imm & 0b11111);
-            case SHIFT_RIGHT_ARITHMETIC_IMMEDIATE -> instruction.rs1 >> (instruction.imm & 0b11111);
-
-            case LOAD_BYTE, LOAD_HALF_WORD, LOAD_WORD, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD_UNSIGNED ->
-                    instruction.rs1 + instruction.imm;
+            case SHIFT_LEFT_LOGICAL_IMMEDIATE -> instruction.rs1Data << (instruction.imm & 0b11111);
+            case SHIFT_RIGHT_LOGICAL_IMMEDIATE -> instruction.rs1Data >>> (instruction.imm & 0b11111);
+            case SHIFT_RIGHT_ARITHMETIC_IMMEDIATE -> instruction.rs1Data >> (instruction.imm & 0b11111);
 
             // Least significant bit 0
-            case JUMP_AND_LINK_REGISTER -> ((instruction.rs1 + instruction.imm) >> 1) << 1;
+            case JUMP_AND_LINK_REGISTER -> ((instruction.rs1Data + instruction.imm) >> 1) << 1;
 
             case ENVIRONMENT_CALL, ENVIRONMENT_BREAK -> 0;
         };
@@ -75,23 +79,23 @@ public class Alu {
 
     static private RInstruction executeRType(RInstruction instruction) {
         int result = switch (instruction.type) {
-            case ADD -> instruction.rs1 + instruction.rs2;
-            case SUB -> instruction.rs1 - instruction.rs2;
-            case OR -> instruction.rs1 | instruction.rs2;
-            case AND -> instruction.rs1 & instruction.rs2;
-            case XOR -> instruction.rs1 ^ instruction.rs2;
-            case SHIFT_LEFT_LOGICAL -> instruction.rs1 << (instruction.rs2 & 0b11111);
-            case SHIFT_RIGHT_LOGICAL -> instruction.rs1 >>> (instruction.rs2 & 0b11111);
-            case SHIFT_RIGHT_ARITHMETIC -> instruction.rs1 >> (instruction.rs2 & 0b11111);
-            case SET_LESS_THAN -> (instruction.rs1 < instruction.rs2) ? 1 : 0;
-            case SET_LESS_THAN_UNSIGNED -> Integer.compareUnsigned(instruction.rs1, instruction.rs2) < 0 ? 1 : 0;
+            case ADD -> instruction.rs1Data + instruction.rs2Data;
+            case SUB -> instruction.rs1Data - instruction.rs2Data;
+            case OR -> instruction.rs1Data | instruction.rs2Data;
+            case AND -> instruction.rs1Data & instruction.rs2Data;
+            case XOR -> instruction.rs1Data ^ instruction.rs2Data;
+            case SHIFT_LEFT_LOGICAL -> instruction.rs1Data << (instruction.rs2Data & 0b11111);
+            case SHIFT_RIGHT_LOGICAL -> instruction.rs1Data >>> (instruction.rs2Data & 0b11111);
+            case SHIFT_RIGHT_ARITHMETIC -> instruction.rs1Data >> (instruction.rs2Data & 0b11111);
+            case SET_LESS_THAN -> (instruction.rs1Data < instruction.rs2Data) ? 1 : 0;
+            case SET_LESS_THAN_UNSIGNED -> Integer.compareUnsigned(instruction.rs1Data, instruction.rs2Data) < 0 ? 1 : 0;
         };
 
         return instruction.addAluResult(result);
     }
 
     static private SInstruction executeSType(SInstruction instruction) {
-        int result = instruction.rs1 + instruction.imm;
+        int result = instruction.rs1Data + instruction.imm;
 
         return instruction.addAluResult(result);
     }
