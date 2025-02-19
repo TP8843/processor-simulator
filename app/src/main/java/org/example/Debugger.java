@@ -104,10 +104,14 @@ public class Debugger {
                         String.format("""
                             Current PC: 0x%s
                             Current Cycle Count: %s
+                            Current Instructions per Cycle: %s
+                            Current Cycles per Instruction: %s
                             Branch Stall: %s
                             Halted: %s""", 
                         Integer.toHexString(simulator.instructionFetch.getPC()), 
-                        cycles,
+                        cycles, 
+                        (float) simulator.getInstructions() / (float) cycles,
+                        (float) cycles / (float) simulator.getInstructions(),
                         simulator.getBranchStall() ? "True" : "False",
                         simulator.alu.isHalted() ? "True" : "False"));
     }

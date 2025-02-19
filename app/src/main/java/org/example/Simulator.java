@@ -13,8 +13,11 @@ public class Simulator {
     public final MemoryAccessUnit memoryAccessUnit;
     public final WriteBackUnit writeBackUnit;
     
-    /// Whether branch store currently occuring
+    /// Whether branch store currently occurring
     private boolean branchStall = false;
+    
+    /// Counts the number of instructions ran through the pipeline
+    private int instructions = 0;
 
     public Simulator(Memory memory,
                      Registers registers,
@@ -39,11 +42,15 @@ public class Simulator {
     public boolean getBranchStall() {
         return branchStall;
     }
+    
+    public int getInstructions() {
+        return instructions;
+    }
 
     public void runCycle() {
         writeBackUnit.writeBack();
         if (writeBackUnit.input != null)
-            System.out.println(String.format("Written back %s", Integer.toHexString(writeBackUnit.input.getPC())));
+            instructions += 1;
 
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
