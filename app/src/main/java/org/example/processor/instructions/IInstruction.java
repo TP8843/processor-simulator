@@ -134,6 +134,11 @@ public class IInstruction implements Instruction {
         return PC;
     }
     
+    @Override
+    public boolean canBranch() {
+        return type == Type.JUMP_AND_LINK_REGISTER;
+    }
+    
     static private int decodeImmediate(int instruction) {
         return (instruction >> 20);
     }
@@ -144,6 +149,8 @@ public class IInstruction implements Instruction {
         int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
+        
+        registers.setInvalid(rd);
         
         return new IInstruction(opcode, type, PC, rs1, imm, rd);
     }

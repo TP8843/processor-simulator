@@ -91,6 +91,11 @@ public class BInstruction implements Instruction {
     public int getPC() {
         return PC;
     }
+    
+    @Override
+    public boolean canBranch() {
+        return true;
+    }
 
     static private int decodeImmediate(int instruction){
         return (((instruction >> 7) & 0b1) << 11) |

@@ -91,12 +91,19 @@ public class RInstruction implements Instruction {
         return PC;
     }
     
+    @Override
+    public boolean canBranch() {
+        return false;
+    }
+    
     static public RInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
         int rs1 = registers.getRegister(Instruction.decodeRs1(instruction));
         int rs2 = registers.getRegister(Instruction.decodeRs2(instruction));
         byte rd = Instruction.decodeRd(instruction);
+        
+        registers.setInvalid(rd);
         
         return new RInstruction(opcode, type, PC, rs1, rs2, rd);
     }

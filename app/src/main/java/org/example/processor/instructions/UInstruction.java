@@ -62,16 +62,23 @@ public class UInstruction implements Instruction{
     public int getPC() {
         return PC;
     }
+    
+    @Override
+    public boolean canBranch() {
+        return false;
+    }
 
     static private int decodeImmediate(int instruction){
         return ((instruction >> 12) << 12);
     }
     
-    static public UInstruction decode(int instruction, int PC) {
+    static public UInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
+        
+        registers.setInvalid(rd);
 
         return new UInstruction(opcode, type, PC, imm, rd);
     }

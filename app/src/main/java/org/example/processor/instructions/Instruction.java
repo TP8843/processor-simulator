@@ -63,6 +63,9 @@ public interface Instruction {
     
     /// Gets the current PC for the instruction
     int getPC();
+    
+    /// Returns if instruction can cause a branch
+    boolean canBranch();
 
     static byte decodeRs1(int instruction) {
         return (byte) ((instruction >> 15) & 0b11111);

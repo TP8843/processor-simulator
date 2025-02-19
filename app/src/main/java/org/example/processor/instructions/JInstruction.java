@@ -57,6 +57,11 @@ public class JInstruction implements Instruction {
     public int getPC() {
         return PC;
     }
+    
+    @Override
+    public boolean canBranch() {
+        return true;
+    }
 
     static public int decodeImmediate(int instruction){
         return (instruction & (0b11111111 << 12)) |
@@ -65,11 +70,13 @@ public class JInstruction implements Instruction {
                 ((instruction >> 31) << 20);
     }
     
-    static public JInstruction decode(int instruction, int PC){
+    static public JInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
+        
+        registers.setInvalid(rd);
 
         return new JInstruction(opcode, type, PC, imm, rd);
     }

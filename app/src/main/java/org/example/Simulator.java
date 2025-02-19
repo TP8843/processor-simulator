@@ -1,9 +1,6 @@
 package org.example;
 
 import org.example.processor.*;
-import org.example.processor.instructions.*;
-
-import java.util.*;
 
 public class Simulator {
     public final Memory memory;
@@ -53,6 +50,9 @@ public class Simulator {
                 decode.decode();
                 alu.input = decode.output;
                 compareUnit.input = decode.output;
+                
+                // Stop fetching of instructions until branching instruction finishes
+                if(decode.output.canBranch()) instructionFetch.fetching = false;
             }
             case 2 -> {
                 alu.execute();
@@ -63,8 +63,11 @@ public class Simulator {
             }
             case 3 -> {
                 memoryAccessUnit.process();
-                branchUnit.updatePC();
                 writeBackUnit.input = memoryAccessUnit.output;
+
+                branchUnit.updatePC();
+                // Once branch unit has updated the PC, instruction fetch can fetch again :D
+                instructionFetch.fetching = true;
             }
             case 4 -> {
                 writeBackUnit.writeBack();

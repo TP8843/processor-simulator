@@ -2,8 +2,6 @@ package org.example.processor.instructions;
 
 import org.example.processor.Registers;
 
-import javax.naming.ldap.Rdn;
-
 public class SInstruction implements Instruction{
     public enum Type {
         STORE_BYTE,
@@ -70,6 +68,11 @@ public class SInstruction implements Instruction{
     @Override
     public int getPC() {
         return PC;
+    }
+    
+    @Override
+    public boolean canBranch() {
+        return false;
     }
     
     static private int decodeImmediate(int instruction){

@@ -24,10 +24,10 @@ public class Decode {
         output = switch (type){
             case B_TYPE -> BInstruction.decode(input, currentPC, registers);
             case I_TYPE -> IInstruction.decode(input, currentPC, registers);
-            case J_TYPE -> JInstruction.decode(input, currentPC);
+            case J_TYPE -> JInstruction.decode(input, currentPC, registers);
             case R_TYPE -> RInstruction.decode(input, currentPC, registers);
             case S_TYPE -> SInstruction.decode(input, currentPC, registers);
-            case U_TYPE -> UInstruction.decode(input, currentPC);
+            case U_TYPE -> UInstruction.decode(input, currentPC, registers);
         };
     }
 
