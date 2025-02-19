@@ -5,6 +5,8 @@ import org.example.processor.instructions.IInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.JInstruction;
 
+// TODO: Make calculation for relative branches happen somewhere earlier in the pipeline (allow branch prediction)
+
 public class BranchUnit {
     private final InstructionFetch instructionFetch;
 
@@ -16,6 +18,9 @@ public class BranchUnit {
     }
 
     public void updatePC() {
+        // Do not do any processing if either input is null (something has stalled)
+        if(compareInput == null || aluInput == null) return;
+        
         switch (compareInput.getType()){
             case B_TYPE -> updatePCBType(
                     (BInstruction) compareInput,

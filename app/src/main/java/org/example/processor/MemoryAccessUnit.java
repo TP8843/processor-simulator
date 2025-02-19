@@ -15,6 +15,12 @@ public class MemoryAccessUnit {
     }
 
     public void process() {
+        // If input null (processor stalled), set output to null and skip processing
+        if (input == null) {
+            output = null;
+            return;
+        }
+        
         output = switch (input.getType()) {
             case I_TYPE -> processIType((IInstruction) input);
             case S_TYPE -> processSType((SInstruction) input);

@@ -9,6 +9,12 @@ public class Alu {
     public Instruction output;
 
     public void execute() {
+        // If input is null, do not do any processing (currently stalled)
+        if(input == null) {
+            output = null;
+            return;
+        }
+        
         output = switch (input.getType()) {
             case B_TYPE -> executeBType((BInstruction) input);
             case I_TYPE -> executeIType((IInstruction) input);

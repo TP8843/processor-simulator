@@ -8,6 +8,12 @@ public class CompareUnit {
     public Instruction output;
 
     public void execute() {
+        // If input is null (processor stalled), do not do any processing
+        if (input == null) {
+            output = null;
+            return;
+        }
+        
         if (input.getType() == Instruction.Type.B_TYPE) {
             output = executeBType((BInstruction) input);
         } else {

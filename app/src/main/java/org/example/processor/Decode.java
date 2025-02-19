@@ -16,6 +16,9 @@ public class Decode {
     }
     
     public void decode() {
+        // Do not run if instruction isn't fetched
+        if(input == 0) return;
+        
         Type type = Opcode.getInstructionType(Opcode.getOpcode(input));
 
         output = switch (type){

@@ -12,6 +12,8 @@ public class WriteBackUnit {
     }
 
     public void writeBack() {
+        
+        
         switch (input.getType()) {
             case I_TYPE -> writeBackIType((IInstruction) input);
             case J_TYPE -> writeBackJType((JInstruction) input);

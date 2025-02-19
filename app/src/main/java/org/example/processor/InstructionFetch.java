@@ -4,6 +4,10 @@ public class InstructionFetch {
     private final Memory memory;
     private int PC;
 
+    /// Whether InstructionFetch is fetching instructions from memory
+    public boolean fetching = true;
+    
+    /// Output for InstructionFetch
     public int output;
 
     public InstructionFetch(Memory memory, int PC) {
@@ -12,6 +16,12 @@ public class InstructionFetch {
     }
 
     public void process() {
+        // If not fetching, set instruction to 0 and return
+        if(!fetching) {
+            output = 0;
+            return;
+        }
+        
         output = memory.getWord(PC);
 
         PC += 4;
