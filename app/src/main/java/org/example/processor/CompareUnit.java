@@ -1,23 +1,30 @@
 package org.example.processor;
 
+import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.BInstruction;
 import org.example.processor.instructions.Instruction;
 
 public class CompareUnit {
-    public Instruction input;
-    public Instruction output;
+    public final Buffer<Instruction> input;
+    public final Buffer<Instruction> output;
 
+    public CompareUnit(Buffer<Instruction> input, Buffer<Instruction> output) {
+        this.input = input;
+        this.output = output;
+    }
+    
     public void execute() {
         // If input is null (processor stalled), do not do any processing
-        if (input == null) {
-            output = null;
+        if (!input.hasValue() || !output.hasSpace()) {
             return;
         }
         
-        if (input.getType() == Instruction.Type.B_TYPE) {
-            output = executeBType((BInstruction) input);
+        Instruction instruction = input.pop().get();
+        
+        if (instruction.getType() == Instruction.Type.B_TYPE) {
+            output.put(executeBType((BInstruction) instruction));
         } else {
-            output = input;
+            output.put(instruction);
         }
     }
 
@@ -40,8 +47,6 @@ public class CompareUnit {
     @Override
     public String toString() {
         return String.format("""
-                Compare Unit:
-                    Input: %s
-                    Output: %s""", input, output);
+                Compare Unit - nothing anymore""");
     }
 }

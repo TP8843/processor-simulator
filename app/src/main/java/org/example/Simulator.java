@@ -1,10 +1,24 @@
 package org.example;
 
 import org.example.processor.*;
+import org.example.processor.buffers.Buffer;
+import org.example.processor.buffers.DataBlockingBuffer;
+import org.example.processor.buffers.SingleValueBuffer;
+import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.UndecodedInstruction;
 
 public class Simulator {
     public final Memory memory;
     public final Registers registers;
+
+    public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
+    public final DataBlockingBuffer decodeAluBuffer;
+    public final DataBlockingBuffer decodeCompareBuffer;
+    public final Buffer<Instruction> compareBranchBuffer;
+    public final Buffer<Instruction> aluBranchBuffer;
+    public final Buffer<Instruction> aluMemoryBuffer;
+    public final Buffer<Instruction> memoryWriteBackBuffer;
+    
     public final InstructionFetch instructionFetch;
     public final Decode decode;
     public final Alu alu;
@@ -22,20 +36,34 @@ public class Simulator {
     public Simulator(Memory memory,
                      Registers registers,
                      InstructionFetch instructionFetch,
+                     Buffer<UndecodedInstruction> fetchDecodeBuffer,
                      Decode decode,
+                     DataBlockingBuffer decodeAluBuffer,
                      Alu alu,
+                     DataBlockingBuffer decodeCompareBuffer,
                      CompareUnit compareUnit,
+                     Buffer<Instruction> compareBranchBuffer,
+                     Buffer<Instruction> aluBranchBuffer,
                      BranchUnit branchUnit,
+                     Buffer<Instruction> aluMemoryBuffer,
                      MemoryAccessUnit memoryAccessUnit,
+                     Buffer<Instruction> memoryWriteBackBuffer,
                      WriteBackUnit writeBackUnit) {
         this.memory = memory;
         this.registers = registers;
         this.instructionFetch = instructionFetch;
+        this.fetchDecodeBuffer = fetchDecodeBuffer;
         this.decode = decode;
+        this.decodeAluBuffer = decodeAluBuffer;
         this.alu = alu;
+        this.decodeCompareBuffer = decodeCompareBuffer;
         this.compareUnit = compareUnit;
+        this.compareBranchBuffer = compareBranchBuffer;
+        this.aluBranchBuffer = aluBranchBuffer;
         this.branchUnit = branchUnit;
+        this.aluMemoryBuffer = aluMemoryBuffer;
         this.memoryAccessUnit = memoryAccessUnit;
+        this.memoryWriteBackBuffer = memoryWriteBackBuffer;
         this.writeBackUnit = writeBackUnit;
     }
     
@@ -48,53 +76,49 @@ public class Simulator {
     }
 
     public void runCycle() {
-        writeBackUnit.writeBack();
-        if (writeBackUnit.input != null)
+        if (writeBackUnit.writeBack())
             instructions += 1;
 
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
         
-        branchUnit.updatePC();
         // Once branch unit has updated the PC, instruction fetch can fetch again :D
-        if(branchUnit.aluInput != null && branchUnit.aluInput.canBranch()) {
-            branchStall = false;
+        if(branchUnit.updatePC()) {
+            fetchDecodeBuffer.flush();
+            fetchDecodeBuffer.release();
         }
 
         alu.execute();
         compareUnit.execute();
-        branchUnit.compareInput = compareUnit.output;
-        branchUnit.aluInput = alu.output;
-        memoryAccessUnit.input = alu.output;
 
         decode.decode();
-        alu.input = decode.output;
-        compareUnit.input = decode.output;
 
         // Stop fetching of instructions until branching instruction finishes
-        if(branchStall == false && decode.output != null && decode.output.canBranch()) {
-            branchStall = true;
-            instructionFetch.output = 0;
+        if(decodeAluBuffer.hasValue() && decodeAluBuffer.peek().get().canBranch()) {
+            fetchDecodeBuffer.stall();
         }
-
-        if (branchStall == false && decode.isReady()) {
-            instructionFetch.process();
-        }
-
-        decode.input = instructionFetch.output;
-        decode.currentPC = instructionFetch.getPC() - 4;
+        
+        instructionFetch.process();
     }
 
     static public Simulator createSimulator(String fileName) {
+        Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
+        DataBlockingBuffer decodeAluBuffer = new DataBlockingBuffer();
+        DataBlockingBuffer decodeCompareBuffer = new DataBlockingBuffer();
+        Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
+        Buffer<Instruction> aluBranchBuffer = new SingleValueBuffer<>();
+        Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
+        Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
+        
         Memory memory = new Memory();
         Registers registers = new Registers();
-        InstructionFetch instructionFetch = new InstructionFetch(memory, 8);
-        Decode decode = new Decode(registers);
-        Alu alu = new Alu();
-        CompareUnit compareUnit = new CompareUnit();
-        BranchUnit branchUnit = new BranchUnit(instructionFetch);
-        MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory);
-        WriteBackUnit writeBackUnit = new WriteBackUnit(registers);
+        InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
+        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeAluBuffer, decodeCompareBuffer);
+        Alu alu = new Alu(decodeAluBuffer, aluMemoryBuffer, aluBranchBuffer);
+        CompareUnit compareUnit = new CompareUnit(decodeCompareBuffer, compareBranchBuffer);
+        BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, aluBranchBuffer);
+        MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
+        WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
 
         memory.loadProgram(fileName, 8);
 
@@ -102,11 +126,18 @@ public class Simulator {
                 memory,
                 registers,
                 instructionFetch,
+                fetchDecodeBuffer,
                 decode,
+                decodeAluBuffer,
                 alu,
+                decodeCompareBuffer,
                 compareUnit,
+                compareBranchBuffer,
+                aluBranchBuffer,
                 branchUnit,
+                aluMemoryBuffer,
                 memoryAccessUnit,
+                memoryWriteBackBuffer,
                 writeBackUnit
         );
     }

@@ -5,18 +5,22 @@ import java.util.HexFormat;
 import java.util.Scanner;
 import java.util.Set;
 
+// TODO: Update all prints to allow for printing buffers and swag
+
 public class Debugger {
     private final Simulator simulator;
 
     private final String printError = """
             Possible Commands:
                 instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
-                decode/decode-unit/decodeUnit             - Decode Unit
-                compareUnit/compare-unit/compare          - Compare Unit (handles = and != for branching)
-                alu                                       - ALU (handles general computation)
-                memoryAccessor/memory-accessor            - Handles memory writes/reads
-                branchUnit/program-count-updater          - Handles updating PC (incrementing or setting on branch)
-                writeBackUnit/write-back-unit             - Handles writing back to the registers
+                fetchdecode/fetch-decode                  - Fetch to decode buffer
+                decodecompare/decode-compare              - Decode to Compare Unit Buffer
+                decodealu/decode-alu                      - Decode to ALU Buffer
+                alumemory/alu-memory                      - ALU to Memory Access Unit Buffer
+                alubranch/alu-branch                      - ALU to Branch Unit Buffer
+                alu                                       - ALU state (currently just if halted)
+                comparebranch/compare-branch              - Compare Unit to Branch Unit Buffer
+                memorywriteback/memory-write-back         - Memory Access Unit to Write Back Unit Buffer
                 memory                                    - Memory storing data and program
                 registers                                 - Current value of all registers
             """;
@@ -84,11 +88,13 @@ public class Debugger {
             case "alu": System.out.println(simulator.alu); break;
             case "memory": System.out.println(simulator.memory); break;
             case "registers": System.out.println(simulator.registers); break;
-            case "memoryaccessor", "memory-accessor": System.out.println(simulator.memoryAccessUnit); break;
-            case "branchunit", "branch-unit", "branch": System.out.println(simulator.branchUnit); break;
-            case "writebackunit", "write-back-unit", "writeback", "write-back": System.out.println(simulator.writeBackUnit); break;
-            case "compareunit", "compare-unit", "compare": System.out.println(simulator.compareUnit); break;
-            case "decode-unit", "decodeunit", "decode": System.out.println(simulator.decode); break;
+            case "alumemory", "alu-memory": System.out.println(simulator.aluMemoryBuffer); break;
+            case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
+            case "alubranch", "alu-branch": System.out.println(simulator.aluBranchBuffer); break;
+            case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
+            case "decodecompare", "decode-compare": System.out.println(simulator.decodeCompareBuffer); break;
+            case "decodealu", "decode-alu": System.out.println(simulator.decodeAluBuffer); break;
+            case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
             case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
             case "state": printState(); break;
             default: {
