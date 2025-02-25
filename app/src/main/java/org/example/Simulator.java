@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.processor.*;
 import org.example.processor.buffers.Buffer;
-import org.example.processor.buffers.DataBlockingBuffer;
+import org.example.processor.buffers.ReservationStation;
 import org.example.processor.buffers.SingleValueBuffer;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
@@ -12,8 +12,7 @@ public class Simulator {
     public final Registers registers;
 
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
-    public final DataBlockingBuffer decodeAluBuffer;
-    public final DataBlockingBuffer decodeCompareBuffer;
+    public final ReservationStation decodeBuffer;
     public final Buffer<Instruction> compareBranchBuffer;
     public final Buffer<Instruction> aluBranchBuffer;
     public final Buffer<Instruction> aluMemoryBuffer;
@@ -27,9 +26,6 @@ public class Simulator {
     public final MemoryAccessUnit memoryAccessUnit;
     public final WriteBackUnit writeBackUnit;
     
-    /// Whether branch store currently occurring
-    private boolean branchStall = false;
-    
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
 
@@ -38,9 +34,8 @@ public class Simulator {
                      InstructionFetch instructionFetch,
                      Buffer<UndecodedInstruction> fetchDecodeBuffer,
                      Decode decode,
-                     DataBlockingBuffer decodeAluBuffer,
+                     ReservationStation decodeBuffer,
                      Alu alu,
-                     DataBlockingBuffer decodeCompareBuffer,
                      CompareUnit compareUnit,
                      Buffer<Instruction> compareBranchBuffer,
                      Buffer<Instruction> aluBranchBuffer,
@@ -54,9 +49,8 @@ public class Simulator {
         this.instructionFetch = instructionFetch;
         this.fetchDecodeBuffer = fetchDecodeBuffer;
         this.decode = decode;
-        this.decodeAluBuffer = decodeAluBuffer;
+        this.decodeBuffer = decodeBuffer;
         this.alu = alu;
-        this.decodeCompareBuffer = decodeCompareBuffer;
         this.compareUnit = compareUnit;
         this.compareBranchBuffer = compareBranchBuffer;
         this.aluBranchBuffer = aluBranchBuffer;
@@ -67,34 +61,41 @@ public class Simulator {
         this.writeBackUnit = writeBackUnit;
     }
     
-    public boolean getBranchStall() {
-        return branchStall;
-    }
-    
     public int getInstructions() {
         return instructions;
     }
 
     public void runCycle() {
-        if (writeBackUnit.writeBack())
+        if (writeBackUnit.writeBack()){
             instructions += 1;
+            System.out.println("Finished processing instruction 0x" + 
+                    Integer.toHexString(writeBackUnit.previous.getPC()));
+        }
 
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
         
         // Once branch unit has updated the PC, instruction fetch can fetch again :D
+        if(aluBranchBuffer.hasValue() && aluBranchBuffer.peek().get().canBranch()) {
+            fetchDecodeBuffer.release();
+        }
+
+        // If the branch updates the PC, flush the current instruction
         if(branchUnit.updatePC()) {
             fetchDecodeBuffer.flush();
-            fetchDecodeBuffer.release();
         }
 
         alu.execute();
         compareUnit.execute();
+        
+        // Add data to current instruction in the buffer, and reserve the destination in the ALU buffer
+        // TODO: Reserve destination when ready in buffer
+        decodeBuffer.addData();
 
         decode.decode();
 
         // Stop fetching of instructions until branching instruction finishes
-        if(decodeAluBuffer.hasValue() && decodeAluBuffer.peek().get().canBranch()) {
+        if(decodeBuffer.hasValue() && decodeBuffer.peek().get().canBranch()) {
             fetchDecodeBuffer.stall();
         }
         
@@ -102,20 +103,20 @@ public class Simulator {
     }
 
     static public Simulator createSimulator(String fileName) {
+        Memory memory = new Memory();
+        Registers registers = new Registers();
+        
         Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
-        DataBlockingBuffer decodeAluBuffer = new DataBlockingBuffer();
-        DataBlockingBuffer decodeCompareBuffer = new DataBlockingBuffer();
+        ReservationStation decodeBuffer = new ReservationStation(registers);
         Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> aluBranchBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
         
-        Memory memory = new Memory();
-        Registers registers = new Registers();
         InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeAluBuffer, decodeCompareBuffer);
-        Alu alu = new Alu(decodeAluBuffer, aluMemoryBuffer, aluBranchBuffer);
-        CompareUnit compareUnit = new CompareUnit(decodeCompareBuffer, compareBranchBuffer);
+        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeBuffer);
+        Alu alu = new Alu(decodeBuffer, aluMemoryBuffer, aluBranchBuffer);
+        CompareUnit compareUnit = new CompareUnit(decodeBuffer, compareBranchBuffer);
         BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, aluBranchBuffer);
         MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
         WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
@@ -128,9 +129,8 @@ public class Simulator {
                 instructionFetch,
                 fetchDecodeBuffer,
                 decode,
-                decodeAluBuffer,
+                decodeBuffer,
                 alu,
-                decodeCompareBuffer,
                 compareUnit,
                 compareBranchBuffer,
                 aluBranchBuffer,

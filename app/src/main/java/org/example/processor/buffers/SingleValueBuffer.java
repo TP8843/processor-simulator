@@ -66,6 +66,7 @@ public class SingleValueBuffer<T> implements Buffer<T> {
     @Override
     public String toString() {
         return String.format("""
-                Current Value: %s""", value);
+                Current Value: %s
+                Stalled: %s""", value, stalled ? "True" : "False");
     }
 }

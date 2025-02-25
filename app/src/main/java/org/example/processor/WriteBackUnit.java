@@ -5,6 +5,8 @@ import org.example.processor.instructions.*;
 
 public class WriteBackUnit {
     private final Registers registers;
+    
+    public Instruction previous;
 
     public Buffer<Instruction> input;
 
@@ -18,6 +20,8 @@ public class WriteBackUnit {
         if (!input.hasValue()) return false;
         
         Instruction instruction = input.pop().get();
+        
+        previous = instruction;
         
         return switch (instruction.getType()) {
             case I_TYPE -> writeBackIType((IInstruction) instruction);
@@ -50,13 +54,14 @@ public class WriteBackUnit {
 
     private boolean writeBackRType(RInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.aluResult);
-        
+
         return true;
     }
 
     private boolean writeBackUType(UInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.aluResult);
-        
+
+        System.out.println(instruction);
         return true;
     }
 

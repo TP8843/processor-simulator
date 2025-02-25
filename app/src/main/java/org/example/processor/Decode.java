@@ -9,19 +9,17 @@ public class Decode {
     private final Registers registers;
 
     public final Buffer<UndecodedInstruction> input;
-    public final Buffer<Instruction> aluOutput;
-    public final Buffer<Instruction> compareOutput;
+    public final Buffer<Instruction> output;
 
-    public Decode(Registers registers, Buffer<UndecodedInstruction> input, Buffer<Instruction> aluOutput, Buffer<Instruction> compareOutput) {
+    public Decode(Registers registers, Buffer<UndecodedInstruction> input, Buffer<Instruction> output) {
         this.registers = registers;
         this.input = input;
-        this.aluOutput = aluOutput;
-        this.compareOutput = compareOutput;
+        this.output = output;
     }
     
     public void decode() {
         // Do not run if instruction isn't fetched or there isn't space on the output
-        if(!input.hasValue() || !aluOutput.hasSpace()) {
+        if(!input.hasValue() || !output.hasSpace()) {
             return;
         }
         
@@ -43,8 +41,7 @@ public class Decode {
         // Add data if available, and if data is not available (returned instruction has not got data) output = null
         currentInstruction = currentInstruction.addDataIfAvailable(registers);
         
-        aluOutput.put(currentInstruction);
-        compareOutput.put(currentInstruction);
+        output.put(currentInstruction);
     }
 
     @Override

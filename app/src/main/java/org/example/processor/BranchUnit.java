@@ -23,7 +23,7 @@ public class BranchUnit {
     /// Updates the PC in instruction fetch if required. Returns true if PC updated
     public boolean updatePC() {
         // Do not do any processing if either input is null (something has stalled)
-        if(!compareInput.hasValue() || aluInput.hasValue()) return false;
+        if(!compareInput.hasValue() || !aluInput.hasValue()) return false;
         
         Instruction compare = compareInput.pop().get();
         Instruction alu = aluInput.pop().get();

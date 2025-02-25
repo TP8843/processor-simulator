@@ -46,8 +46,7 @@ public class Registers {
         // Do not do anything if zero register or outside range
         if (index <= 0 || index > 31) return;
         
-        if (index == 1)
-            System.out.println("Writing to register 1 with value " + value);
+        System.out.println("Writing to register " + index + " with value " + value);
         
         // Account for zero register
         registers[index - 1] = value;

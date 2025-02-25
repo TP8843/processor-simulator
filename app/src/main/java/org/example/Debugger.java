@@ -63,9 +63,9 @@ public class Debugger {
                 runProcessorCycle();
                 printState();
             } else if (line.startsWith("continue")) {
-                while (!simulator.alu.isHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4)) {
+                do {
                     runProcessorCycle();
-                }
+                } while (!simulator.alu.isHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
             } else if (line.startsWith("exit")) {
                 System.out.println("Final value: " + simulator.memory.getWord(0));
                 return;
@@ -92,8 +92,7 @@ public class Debugger {
             case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
             case "alubranch", "alu-branch": System.out.println(simulator.aluBranchBuffer); break;
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
-            case "decodecompare", "decode-compare": System.out.println(simulator.decodeCompareBuffer); break;
-            case "decodealu", "decode-alu": System.out.println(simulator.decodeAluBuffer); break;
+            case "decodebuffer", "decode-buffer": System.out.println(simulator.decodeBuffer); break;
             case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
             case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
             case "state": printState(); break;
@@ -112,13 +111,11 @@ public class Debugger {
                             Current Cycle Count: %s
                             Current Instructions per Cycle: %s
                             Current Cycles per Instruction: %s
-                            Branch Stall: %s
                             Halted: %s""", 
                         Integer.toHexString(simulator.instructionFetch.getPC()), 
                         cycles, 
                         (float) simulator.getInstructions() / (float) cycles,
                         (float) cycles / (float) simulator.getInstructions(),
-                        simulator.getBranchStall() ? "True" : "False",
                         simulator.alu.isHalted() ? "True" : "False"));
     }
 

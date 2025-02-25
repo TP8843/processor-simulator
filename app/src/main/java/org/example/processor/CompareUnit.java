@@ -41,6 +41,7 @@ public class CompareUnit {
                     Integer.compareUnsigned(instruction.rs1Data, instruction.rs2Data) >= 0;
         };
 
+        System.out.println("Comparing " + instruction.rs1Data + " and " + instruction.rs2Data + " got " + result);
         return instruction.addCompareResult(result);
     }
 
