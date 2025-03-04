@@ -45,7 +45,7 @@ public class Decode {
         };
         
         // Add data if available, and if data is not available (returned instruction has not got data) output = null
-        currentInstruction = currentInstruction.addDataIfAvailable(registers);
+        currentInstruction.addDataIfAvailable(registers);
         
         output.put(currentInstruction);
     }

@@ -3,16 +3,18 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.BInstructions.BInstruction;
 import org.example.processor.instructions.IInstructions.IInstruction;
+import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.InstructionVisitable;
+import org.example.processor.instructions.JInstructions.JALInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: Make calculation for relative branches happen somewhere earlier in the pipeline (allow branch prediction)
-
 public class BranchUnit implements InstructionVisitable {
+    // TODO: Add properties for all the buffers so they can be flushed on a branch miss
+    
     private final InstructionFetch instructionFetch;
 
     public Buffer<Instruction> compareInput;
@@ -74,21 +76,20 @@ public class BranchUnit implements InstructionVisitable {
     }
     
     public void execute(Instruction instruction){}
+    
+    /// Address generation for Jump and Link Register Instruction
+    public void execute(JALRInstruction instruction){
+        branchAddresses.put(instruction.getPC(), ((instruction.rs1Data + instruction.imm) >> 1) << 1);
+    }
 
+    /// Address generation for Branch Instructions
     public void execute(BInstruction instruction) {
         branchAddresses.put(instruction.getPC(), instruction.getPC() + instruction.imm);
     }
-
-    public void execute(IInstruction instruction) {
-        if (instruction.type == IInstruction.Type.JUMP_AND_LINK_REGISTER) {
-            branchAddresses.put(instruction.getPC(), ((instruction.rs1Data + instruction.imm) >> 1) << 1);
-        }
-    }
     
-    public void execute(JInstruction instruction) {
-        if (instruction.type == JInstruction.Type.JUMP_AND_LINK) {
-            branchAddresses.put(instruction.getPC(), instruction.imm + instruction.getPC());
-        }
+    /// Address generation for Jump and Link Instruction
+    public void execute(JALInstruction instruction) {
+        branchAddresses.put(instruction.getPC(), instruction.imm + instruction.getPC());
     }
 
     @Override

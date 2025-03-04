@@ -1,10 +1,11 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.instructions.BInstructions.BInstruction;
+import org.example.processor.instructions.BInstructions.*;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.InstructionVisitable;
 
-public class CompareUnit {
+public class CompareUnit implements InstructionVisitable {
     public final Buffer<Instruction> input;
     public final Buffer<Instruction> output;
 
@@ -20,29 +21,40 @@ public class CompareUnit {
         }
         
         Instruction instruction = input.pop().get();
-        
-        if (instruction.getType() == Instruction.Type.B_TYPE) {
-            output.put(executeBType((BInstruction) instruction));
-        } else {
-            output.put(instruction);
-        }
+        instruction.visit(this);
+        output.put(instruction);
+    }
+    
+    public void execute(Instruction instruction) {}
+    
+    /// Branch Equal To Comparison
+    public void execute(BEQInstruction instruction) {
+        instruction.addResult(instruction.getRs1Data() == instruction.getRs2Data() ? 1 : 0);
+    }
+    
+    /// Branch Not Equal To Comparison
+    public void execute(BNEInstruction instruction) {
+        instruction.addResult(instruction.getRs1Data() != instruction.getRs2Data() ? 1 : 0);
     }
 
-    static private BInstruction executeBType(BInstruction instruction) {
-        boolean result = switch (instruction.type) {
-            case BRANCH_EQ -> instruction.rs1Data == instruction.rs2Data;
-            case BRANCH_NE -> instruction.rs1Data != instruction.rs2Data;
-            case BRANCH_LT -> instruction.rs1Data < instruction.rs2Data;
-            case BRANCH_GTE -> instruction.rs1Data >= instruction.rs2Data;
+    /// Branch Less Than Comparison
+    public void execute(BLTInstruction instruction) {
+        instruction.addResult(instruction.getRs1Data() < instruction.getRs2Data() ? 1 : 0);
+    }
 
-            case BRANCH_LT_UNSIGNED ->
-                    Integer.compareUnsigned(instruction.rs1Data, instruction.rs2Data) < 0;
-            case BRANCH_GTE_UNSIGNED ->
-                    Integer.compareUnsigned(instruction.rs1Data, instruction.rs2Data) >= 0;
-        };
+    /// Branch Greater Than or Equal To Comparison
+    public void execute(BGTEInstruction instruction) {
+        instruction.addResult(instruction.getRs1Data() >= instruction.getRs2Data() ? 1 : 0);
+    }
 
-        System.out.println("Comparing " + instruction.rs1Data + " and " + instruction.rs2Data + " got " + result);
-        return instruction.addCompareResult(result);
+    /// Branch Less Than Unsigned Comparison
+    public void execute(BLTUInstruction instruction) {
+        instruction.addResult(Integer.compareUnsigned(instruction.getRs1Data(), instruction.getRs2Data()) < 0 ? 1 : 0);
+    }
+
+    /// Branch Greater Than or Equal To Unsigned Comparison
+    public void execute(BGTEUInstruction instruction) {
+        instruction.addResult(Integer.compareUnsigned(instruction.getRs1Data(), instruction.getRs2Data()) >= 0 ? 1 : 0);
     }
 
     @Override
