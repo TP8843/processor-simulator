@@ -1,32 +1,47 @@
 package org.example.processor;
 
+import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 
 public class Alu {
+    // TODO: Halt in a better way
     private boolean isHalted;
     
-    public Instruction input;
-    public Instruction output;
+    public final Buffer<Instruction> input;
+    public final Buffer<Instruction> memoryOutput;
+    public final Buffer<Instruction> branchOutput;
+    
+    public Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput, Buffer<Instruction> branchOutput) {
+        this.input = input;
+        this.memoryOutput = memoryOutput;
+        this.branchOutput = branchOutput;
+    }
 
     public void execute() {
-        // If input is null, do not do any processing (currently stalled)
-        if(input == null) {
-            output = null;
+        // If input not available or output full, do not run anything
+        if(!input.hasValue() || !(memoryOutput.hasSpace() && branchOutput.hasSpace())) {
             return;
         }
         
-        output = switch (input.getType()) {
-            case B_TYPE -> executeBType((BInstruction) input);
-            case I_TYPE -> executeIType((IInstruction) input);
-            case J_TYPE -> executeJType((JInstruction) input);
-            case R_TYPE -> executeRType((RInstruction) input);
-            case S_TYPE -> executeSType((SInstruction) input);
-            case U_TYPE -> executeUType((UInstruction) input);
+        Instruction instruction = input.pop().get();
+        
+        // TODO: Make this more elegant
+
+        Instruction outputInstruction = switch (instruction.getType()) {
+            case B_TYPE -> executeBType((BInstruction) instruction);
+            case I_TYPE -> executeIType((IInstruction) instruction);
+            case J_TYPE -> executeJType((JInstruction) instruction);
+            case R_TYPE -> executeRType((RInstruction) instruction);
+            case S_TYPE -> executeSType((SInstruction) instruction);
+            case U_TYPE -> executeUType((UInstruction) instruction);
         };
+        
+        memoryOutput.put(outputInstruction);
+        branchOutput.put(outputInstruction);
 
         // Exit program if you detect a jump to yourself
-        if (output.getType() == Instruction.Type.J_TYPE &&
-                ((JInstruction) output).aluResult == 0) {
+        if (outputInstruction.getType() == Instruction.Type.J_TYPE &&
+                ((JInstruction) outputInstruction).aluResult == 0) {
             System.out.println("Finish execution");
             isHalted = true;
         }
@@ -114,8 +129,6 @@ public class Alu {
     public String toString() {
         return String.format("""
                 ALU:
-                    Is Halted: %s
-                    Input: %s
-                    Output: %s""", isHalted, input, output);
+                    Is Halted: %s""", isHalted);
     }
 }

@@ -1,29 +1,38 @@
 package org.example.processor;
 
+import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 
 public class WriteBackUnit {
     private final Registers registers;
+    
+    public Instruction previous;
 
-    public Instruction input;
+    public Buffer<Instruction> input;
 
-    public WriteBackUnit(Registers registers) {
+    public WriteBackUnit(Registers registers, Buffer<Instruction> input) {
         this.registers = registers;
+        this.input = input;
     }
 
-    public void writeBack() {
+    public boolean writeBack() {
         // If no instruction available, do not process anything
-        if (input == null) return;
+        if (!input.hasValue()) return false;
         
-        switch (input.getType()) {
-            case I_TYPE -> writeBackIType((IInstruction) input);
-            case J_TYPE -> writeBackJType((JInstruction) input);
-            case R_TYPE -> writeBackRType((RInstruction) input);
-            case U_TYPE -> writeBackUType((UInstruction) input);
+        Instruction instruction = input.pop().get();
+        
+        previous = instruction;
+        
+        return switch (instruction.getType()) {
+            case I_TYPE -> writeBackIType((IInstruction) instruction);
+            case J_TYPE -> writeBackJType((JInstruction) instruction);
+            case R_TYPE -> writeBackRType((RInstruction) instruction);
+            case U_TYPE -> writeBackUType((UInstruction) instruction);
+            default -> false;
         };
     }
 
-    private void writeBackIType(IInstruction instruction) {
+    private boolean writeBackIType(IInstruction instruction) {
         switch (instruction.type) {
             case LOAD_BYTE, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD, LOAD_HALF_WORD_UNSIGNED, LOAD_WORD ->
                 registers.setRegister(instruction.rd, instruction.memoryResult);
@@ -33,24 +42,32 @@ public class WriteBackUnit {
             case JUMP_AND_LINK_REGISTER ->
                 registers.setRegister(instruction.rd, instruction.getPC() + 4);
         }
+        
+        return true;
     }
 
-    private void writeBackJType(JInstruction instruction) {
+    private boolean writeBackJType(JInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.getPC() + 4);
+        
+        return true;
     }
 
-    private void writeBackRType(RInstruction instruction) {
+    private boolean writeBackRType(RInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.aluResult);
+
+        return true;
     }
 
-    private void writeBackUType(UInstruction instruction) {
+    private boolean writeBackUType(UInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.aluResult);
+
+        System.out.println(instruction);
+        return true;
     }
 
     @Override
     public String toString() {
         return String.format("""
-                Write Back Unit:
-                    Input: %s""", input);
+                Write Back Unit - nothing left""", input);
     }
 }

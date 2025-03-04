@@ -1,5 +1,6 @@
 package org.example.processor;
 
+import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.IInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.SInstruction;
@@ -7,25 +8,30 @@ import org.example.processor.instructions.SInstruction;
 public class MemoryAccessUnit {
     private final Memory memory;
 
-    public Instruction input;
-    public Instruction output;
+    public Buffer<Instruction> input;
+    public Buffer<Instruction> output;
 
-    public MemoryAccessUnit(Memory memory) {
+    public MemoryAccessUnit(Memory memory, Buffer<Instruction> input, Buffer<Instruction> output) {
         this.memory = memory;
+        this.input = input;
+        this.output = output;
     }
 
     public void process() {
         // If input null (processor stalled), set output to null and skip processing
-        if (input == null) {
-            output = null;
+        if (!input.hasValue() || !output.hasSpace()) {
             return;
         }
         
-        output = switch (input.getType()) {
-            case I_TYPE -> processIType((IInstruction) input);
-            case S_TYPE -> processSType((SInstruction) input);
-            default -> input;
+        Instruction instruction = input.pop().get();
+        
+        Instruction outputInstruction = switch (instruction.getType()) {
+            case I_TYPE -> processIType((IInstruction) instruction);
+            case S_TYPE -> processSType((SInstruction) instruction);
+            default -> instruction;
         };
+        
+        output.put(outputInstruction);
     }
 
     private IInstruction processIType(IInstruction instruction) {
