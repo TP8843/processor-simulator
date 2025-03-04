@@ -1,9 +1,9 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.instructions.IInstruction;
+import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.SInstruction;
+import org.example.processor.instructions.SInstructions.SInstruction;
 
 public class MemoryAccessUnit {
     private final Memory memory;
@@ -36,11 +36,11 @@ public class MemoryAccessUnit {
 
     private IInstruction processIType(IInstruction instruction) {
         int result = switch (instruction.type) {
-            case LOAD_BYTE -> memory.getByte(instruction.aluResult, false);
-            case LOAD_HALF_WORD -> memory.getHalfWord(instruction.aluResult, false);
-            case LOAD_WORD -> memory.getWord(instruction.aluResult);
-            case LOAD_BYTE_UNSIGNED -> memory.getByte(instruction.aluResult, true);
-            case LOAD_HALF_WORD_UNSIGNED -> memory.getHalfWord(instruction.aluResult, true);
+            case LOAD_BYTE -> memory.getByte(instruction.result, false);
+            case LOAD_HALF_WORD -> memory.getHalfWord(instruction.result, false);
+            case LOAD_WORD -> memory.getWord(instruction.result);
+            case LOAD_BYTE_UNSIGNED -> memory.getByte(instruction.result, true);
+            case LOAD_HALF_WORD_UNSIGNED -> memory.getHalfWord(instruction.result, true);
             default -> 0;
         };
 
@@ -49,9 +49,9 @@ public class MemoryAccessUnit {
 
     private SInstruction processSType(SInstruction instruction) {
         switch (instruction.type) {
-            case STORE_BYTE -> memory.storeByte(instruction.aluResult, instruction.rs2Data);
-            case STORE_HALF_WORD -> memory.storeHalfWord(instruction.aluResult, instruction.rs2Data);
-            case STORE_WORD -> memory.storeWord(instruction.aluResult, instruction.rs2Data);
+            case STORE_BYTE -> memory.storeByte(instruction.result, instruction.rs2Data);
+            case STORE_HALF_WORD -> memory.storeHalfWord(instruction.result, instruction.rs2Data);
+            case STORE_WORD -> memory.storeWord(instruction.result, instruction.rs2Data);
         }
 
         return instruction;

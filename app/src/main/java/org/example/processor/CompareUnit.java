@@ -1,7 +1,7 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.instructions.BInstruction;
+import org.example.processor.instructions.BInstructions.BInstruction;
 import org.example.processor.instructions.Instruction;
 
 public class CompareUnit {

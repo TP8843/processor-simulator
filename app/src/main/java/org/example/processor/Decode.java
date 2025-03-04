@@ -2,6 +2,12 @@ package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
+import org.example.processor.instructions.BInstructions.BInstruction;
+import org.example.processor.instructions.IInstructions.IInstruction;
+import org.example.processor.instructions.JInstructions.JInstruction;
+import org.example.processor.instructions.RInstructions.RInstruction;
+import org.example.processor.instructions.SInstructions.SInstruction;
+import org.example.processor.instructions.UInstructions.UInstruction;
 
 import static org.example.processor.instructions.Instruction.*;
 

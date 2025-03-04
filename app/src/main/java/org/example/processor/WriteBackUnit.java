@@ -2,6 +2,10 @@ package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
+import org.example.processor.instructions.IInstructions.IInstruction;
+import org.example.processor.instructions.JInstructions.JInstruction;
+import org.example.processor.instructions.RInstructions.RInstruction;
+import org.example.processor.instructions.UInstructions.UInstruction;
 
 public class WriteBackUnit {
     private final Registers registers;
@@ -38,7 +42,7 @@ public class WriteBackUnit {
                 registers.setRegister(instruction.rd, instruction.memoryResult);
             case ADDI, ORI, ANDI, XORI, SET_LESS_THAN_IMMEDIATE, SET_LESS_THAN_IMMEDIATE_UNSIGNED, 
                  SHIFT_LEFT_LOGICAL_IMMEDIATE, SHIFT_RIGHT_ARITHMETIC_IMMEDIATE, SHIFT_RIGHT_LOGICAL_IMMEDIATE ->
-                registers.setRegister(instruction.rd, instruction.aluResult);
+                registers.setRegister(instruction.rd, instruction.result);
             case JUMP_AND_LINK_REGISTER ->
                 registers.setRegister(instruction.rd, instruction.getPC() + 4);
         }
@@ -53,13 +57,13 @@ public class WriteBackUnit {
     }
 
     private boolean writeBackRType(RInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.aluResult);
+        registers.setRegister(instruction.rd, instruction.result);
 
         return true;
     }
 
     private boolean writeBackUType(UInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.aluResult);
+        registers.setRegister(instruction.rd, instruction.result);
 
         System.out.println(instruction);
         return true;

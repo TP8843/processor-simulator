@@ -2,8 +2,14 @@ package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
+import org.example.processor.instructions.IInstructions.*;
+import org.example.processor.instructions.JInstructions.JInstruction;
+import org.example.processor.instructions.RInstructions.*;
+import org.example.processor.instructions.SInstructions.SInstruction;
+import org.example.processor.instructions.UInstructions.AUIInstruction;
+import org.example.processor.instructions.UInstructions.LUIInstruction;
 
-public class Alu {
+public class Alu implements InstructionVisitable {
     // TODO: Halt in a better way
     private boolean isHalted;
     
@@ -25,24 +31,16 @@ public class Alu {
         
         Instruction instruction = input.pop().get();
         
-        // TODO: Make this more elegant
+        instruction.visit(this);
 
-        Instruction outputInstruction = switch (instruction.getType()) {
-            case B_TYPE -> executeBType((BInstruction) instruction);
-            case I_TYPE -> executeIType((IInstruction) instruction);
-            case J_TYPE -> executeJType((JInstruction) instruction);
-            case R_TYPE -> executeRType((RInstruction) instruction);
-            case S_TYPE -> executeSType((SInstruction) instruction);
-            case U_TYPE -> executeUType((UInstruction) instruction);
-        };
+        Instruction outputInstruction = instruction;
         
         memoryOutput.put(outputInstruction);
-        branchOutput.put(outputInstruction);
 
         // Exit program if you detect a jump to yourself
         if (outputInstruction.getType() == Instruction.Type.J_TYPE &&
-                ((JInstruction) outputInstruction).aluResult == 0) {
-            System.out.println("Finish execution");
+                ((JInstruction) outputInstruction).getResult() == 0) {
+            System.out.println("Reached end of program");
             isHalted = true;
         }
     }
@@ -51,80 +49,148 @@ public class Alu {
         return isHalted;
     }
 
-    static private BInstruction executeBType(BInstruction instruction) {
-        int result = instruction.getPC() + instruction.imm;
-
-        return instruction.addAluResult(result);
+    /// Fallback Execute
+    public void execute(Instruction instruction){
+        throw new IllegalArgumentException("Must be an instruction that uses the ALU");
+    }
+    
+    /// ADD Immediate Execute
+    public void execute(AddIInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
     }
 
-    static private IInstruction executeIType(IInstruction instruction) {
-        int result = switch (instruction.type) {
-            case ADDI, LOAD_BYTE, LOAD_HALF_WORD, LOAD_WORD, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD_UNSIGNED -> 
-                    instruction.rs1Data + instruction.imm;
-
-            case SET_LESS_THAN_IMMEDIATE ->
-                    instruction.rs1Data < instruction.imm ? 1 : 0;
-            case SET_LESS_THAN_IMMEDIATE_UNSIGNED ->
-                    Integer.compareUnsigned(instruction.rs1Data, instruction.imm) < 0 ? 1 : 0;
-
-            case ANDI -> instruction.rs1Data & instruction.imm;
-            case ORI -> instruction.rs1Data | instruction.imm;
-            case XORI -> instruction.rs1Data ^ instruction.imm;
-
-            case SHIFT_LEFT_LOGICAL_IMMEDIATE -> instruction.rs1Data << (instruction.imm & 0b11111);
-            case SHIFT_RIGHT_LOGICAL_IMMEDIATE -> instruction.rs1Data >>> (instruction.imm & 0b11111);
-            case SHIFT_RIGHT_ARITHMETIC_IMMEDIATE -> instruction.rs1Data >> (instruction.imm & 0b11111);
-
-            // Least significant bit 0
-            case JUMP_AND_LINK_REGISTER -> ((instruction.rs1Data + instruction.imm) >> 1) << 1;
-
-            case ENVIRONMENT_CALL, ENVIRONMENT_BREAK -> 0;
-        };
-
-        return instruction.addAluResult(result);
+    /// Load Byte Execute
+    public void execute(LBInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
     }
 
-    static private JInstruction executeJType(JInstruction instruction) {
-        int result = switch (instruction.type) {
-            case JUMP_AND_LINK -> instruction.imm + instruction.getPC();
-        };
-
-        return instruction.addAluResult(result);
+    /// Load Half Word Execute
+    public void execute(LHWInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
     }
 
-    static private RInstruction executeRType(RInstruction instruction) {
-        int result = switch (instruction.type) {
-            case ADD -> instruction.rs1Data + instruction.rs2Data;
-            case SUB -> instruction.rs1Data - instruction.rs2Data;
-            case OR -> instruction.rs1Data | instruction.rs2Data;
-            case AND -> instruction.rs1Data & instruction.rs2Data;
-            case XOR -> instruction.rs1Data ^ instruction.rs2Data;
-            case SHIFT_LEFT_LOGICAL -> instruction.rs1Data << (instruction.rs2Data & 0b11111);
-            case SHIFT_RIGHT_LOGICAL -> instruction.rs1Data >>> (instruction.rs2Data & 0b11111);
-            case SHIFT_RIGHT_ARITHMETIC -> instruction.rs1Data >> (instruction.rs2Data & 0b11111);
-            case SET_LESS_THAN -> (instruction.rs1Data < instruction.rs2Data) ? 1 : 0;
-            case SET_LESS_THAN_UNSIGNED -> Integer.compareUnsigned(instruction.rs1Data, instruction.rs2Data) < 0 ? 1 : 0;
-        };
-
-        return instruction.addAluResult(result);
+    /// Load Word Execute
+    public void execute(LWInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
     }
 
-    static private SInstruction executeSType(SInstruction instruction) {
-        int result = instruction.rs1Data + instruction.imm;
-
-        return instruction.addAluResult(result);
+    /// Load Byte Unsigned Execute
+    public void execute(LBUInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
+    }
+    
+    /// Load Half Word Unsigned Execute
+    public void execute(LHWUInstruction instruction){
+        instruction.addResult(instruction.rs1Data + instruction.imm);
+    }
+    
+    /// Set Less Than Immediate Execute
+    public void execute(SLTIInstruction instruction){
+        instruction.addResult(instruction.rs1Data < instruction.imm ? 1 : 0);
     }
 
-    static private UInstruction executeUType(UInstruction instruction) {
-        int result = switch (instruction.type) {
-            case LOAD_UPPER_IMMEDIATE -> instruction.imm;
-            case ADD_UPPER_IMMEDIATE_TO_PC -> instruction.imm + instruction.getPC();
-        };
-
-
-        return instruction.addAluResult(result);
+    /// Set Less Than Immediate Unsigned Execute
+    public void execute(SLTIUInstruction instruction){
+        instruction.addResult(Integer.compareUnsigned(instruction.rs1Data, instruction.imm) < 0 ? 1 : 0);
+    }
+    
+    /// AND Immediate Execute
+    public void execute(ANDIInstruction instruction){
+        instruction.addResult(instruction.rs1Data & instruction.imm);
+    }
+    
+    /// OR Immediate Execute
+    public void execute(ORIInstruction instruction){
+        instruction.addResult(instruction.rs1Data | instruction.imm);
     }
 
+    /// XOR Immediate Execute
+    public void execute(XORIInstruction instruction){
+        instruction.addResult(instruction.rs1Data ^ instruction.imm);
+    }
+    
+    /// Shift Left Logical Immediate Execute
+    public void execute(SLLIInstruction instruction){
+        instruction.addResult(instruction.rs1Data << (instruction.imm & 0b11111));
+    }
+    
+    /// Shift Right Logical Immediate
+    public void execute(SRLIInstruction instruction){
+        instruction.addResult(instruction.rs1Data >>> (instruction.imm & 0b11111));
+    }
+
+    /// Shift Right Arithmetic Immediate
+    public void execute(SRAIInstruction instruction){
+        instruction.addResult(instruction.rs1Data >> (instruction.imm & 0b11111));
+    }
+    
+    public void execute(ECallInstruction instruction){}
+    public void execute(EBreakInstruction instruction){}
+    
+    /// ADD Instruction Execute
+    public void execute(ADDInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() + instruction.getRs2Data());
+    }
+
+    /// SUB Instruction Execute
+    public void execute(SUBInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() - instruction.getRs2Data());
+    }
+
+    /// OR Instruction Execute
+    public void execute(ORInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() | instruction.getRs2Data());
+    }
+
+    /// AND Instruction Execute
+    public void execute(ANDInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() & instruction.getRs2Data());
+    }
+
+    /// XOR Instruction Execute
+    public void execute(XORInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() ^ instruction.getRs2Data());
+    }
+    
+    /// Shift Left Logical Execute
+    public void execute(SLLInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() << (instruction.getRs2Data() & 0b11111));
+    }
+
+    /// Shift Right Logical Execute
+    public void execute(SRLInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() >>> (instruction.getRs2Data() & 0b11111));
+    }
+
+    /// Shift Right Arithmetic Execute
+    public void execute(SRAInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() >> (instruction.getRs2Data() & 0b11111));
+    }
+    
+    /// Set Less Than Execute
+    public void execute(SLTInstruction instruction){
+        instruction.addResult((instruction.getRs1Data() < instruction.getRs2Data()) ? 1 : 0);
+    }
+    
+    /// Set Less Than Unsigned Execute
+    public void execute(SLTUInstruction instruction){
+        instruction.addResult(Integer.compareUnsigned(instruction.getRs1Data(), instruction.getRs2Data()) < 0 ? 1 : 0);
+    }
+    
+    /// Store Instructions Execute
+    public void execute(SInstruction instruction){
+        instruction.addResult(instruction.getRs1Data() + instruction.imm);
+    }
+    
+    /// Load Upper Immediate Instruction
+    public void execute(LUIInstruction instruction){
+        instruction.addResult(instruction.imm);
+    }
+    
+    public void execute(AUIInstruction instruction){
+        instruction.addResult(instruction.imm + instruction.getPC());
+    }
+    
     @Override
     public String toString() {
         return String.format("""

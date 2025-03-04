@@ -1,8 +1,9 @@
-package org.example.processor.instructions;
+package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.Instruction;
 
-public class IInstruction implements Instruction {
+public abstract class IInstruction implements Instruction {
     public enum Type {
         ADDI,
         XORI,
@@ -74,8 +75,6 @@ public class IInstruction implements Instruction {
     }
     
     private final Opcode opcode;
-
-    public final Type type;
     
     private final int PC;
 
@@ -86,7 +85,7 @@ public class IInstruction implements Instruction {
     public final boolean hasData;
     
     /// Data for first source register for instruction
-    public final int rs1Data;
+    public int rs1Data;
     
     /// Immediate value for instruction
     public final int imm;
@@ -95,65 +94,23 @@ public class IInstruction implements Instruction {
     public final byte rd;
 
     /// Result of processing 
-    public final int aluResult;
+    private int result;
 
-    /// Result of a load from memory
-    public final int memoryResult;
-
-    public IInstruction(Opcode opcode, Type type, int PC, byte rs1, int imm, byte rd) {
+    public IInstruction(Opcode opcode, int PC, byte rs1, int imm, byte rd) {
         this.opcode = opcode;
-        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.hasData = false;
         this.rs1Data = 0;
         this.imm = imm;
         this.rd = rd;
-        this.aluResult = 0;
-        this.memoryResult = 0;
+        this.result = 0;
     }
 
-    public IInstruction(Opcode opcode, Type type, int PC, byte rs1, boolean hasData, int rs1Data, int imm, byte rd, int aluResult, int memoryResult) {
-        this.opcode = opcode;
-        this.type = type;
-        this.PC = PC;
-        this.rs1 = rs1;
-        this.hasData = hasData;
-        this.rs1Data = rs1Data;
-        this.imm = imm;
-        this.rd = rd;
-        this.aluResult = aluResult;
-        this.memoryResult = memoryResult;
+    public void addResult(int result) {
+        this.result = result;
     }
-
-    public IInstruction addAluResult(int aluResult) {
-        return new IInstruction(
-                opcode, 
-                type, 
-                PC, 
-                rs1,
-                hasData,
-                rs1Data,
-                imm, 
-                rd, 
-                aluResult, 
-                memoryResult);
-    }
-
-    public IInstruction addMemoryResult(int memoryResult) {
-        return new IInstruction(
-                opcode, 
-                type, 
-                PC, 
-                rs1,
-                hasData,
-                rs1Data,
-                imm, 
-                rd, 
-                aluResult, 
-                memoryResult);
-    }
-
+    
     @Override
     public Opcode getOpcode() {
         return opcode;
@@ -166,7 +123,8 @@ public class IInstruction implements Instruction {
     
     @Override
     public boolean canBranch() {
-        return type == Type.JUMP_AND_LINK_REGISTER;
+        return false;
+        // TODO: Override in JALRInstruction
     }
     
     @Override
@@ -175,21 +133,10 @@ public class IInstruction implements Instruction {
     }
     
     @Override 
-    public IInstruction addDataIfAvailable(Registers registers) {
-        if(!registers.isValid(rs1)) return this;
+    public void addDataIfAvailable(Registers registers) {
+        if(!registers.isValid(rs1)) return;
         
-        return new IInstruction(
-                opcode,
-                type,
-                PC,
-                rs1,
-                true,
-                registers.getRegister(rs1),
-                imm,
-                rd,
-                aluResult,
-                memoryResult
-        );
+        this.rs1Data = registers.getRegister(rs1);
     }
     
     @Override
@@ -203,12 +150,55 @@ public class IInstruction implements Instruction {
     
     static public IInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
-        Type type = Type.decodeType(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
         
-        return new IInstruction(opcode, type, PC, rs1, imm, rd);
+        return switch (Instruction.Opcode.getOpcode(instruction)) {
+            case LOAD -> decodeLoad(instruction, opcode, PC, rs1, imm, rd);
+            case ARITHMETIC_LOGICAL_IMMEDIATE -> decodeArithmetic(instruction, opcode, PC, rs1, imm, rd);
+            case ENVIRONMENT -> decodeEnvironment(instruction, opcode, PC, rs1, imm, rd);
+            case JUMP_AND_LINK_REGISTER -> new JALRInstruction(opcode, PC, rs1, imm, rd);
+            default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
+        };
+    }
+
+    static private IInstruction decodeEnvironment(int instruction, Opcode opcode, int PC, byte rs1, int imm, byte rd) {
+        return switch (Instruction.decodeFunct7(instruction)) {
+            case 0x0 -> new ECallInstruction(opcode, PC, rs1, imm, rd);
+            case 0x1 -> new EBreakInstruction(opcode, PC, rs1, imm, rd);
+            default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
+        };
+    }
+
+    static private IInstruction decodeLoad(int instruction, Opcode opcode, int PC, byte rs1, int imm, byte rd) {
+        return switch (Instruction.decodeFunct3(instruction)) {
+            case 0x0 -> new LBInstruction(opcode, PC, rs1, imm, rd);
+            case 0x1 -> new LHWInstruction(opcode, PC, rs1, imm, rd);
+            case 0x2 -> new LWInstruction(opcode, PC, rs1, imm, rd);
+            case 0x5 -> new LHWUInstruction(opcode, PC, rs1, imm, rd);
+            case 0x4 -> new LBUInstruction(opcode, PC, rs1, imm, rd);
+            default -> throw new IllegalArgumentException("Invalid funct for load: " + instruction);
+        };
+    }
+
+    static private IInstruction decodeArithmetic(int instruction, Opcode opcode, int PC, byte rs1, int imm, byte rd) {
+        int funct3 = Instruction.decodeFunct3(instruction);
+        if (Instruction.decodeFunct7(instruction) == 0x20 && funct3 == 0x5) {
+            return new SRAIInstruction(opcode, PC, rs1, imm, rd);
+        }
+
+        return switch (funct3) {
+            case 0x0 -> new AddIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x1 -> new SLLIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x2 -> new SLTIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x3 -> new SLTIUInstruction(opcode, PC, rs1, imm, rd);
+            case 0x4 -> new XORIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x5 -> new SRLIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x6 -> new ORIInstruction(opcode, PC, rs1, imm, rd);
+            case 0x7 -> new ANDIInstruction(opcode, PC, rs1, imm, rd);
+            default -> throw new IllegalArgumentException("Invalid funct for immediate arith: " + instruction);
+        };
     }
 
     @Override
@@ -225,6 +215,6 @@ public class IInstruction implements Instruction {
                         RD: %s
                         ALU Result:  %s
                         Memory Result: %s""",
-                opcode, type, PC, rs1, hasData ? "True" : "False", rs1Data, imm, rd, aluResult, memoryResult);
+                opcode, PC, rs1, hasData ? "True" : "False", rs1Data, imm, rd, result);
     }
 }

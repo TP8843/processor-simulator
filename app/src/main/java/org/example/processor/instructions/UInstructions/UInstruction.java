@@ -1,24 +1,10 @@
-package org.example.processor.instructions;
+package org.example.processor.instructions.UInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.Instruction;
 
-public class UInstruction implements Instruction{
-    public enum Type {
-        LOAD_UPPER_IMMEDIATE,
-        ADD_UPPER_IMMEDIATE_TO_PC;
-        
-        static public Type decodeType(int instruction) {
-            return switch (Opcode.getOpcode(instruction)) {
-                case LOAD_UPPER_IMMEDIATE -> LOAD_UPPER_IMMEDIATE;
-                case ADD_UPPER_IMMEDIATE_TO_PC -> ADD_UPPER_IMMEDIATE_TO_PC;
-                default -> throw new IllegalArgumentException("Unknown opcode " + instruction);
-            };
-        }
-    }
-    
+public abstract class UInstruction implements Instruction {
     private final Opcode opcode;
-
-    public final Type type;
 
     private final int PC;
 
@@ -29,28 +15,18 @@ public class UInstruction implements Instruction{
     public final byte rd;
 
     /// Result of processing 
-    public final int aluResult;
+    public int result;
 
-    public UInstruction(Opcode opcode, Type type, int PC, int imm, byte rd) {
+    public UInstruction(Opcode opcode, int PC, int imm, byte rd) {
         this.opcode = opcode;
-        this.type = type;
         this.PC = PC;
         this.imm = imm;
         this.rd = rd;
-        this.aluResult = 0;
+        this.result = 0;
     }
 
-    public UInstruction(Opcode opcode, Type type, int PC, int imm, byte rd, int aluResult) {
-        this.opcode = opcode;
-        this.type = type;
-        this.PC = PC;
-        this.imm = imm;
-        this.rd = rd;
-        this.aluResult = aluResult;
-    }
-
-    public UInstruction addAluResult(int aluResult) {
-        return new UInstruction(opcode, type, PC, imm, rd, aluResult);
+    public void addResult(int result) {
+        this.result = result;
     }
 
     @Override
@@ -74,9 +50,7 @@ public class UInstruction implements Instruction{
     }
     
     @Override
-    public UInstruction addDataIfAvailable(Registers registers) {
-        return this;
-    }
+    public void addDataIfAvailable(Registers registers) {}
 
     @Override
     public void reserveDestination(Registers registers) {
@@ -89,11 +63,14 @@ public class UInstruction implements Instruction{
     
     static public UInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
-        Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
 
-        return new UInstruction(opcode, type, PC, imm, rd);
+        return switch (Opcode.getOpcode(instruction)) {
+            case LOAD_UPPER_IMMEDIATE -> new LUIInstruction(opcode, PC, imm, rd);
+            case ADD_UPPER_IMMEDIATE_TO_PC -> new AUIInstruction(opcode, PC, imm, rd);
+            default -> throw new IllegalArgumentException("Unknown opcode " + instruction);
+        };
     }
 
     @Override
@@ -106,6 +83,6 @@ public class UInstruction implements Instruction{
                         RD: %s
                         IMM: %s
                         ALU Result:  %s""",
-                opcode, type, PC, rd, imm, aluResult);
+                opcode, PC, rd, imm, result);
     }
 }

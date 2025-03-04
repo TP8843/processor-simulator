@@ -93,8 +93,6 @@ public class ReservationStation implements Buffer<Instruction> {
         if(value == null) return;
 
         value = value.addDataIfAvailable(registers);
-        
-        
     }
 
     @Override
