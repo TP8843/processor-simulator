@@ -25,7 +25,6 @@ public class InstructionFetch {
 
     public void updatePC(int PC) {
         this.PC = PC;
-        System.out.println("Updated PC to 0x" + Integer.toHexString(PC));
     }
 
     public int getPC() {
