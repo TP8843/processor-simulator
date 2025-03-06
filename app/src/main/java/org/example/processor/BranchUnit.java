@@ -2,12 +2,10 @@ package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.BInstructions.BInstruction;
-import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.InstructionVisitable;
 import org.example.processor.instructions.JInstructions.JALInstruction;
-import org.example.processor.instructions.JInstructions.JInstruction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +19,8 @@ public class BranchUnit implements InstructionVisitable {
     public Buffer<Instruction> decodeInput;
     
     private Map<Integer, Integer> branchAddresses;
+    
+    private boolean updatedPC;
 
     public BranchUnit(InstructionFetch instructionFetch, Buffer<Instruction> compareInput, Buffer<Instruction> decodeInput) {
         this.instructionFetch = instructionFetch;
@@ -35,38 +35,14 @@ public class BranchUnit implements InstructionVisitable {
         if(!compareInput.hasValue() || !decodeInput.hasValue()) return false;
         
         Instruction compare = compareInput.pop().get();
-        Instruction alu = decodeInput.pop().get();
+        Instruction decode = decodeInput.pop().get();
         
-        return switch (compare.getType()){
-            case B_TYPE -> updatePCBType(
-                    (BInstruction) compare,
-                    (BInstruction) alu);
-
-            case J_TYPE -> updatePCJType((JInstruction) alu);
-            case I_TYPE -> updatePCIType((IInstruction) alu);
-            default -> false;
-        };
-    }
-
-    private boolean updatePCBType(BInstruction compare, BInstruction alu ) {
-        if (compare.compareResult) {
-            instructionFetch.updatePC(alu.result);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean updatePCJType(JInstruction alu ) {
-        instructionFetch.updatePC(alu.aluResult);
-        return true;
-    }
-
-    private boolean updatePCIType(IInstruction alu ) {
-        if (alu.type == IInstruction.Type.JUMP_AND_LINK_REGISTER) {
-            instructionFetch.updatePC(alu.result);
-            return true;
-        }
-        return false;
+        decode.visit(this);
+        compare.visit(this);
+        
+        boolean returnValue = updatedPC;
+        updatedPC = false;
+        return returnValue;
     }
     
     /// Generates address for branch unit
@@ -79,17 +55,25 @@ public class BranchUnit implements InstructionVisitable {
     
     /// Address generation for Jump and Link Register Instruction
     public void execute(JALRInstruction instruction){
-        branchAddresses.put(instruction.getPC(), ((instruction.rs1Data + instruction.imm) >> 1) << 1);
+        updatedPC = true;
+        instructionFetch.updatePC(((instruction.rs1Data + instruction.imm) >> 1) << 1);
     }
 
     /// Address generation for Branch Instructions
     public void execute(BInstruction instruction) {
-        branchAddresses.put(instruction.getPC(), instruction.getPC() + instruction.imm);
+        if(!branchAddresses.containsKey(instruction.getPC())) 
+            branchAddresses.put(instruction.getPC(), instruction.getPC() + instruction.imm);
+        else {
+            // Only update PC if compare is true
+            if (instruction.getResult() != 0)
+                // TODO: Flush pipeline of incorrect instructions
+                instructionFetch.updatePC(instruction.getPC());
+        }
     }
     
     /// Address generation for Jump and Link Instruction
     public void execute(JALInstruction instruction) {
-        branchAddresses.put(instruction.getPC(), instruction.imm + instruction.getPC());
+        instructionFetch.updatePC(instruction.imm + instruction.getPC());
     }
 
     @Override

@@ -48,6 +48,10 @@ public abstract class SInstruction implements Instruction {
     public int getRs1Data() {
         return rs1Data;
     }
+    
+    public int getRs2Data() {
+        return rs2Data;
+    }
 
     @Override
     public Opcode getOpcode() {

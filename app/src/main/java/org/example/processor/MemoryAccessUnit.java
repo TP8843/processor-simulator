@@ -1,11 +1,15 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.instructions.IInstructions.IInstruction;
+import org.example.processor.instructions.IInstructions.*;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.InstructionVisitable;
+import org.example.processor.instructions.SInstructions.SBInstruction;
+import org.example.processor.instructions.SInstructions.SHWInstruction;
 import org.example.processor.instructions.SInstructions.SInstruction;
+import org.example.processor.instructions.SInstructions.SWInstruction;
 
-public class MemoryAccessUnit {
+public class MemoryAccessUnit implements InstructionVisitable {
     private final Memory memory;
 
     public Buffer<Instruction> input;
@@ -25,36 +29,51 @@ public class MemoryAccessUnit {
         
         Instruction instruction = input.pop().get();
         
-        Instruction outputInstruction = switch (instruction.getType()) {
-            case I_TYPE -> processIType((IInstruction) instruction);
-            case S_TYPE -> processSType((SInstruction) instruction);
-            default -> instruction;
-        };
+        instruction.visit(this);
         
-        output.put(outputInstruction);
+        output.put(instruction);
     }
 
-    private IInstruction processIType(IInstruction instruction) {
-        int result = switch (instruction.type) {
-            case LOAD_BYTE -> memory.getByte(instruction.result, false);
-            case LOAD_HALF_WORD -> memory.getHalfWord(instruction.result, false);
-            case LOAD_WORD -> memory.getWord(instruction.result);
-            case LOAD_BYTE_UNSIGNED -> memory.getByte(instruction.result, true);
-            case LOAD_HALF_WORD_UNSIGNED -> memory.getHalfWord(instruction.result, true);
-            default -> 0;
-        };
-
-        return instruction.addMemoryResult(result);
+    @Override
+    public void execute(Instruction instruction) {}
+    
+    /// Store Byte Instruction
+    public void execute(SBInstruction instruction) {
+        memory.storeByte(instruction.result, instruction.getRs2Data());
     }
 
-    private SInstruction processSType(SInstruction instruction) {
-        switch (instruction.type) {
-            case STORE_BYTE -> memory.storeByte(instruction.result, instruction.rs2Data);
-            case STORE_HALF_WORD -> memory.storeHalfWord(instruction.result, instruction.rs2Data);
-            case STORE_WORD -> memory.storeWord(instruction.result, instruction.rs2Data);
-        }
+    /// Store Half Word Instruction
+    public void execute(SHWInstruction instruction) {
+        memory.storeHalfWord(instruction.result, instruction.getRs2Data());
+    }
+    
+    /// Store Word Instruction
+    public void execute(SWInstruction instruction) {
+        memory.storeWord(instruction.result, instruction.getRs2Data());
+    }
+    
+    /// Load Byte Instruction
+    public void execute(LBInstruction instruction) {
+        instruction.addResult(memory.getByte(instruction.getResult(), false));
+    }
 
-        return instruction;
+    /// Load Byte Unsigned Instruction
+    public void execute(LBUInstruction instruction) {
+        instruction.addResult(memory.getByte(instruction.getResult(), true));
+    }
+
+    /// Load Half Word Instruction
+    public void execute(LHWInstruction instruction) {
+        instruction.addResult(memory.getHalfWord(instruction.getResult(), false));
+    }
+
+    /// Load Half Word Unsigned Instruction
+    public void execute(LHWUInstruction instruction) {
+        instruction.addResult(memory.getHalfWord(instruction.getResult(), true));
+    }
+    
+    public void execute(LWInstruction instruction) {
+        instruction.addResult(memory.getWord(instruction.getResult()));
     }
 
     @Override

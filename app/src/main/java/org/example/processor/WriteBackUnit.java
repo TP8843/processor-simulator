@@ -3,11 +3,12 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.IInstructions.IInstruction;
+import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.RInstruction;
 import org.example.processor.instructions.UInstructions.UInstruction;
 
-public class WriteBackUnit {
+public class WriteBackUnit implements InstructionVisitable{
     private final Registers registers;
     
     public Instruction previous;
@@ -19,6 +20,7 @@ public class WriteBackUnit {
         this.input = input;
     }
 
+    /// Write back input instructions. Returns true if instruction processed, else false
     public boolean writeBack() {
         // If no instruction available, do not process anything
         if (!input.hasValue()) return false;
@@ -27,46 +29,37 @@ public class WriteBackUnit {
         
         previous = instruction;
         
-        return switch (instruction.getType()) {
-            case I_TYPE -> writeBackIType((IInstruction) instruction);
-            case J_TYPE -> writeBackJType((JInstruction) instruction);
-            case R_TYPE -> writeBackRType((RInstruction) instruction);
-            case U_TYPE -> writeBackUType((UInstruction) instruction);
-            default -> false;
-        };
-    }
-
-    private boolean writeBackIType(IInstruction instruction) {
-        switch (instruction.type) {
-            case LOAD_BYTE, LOAD_BYTE_UNSIGNED, LOAD_HALF_WORD, LOAD_HALF_WORD_UNSIGNED, LOAD_WORD ->
-                registers.setRegister(instruction.rd, instruction.memoryResult);
-            case ADDI, ORI, ANDI, XORI, SET_LESS_THAN_IMMEDIATE, SET_LESS_THAN_IMMEDIATE_UNSIGNED, 
-                 SHIFT_LEFT_LOGICAL_IMMEDIATE, SHIFT_RIGHT_ARITHMETIC_IMMEDIATE, SHIFT_RIGHT_LOGICAL_IMMEDIATE ->
-                registers.setRegister(instruction.rd, instruction.result);
-            case JUMP_AND_LINK_REGISTER ->
-                registers.setRegister(instruction.rd, instruction.getPC() + 4);
-        }
+        instruction.visit(this);
         
         return true;
     }
-
-    private boolean writeBackJType(JInstruction instruction) {
+    
+    /// Only Store a Value with Correct Instructions
+    public void execute(Instruction instruction) {}
+    
+    /// Write Back for all I Instructions
+    public void execute(IInstruction instruction) {
+        registers.setRegister(instruction.rd, instruction.getResult());
+    }
+    
+    /// Write Back for Jump and Link Register Instruction
+    public void execute(JALRInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.getPC() + 4);
-        
-        return true;
     }
 
-    private boolean writeBackRType(RInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.result);
-
-        return true;
+    /// Write Back for all J Instructions
+    public void execute(JInstruction instruction) {
+        registers.setRegister(instruction.rd, instruction.getPC() + 4);
     }
 
-    private boolean writeBackUType(UInstruction instruction) {
+    /// Write Back for all R Instructions
+    public void execute(RInstruction instruction) {
         registers.setRegister(instruction.rd, instruction.result);
+    }
 
-        System.out.println(instruction);
-        return true;
+    /// Write Back for all U Instructions
+    public void execute(UInstruction instruction) {
+        registers.setRegister(instruction.rd, instruction.result);
     }
 
     @Override
