@@ -4,13 +4,12 @@ import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.BInstructions.BInstruction;
 import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.InstructionVisitable;
 import org.example.processor.instructions.JInstructions.JALInstruction;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class BranchUnit implements InstructionVisitable {
+public class BranchUnit {
     // TODO: Add properties for all the buffers so they can be flushed on a branch miss
     
     private final InstructionFetch instructionFetch;
@@ -19,8 +18,6 @@ public class BranchUnit implements InstructionVisitable {
     public Buffer<Instruction> decodeInput;
     
     private Map<Integer, Integer> branchAddresses;
-    
-    private boolean updatedPC;
 
     public BranchUnit(InstructionFetch instructionFetch, Buffer<Instruction> compareInput, Buffer<Instruction> decodeInput) {
         this.instructionFetch = instructionFetch;
@@ -30,32 +27,45 @@ public class BranchUnit implements InstructionVisitable {
     }
 
     /// Updates the PC in instruction fetch if required. Returns true if PC updated
-    public boolean updatePC() {
+    public void updatePC() {
         // Do not do any processing if either input is null (something has stalled)
-        if(!compareInput.hasValue() || !decodeInput.hasValue()) return false;
+        if(!compareInput.hasValue() || !decodeInput.hasValue()) return;
         
-        Instruction compare = compareInput.pop().get();
-        Instruction decode = decodeInput.pop().get();
+        Instruction instruction = compareInput.pop().get();
         
-        decode.visit(this);
-        compare.visit(this);
-        
-        boolean returnValue = updatedPC;
-        updatedPC = false;
-        return returnValue;
+        switch (instruction) {
+            case BInstruction i -> {
+                if (i.getResult() != 0) {
+                    instructionFetch.updatePC(branchAddresses.remove(instruction.getPC()));
+                    // TODO: Flush fetch-decode, decode-execute buffers
+                }
+            }
+            
+            default -> {}
+        }
     }
     
     /// Generates address for branch unit
     public void generateAddress(){
-        if (decodeInput.hasValue())
-            decodeInput.pop().get().visit(this);
+        if (!decodeInput.hasValue()) return;
+        
+        Instruction instruction = decodeInput.pop().get();
+        
+        switch (instruction) {
+            case JALRInstruction i -> instructionFetch.updatePC(((i.rs1Data + i.imm) >> 1) << 1);
+            
+            case JALInstruction i -> instructionFetch.updatePC(i.imm + i.getPC());
+            case BInstruction i -> branchAddresses.put(i.getPC(), i.getPC() + i.imm);
+            default -> {}
+        }
+
+        // TODO: Flush fetch-decode buffer
     }
     
     public void execute(Instruction instruction){}
     
     /// Address generation for Jump and Link Register Instruction
     public void execute(JALRInstruction instruction){
-        updatedPC = true;
         instructionFetch.updatePC(((instruction.rs1Data + instruction.imm) >> 1) << 1);
     }
 
@@ -67,7 +77,7 @@ public class BranchUnit implements InstructionVisitable {
             // Only update PC if compare is true
             if (instruction.getResult() != 0)
                 // TODO: Flush pipeline of incorrect instructions
-                instructionFetch.updatePC(instruction.getPC());
+                instructionFetch.updatePC(branchAddresses.get(instruction.getPC()));
         }
     }
     

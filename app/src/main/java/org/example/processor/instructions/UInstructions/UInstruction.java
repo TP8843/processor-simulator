@@ -78,7 +78,6 @@ public abstract class UInstruction implements Instruction {
         return String.format("""
                 U Type Instruction:
                         Opcode: %s
-                        Type: %s
                         PC: %s
                         RD: %s
                         IMM: %s

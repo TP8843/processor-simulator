@@ -71,7 +71,7 @@ public class DataBlockingBuffer implements Buffer<Instruction> {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
         
-        value = value.addDataIfAvailable(registers);
+        value.addDataIfAvailable(registers);
     }
 
     @Override

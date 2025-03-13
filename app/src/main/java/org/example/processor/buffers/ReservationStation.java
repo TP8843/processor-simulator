@@ -91,8 +91,10 @@ public class ReservationStation implements Buffer<Instruction> {
     public void addData() {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
+        
+        System.out.println("Current value in reservation station: " + value);
 
-        value = value.addDataIfAvailable(registers);
+        value.addDataIfAvailable(registers);
     }
 
     @Override

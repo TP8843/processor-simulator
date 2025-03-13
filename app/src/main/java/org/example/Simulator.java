@@ -80,17 +80,14 @@ public class Simulator {
             fetchDecodeBuffer.release();
         }
 
-        // If the branch updates the PC, flush the current instruction
-        if(branchUnit.updatePC()) {
-            fetchDecodeBuffer.flush();
-        }
-
         alu.execute();
         compareUnit.execute();
         
         // Add data to current instruction in the buffer, and reserve the destination in the ALU buffer
         // TODO: Reserve destination when ready in buffer
         decodeBuffer.addData();
+
+        branchUnit.generateAddress();
 
         decode.decode();
 
