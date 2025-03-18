@@ -3,10 +3,8 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.IInstructions.*;
 import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.InstructionVisitable;
 import org.example.processor.instructions.SInstructions.SBInstruction;
 import org.example.processor.instructions.SInstructions.SHWInstruction;
-import org.example.processor.instructions.SInstructions.SInstruction;
 import org.example.processor.instructions.SInstructions.SWInstruction;
 
 public class MemoryAccessUnit {
