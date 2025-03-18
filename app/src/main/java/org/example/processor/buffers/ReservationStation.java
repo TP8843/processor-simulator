@@ -5,7 +5,7 @@ import org.example.processor.instructions.Instruction;
 
 import java.util.Optional;
 
-public class ReservationStation implements Buffer<Instruction> {
+public class ReservationStation implements Buffer<Instruction>, Flushable {
     private final Registers registers;
     
     private boolean stalled;

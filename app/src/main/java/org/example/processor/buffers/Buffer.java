@@ -2,7 +2,7 @@ package org.example.processor.buffers;
 
 import java.util.Optional;
 
-public interface Buffer<T> {
+public interface Buffer<T> extends Flushable {
     /// Gets the next available T, removing it from the buffer, or else returns none
     Optional<T> pop();
     

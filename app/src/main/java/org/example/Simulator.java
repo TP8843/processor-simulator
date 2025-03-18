@@ -2,12 +2,16 @@ package org.example;
 
 import org.example.processor.*;
 import org.example.processor.buffers.Buffer;
+import org.example.processor.buffers.Flushable;
 import org.example.processor.buffers.ReservationStation;
 import org.example.processor.buffers.SingleValueBuffer;
 import org.example.processor.executionUnits.Alu;
 import org.example.processor.executionUnits.CompareUnit;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Simulator {
     public final Memory memory;
@@ -121,16 +125,31 @@ public class Simulator {
         ReservationStation aluReservationStation = new ReservationStation(registers);
         ReservationStation compareReservationStation = new ReservationStation(registers);
         Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> aluBranchBuffer = new SingleValueBuffer<>();
+        Buffer<Instruction> decodeBranchBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
         
         InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer);
+        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
         IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
-        Alu alu = new Alu(aluReservationStation, aluMemoryBuffer, aluBranchBuffer);
+        Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
         CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
-        BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, aluBranchBuffer);
+
+        List<Flushable> jumpBuffers = new ArrayList<>();
+        jumpBuffers.add(fetchDecodeBuffer);
+        
+        List<Flushable> branchBuffers = new ArrayList<>();
+        branchBuffers.add(fetchDecodeBuffer);
+        branchBuffers.add(aluReservationStation);
+        branchBuffers.add(compareReservationStation);
+        
+        BranchUnit branchUnit = new BranchUnit(
+                instructionFetch, 
+                compareBranchBuffer, 
+                decodeBranchBuffer,
+                jumpBuffers,
+                branchBuffers);
+        
         MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
         WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
 
@@ -149,7 +168,7 @@ public class Simulator {
                 alu,
                 compareUnit,
                 compareBranchBuffer,
-                aluBranchBuffer,
+                decodeBranchBuffer,
                 branchUnit,
                 aluMemoryBuffer,
                 memoryAccessUnit,

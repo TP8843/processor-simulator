@@ -16,17 +16,15 @@ public class Alu {
     
     public final Buffer<Instruction> input;
     public final Buffer<Instruction> memoryOutput;
-    public final Buffer<Instruction> branchOutput;
     
-    public Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput, Buffer<Instruction> branchOutput) {
+    public Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput) {
         this.input = input;
         this.memoryOutput = memoryOutput;
-        this.branchOutput = branchOutput;
     }
 
     public void execute() {
         // If input not available or output full, do not run anything
-        if(!input.hasValue() || !(memoryOutput.hasSpace() && branchOutput.hasSpace())) {
+        if(!input.hasValue() || !(memoryOutput.hasSpace())) {
             return;
         }
         

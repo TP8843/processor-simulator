@@ -16,11 +16,16 @@ public class Decode {
 
     public final Buffer<UndecodedInstruction> input;
     public final Buffer<Instruction> output;
+    public final Buffer<Instruction> branchOutput;
 
-    public Decode(Registers registers, Buffer<UndecodedInstruction> input, Buffer<Instruction> output) {
+    public Decode(Registers registers, 
+                  Buffer<UndecodedInstruction> input, 
+                  Buffer<Instruction> output, 
+                  Buffer<Instruction> branchOutput) {
         this.registers = registers;
         this.input = input;
         this.output = output;
+        this.branchOutput = branchOutput;
     }
     
     public void decode() {
@@ -43,6 +48,7 @@ public class Decode {
         };
         
         output.put(currentInstruction);
+        branchOutput.put(currentInstruction);
     }
 
     @Override

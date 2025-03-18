@@ -18,6 +18,7 @@ public class InstructionFetch {
 
     public void process() {
         if(output.hasSpace()) {
+            System.out.println("Fetching instruction from PC: " + PC);
             output.put(new UndecodedInstruction(PC, memory.getWord(PC)));
             PC += 4;
         }
