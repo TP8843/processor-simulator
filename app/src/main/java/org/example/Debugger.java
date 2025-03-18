@@ -92,7 +92,7 @@ public class Debugger {
             case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
             case "alubranch", "alu-branch": System.out.println(simulator.aluBranchBuffer); break;
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
-            case "decodebuffer", "decode-buffer": System.out.println(simulator.decodeBuffer); break;
+            case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
             case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
             case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
             case "state": printState(); break;

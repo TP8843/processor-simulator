@@ -24,6 +24,7 @@ public class InstructionFetch {
     }
 
     public void updatePC(int PC) {
+        System.out.println("Updated PC to: " + PC);
         this.PC = PC;
     }
 

@@ -25,9 +25,7 @@ public class Decode {
     
     public void decode() {
         // Do not run if instruction isn't fetched or there isn't space on the output
-        if(!input.hasValue() || !output.hasSpace()) {
-            return;
-        }
+        if(!input.hasValue() || !output.hasSpace()) return;
         
         UndecodedInstruction instruction = input.pop().get();
         
@@ -43,9 +41,6 @@ public class Decode {
             case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC(), registers);
             case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
         };
-        
-        // Add data if available, and if data is not available (returned instruction has not got data) output = null
-        currentInstruction.addDataIfAvailable(registers);
         
         output.put(currentInstruction);
     }

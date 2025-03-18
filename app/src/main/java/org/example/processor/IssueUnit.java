@@ -1,0 +1,47 @@
+package org.example.processor;
+
+import org.example.processor.buffers.Buffer;
+import org.example.processor.instructions.Instruction;
+
+import java.util.List;
+
+public class IssueUnit {
+    private final Registers registers;
+    
+    public final Buffer<Instruction> decodeIssueBuffer;
+    
+    public final Buffer<Instruction> aluReservationStation;
+    public final Buffer<Instruction> compareReservationStation;
+    
+    /// Issues an instruction from the decode issue buffer to the correct
+    /// reservation station
+    public void issue(){
+        if(!decodeIssueBuffer.hasValue()) return;
+        
+        var instruction = decodeIssueBuffer.peek().get();
+
+        // Add data if available, and if data is not available (returned instruction has not got data) output = null
+        instruction.addDataIfAvailable(registers);
+        
+        switch (instruction.getEU()) {
+            case ALU -> {
+                if(aluReservationStation.hasSpace())
+                    aluReservationStation.put(decodeIssueBuffer.pop().get());
+            }
+            case COMPARE -> {
+                if(compareReservationStation.hasSpace())
+                    compareReservationStation.put(decodeIssueBuffer.pop().get());
+            }
+        }
+    }
+    
+    public IssueUnit(Registers registers,
+                     Buffer<Instruction> decodeIssueBuffer, 
+                     Buffer<Instruction> aluReservationStation, 
+                     Buffer<Instruction> compareReservationStation) {
+        this.registers = registers;
+        this.decodeIssueBuffer = decodeIssueBuffer;
+        this.aluReservationStation = aluReservationStation;
+        this.compareReservationStation = compareReservationStation;
+    }
+}

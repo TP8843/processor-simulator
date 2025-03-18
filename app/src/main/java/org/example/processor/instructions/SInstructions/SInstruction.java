@@ -79,6 +79,7 @@ public abstract class SInstruction implements Instruction {
         
         this.rs1Data = registers.getRegister(rs1);
         this.rs2Data = registers.getRegister(rs2);
+        this.hasData = true;
     }
     
     static private int decodeImmediate(int instruction){

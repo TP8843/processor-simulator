@@ -4,6 +4,8 @@ import org.example.processor.*;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.ReservationStation;
 import org.example.processor.buffers.SingleValueBuffer;
+import org.example.processor.executionUnits.Alu;
+import org.example.processor.executionUnits.CompareUnit;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
 
@@ -12,7 +14,9 @@ public class Simulator {
     public final Registers registers;
 
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
-    public final ReservationStation decodeBuffer;
+    public final Buffer<Instruction> decodeIssueBuffer;
+    public final ReservationStation aluReservationStation;
+    public final ReservationStation compareReservationStation;
     public final Buffer<Instruction> compareBranchBuffer;
     public final Buffer<Instruction> aluBranchBuffer;
     public final Buffer<Instruction> aluMemoryBuffer;
@@ -20,6 +24,7 @@ public class Simulator {
     
     public final InstructionFetch instructionFetch;
     public final Decode decode;
+    public final IssueUnit issueUnit;
     public final Alu alu;
     public final CompareUnit compareUnit;
     public final BranchUnit branchUnit;
@@ -34,7 +39,10 @@ public class Simulator {
                      InstructionFetch instructionFetch,
                      Buffer<UndecodedInstruction> fetchDecodeBuffer,
                      Decode decode,
-                     ReservationStation decodeBuffer,
+                     Buffer<Instruction> decodeIssueBuffer,
+                     IssueUnit issueUnit,
+                     ReservationStation aluReservationStation,
+                     ReservationStation compareReservationStation,
                      Alu alu,
                      CompareUnit compareUnit,
                      Buffer<Instruction> compareBranchBuffer,
@@ -49,7 +57,10 @@ public class Simulator {
         this.instructionFetch = instructionFetch;
         this.fetchDecodeBuffer = fetchDecodeBuffer;
         this.decode = decode;
-        this.decodeBuffer = decodeBuffer;
+        this.issueUnit = issueUnit;
+        this.decodeIssueBuffer = decodeIssueBuffer;
+        this.aluReservationStation = aluReservationStation;
+        this.compareReservationStation = compareReservationStation;
         this.alu = alu;
         this.compareUnit = compareUnit;
         this.compareBranchBuffer = compareBranchBuffer;
@@ -79,20 +90,22 @@ public class Simulator {
         if(aluBranchBuffer.hasValue() && aluBranchBuffer.peek().get().canBranch()) {
             fetchDecodeBuffer.release();
         }
-
-        alu.execute();
-        compareUnit.execute();
         
-        // Add data to current instruction in the buffer, and reserve the destination in the ALU buffer
-        // TODO: Reserve destination when ready in buffer
-        decodeBuffer.addData();
+        alu.execute();
+        aluReservationStation.addData();
+        
+        compareUnit.execute();
+        compareReservationStation.addData();
+        
+        issueUnit.issue();
 
+        branchUnit.updatePC();
         branchUnit.generateAddress();
 
         decode.decode();
 
         // Stop fetching of instructions until branching instruction finishes
-        if(decodeBuffer.hasValue() && decodeBuffer.peek().get().canBranch()) {
+        if(compareReservationStation.hasValue() && compareReservationStation.peek().get().canBranch()) {
             fetchDecodeBuffer.stall();
         }
         
@@ -104,16 +117,19 @@ public class Simulator {
         Registers registers = new Registers();
         
         Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
-        ReservationStation decodeBuffer = new ReservationStation(registers);
+        Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
+        ReservationStation aluReservationStation = new ReservationStation(registers);
+        ReservationStation compareReservationStation = new ReservationStation(registers);
         Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> aluBranchBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
         Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
         
         InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeBuffer);
-        Alu alu = new Alu(decodeBuffer, aluMemoryBuffer, aluBranchBuffer);
-        CompareUnit compareUnit = new CompareUnit(decodeBuffer, compareBranchBuffer);
+        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer);
+        IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
+        Alu alu = new Alu(aluReservationStation, aluMemoryBuffer, aluBranchBuffer);
+        CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
         BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, aluBranchBuffer);
         MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
         WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
@@ -126,7 +142,10 @@ public class Simulator {
                 instructionFetch,
                 fetchDecodeBuffer,
                 decode,
-                decodeBuffer,
+                decodeIssueBuffer,
+                issueUnit,
+                aluReservationStation,
+                compareReservationStation,
                 alu,
                 compareUnit,
                 compareBranchBuffer,

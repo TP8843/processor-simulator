@@ -12,7 +12,7 @@ public abstract class IInstruction implements Instruction {
     public final byte rs1;
     
     /// True if the instruction has its data fetched from registers
-    public final boolean hasData;
+    public boolean hasData;
     
     /// Data for first source register for instruction
     public int rs1Data;
@@ -71,6 +71,7 @@ public abstract class IInstruction implements Instruction {
         if(!registers.isValid(rs1)) return;
         
         this.rs1Data = registers.getRegister(rs1);
+        this.hasData = true;
     }
     
     @Override
@@ -140,15 +141,13 @@ public abstract class IInstruction implements Instruction {
         return String.format("""
                 I Type Instruction:
                         Opcode: %s
-                        Type: %s
                         PC: %s
                         RS1: %s
                         Has Data: %s
                         RS1 Data: %s
                         IMM: %s
                         RD: %s
-                        ALU Result:  %s
-                        Memory Result: %s""",
+                        Result:  %s""",
                 opcode, PC, rs1, hasData ? "True" : "False", rs1Data, imm, rd, result);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
+import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.InstructionVisitable;
 
 /// Set Less Than Unsigned Instruction
@@ -8,6 +9,11 @@ public class SLTUInstruction extends RInstruction{
         super(opcode, PC, rs1, rs2, rd);
     }
 
+    @Override
+    public EU getEU() {
+        return EU.ALU;
+    }
+    
     @Override
     public void visit(InstructionVisitable visitable) {
         visitable.execute(this);

@@ -1,5 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
+import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.InstructionVisitable;
 
 public class SLLInstruction extends RInstruction{
@@ -7,6 +8,11 @@ public class SLLInstruction extends RInstruction{
         super(opcode, PC, rs1, rs2, rd);
     }
 
+    @Override
+    public EU getEU() {
+        return EU.ALU;
+    }
+    
     @Override
     public void visit(InstructionVisitable visitable) {
         visitable.execute(this);

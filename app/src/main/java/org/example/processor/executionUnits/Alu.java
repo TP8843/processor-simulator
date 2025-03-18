@@ -1,8 +1,9 @@
-package org.example.processor;
+package org.example.processor.executionUnits;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.IInstructions.*;
+import org.example.processor.instructions.JInstructions.JALInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.*;
 import org.example.processor.instructions.SInstructions.SInstruction;
@@ -53,6 +54,9 @@ public class Alu {
             
             case ECallInstruction i -> {}
             case EBreakInstruction i -> {}
+            
+            case JALInstruction i -> i.addResult(i.getPC() + 4);
+            case JALRInstruction i -> i.addResult(i.getPC() + 4);
             
             case ADDInstruction i -> i.addResult(i.getRs1Data() + i.getRs2Data());
             case SUBInstruction i -> i.addResult(i.getRs1Data() - i.getRs2Data());

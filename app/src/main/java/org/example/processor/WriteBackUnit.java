@@ -8,7 +8,7 @@ import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.RInstruction;
 import org.example.processor.instructions.UInstructions.UInstruction;
 
-public class WriteBackUnit implements InstructionVisitable{
+public class WriteBackUnit {
     private final Registers registers;
     
     public Instruction previous;
@@ -29,37 +29,16 @@ public class WriteBackUnit implements InstructionVisitable{
         
         previous = instruction;
         
-        instruction.visit(this);
+        switch (instruction) {
+            case JALRInstruction i -> registers.setRegister(i.rd, i.getResult());
+            case JInstruction i -> registers.setRegister(i.rd, i.getResult());
+            case IInstruction i -> registers.setRegister(i.rd, i.getResult());
+            case RInstruction i -> registers.setRegister(i.rd, i.result);
+            case UInstruction i -> registers.setRegister(i.rd, i.result);
+            default -> {}
+        }
         
         return true;
-    }
-    
-    /// Only Store a Value with Correct Instructions
-    public void execute(Instruction instruction) {}
-    
-    /// Write Back for all I Instructions
-    public void execute(IInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.getResult());
-    }
-    
-    /// Write Back for Jump and Link Register Instruction
-    public void execute(JALRInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.getPC() + 4);
-    }
-
-    /// Write Back for all J Instructions
-    public void execute(JInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.getPC() + 4);
-    }
-
-    /// Write Back for all R Instructions
-    public void execute(RInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.result);
-    }
-
-    /// Write Back for all U Instructions
-    public void execute(UInstruction instruction) {
-        registers.setRegister(instruction.rd, instruction.result);
     }
 
     @Override

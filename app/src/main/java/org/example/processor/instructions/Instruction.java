@@ -1,6 +1,7 @@
 package org.example.processor.instructions;
 
 import org.example.processor.Registers;
+import org.example.processor.executionUnits.EU;
 
 public interface Instruction {
     enum Type {
@@ -68,6 +69,9 @@ public interface Instruction {
     
     /// Returns if instruction can cause a branch
     boolean canBranch();
+    
+    /// Gets the EU that an instruction should be sent to
+    EU getEU();
     
     /// Returns if register data has been loaded to instruction
     boolean hasData();
