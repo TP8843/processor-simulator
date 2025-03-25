@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 public class BranchUnit {
-    // TODO: Add properties for all the buffers so they can be flushed on a branch miss
-    
     private final InstructionFetch instructionFetch;
     
     /// Buffers to be flushed for a jump instruction
@@ -24,6 +22,9 @@ public class BranchUnit {
 
     public Buffer<Instruction> compareInput;
     public Buffer<Instruction> decodeInput;
+    
+    /// Whether end of the program has been reached (j 0)
+    private boolean endReached = false;
     
     private Map<Integer, Integer> branchAddresses;
 
@@ -38,6 +39,11 @@ public class BranchUnit {
         this.branchAddresses = new HashMap<>();
         this.jumpBuffers = jumpBuffers;
         this.branchBuffers = branchBuffers;
+    }
+    
+    /// Whether the end of the program has been reached
+    public boolean getEndReached() {
+        return endReached;
     }
 
     /// Updates the PC in instruction fetch if required. Returns true if PC updated
@@ -72,36 +78,16 @@ public class BranchUnit {
             }
             
             case JALInstruction i -> {
+                // Check if instruction is a stall instruction
+                if(i.imm + i.getPC() == 0)
+                    endReached = true;
+                
                 instructionFetch.updatePC(i.imm + i.getPC());
                 jumpBuffers.forEach(buffer -> buffer.flush());
             }
             case BInstruction i -> branchAddresses.put(i.getPC(), i.getPC() + i.imm);
             default -> {}
         }
-    }
-    
-    public void execute(Instruction instruction){}
-    
-    /// Address generation for Jump and Link Register Instruction
-    public void execute(JALRInstruction instruction){
-        instructionFetch.updatePC(((instruction.rs1Data + instruction.imm) >> 1) << 1);
-    }
-
-    /// Address generation for Branch Instructions
-    public void execute(BInstruction instruction) {
-        if(!branchAddresses.containsKey(instruction.getPC())) 
-            branchAddresses.put(instruction.getPC(), instruction.getPC() + instruction.imm);
-        else {
-            // Only update PC if compare is true
-            if (instruction.getResult() != 0)
-                // TODO: Flush pipeline of incorrect instructions
-                instructionFetch.updatePC(branchAddresses.get(instruction.getPC()));
-        }
-    }
-    
-    /// Address generation for Jump and Link Instruction
-    public void execute(JALInstruction instruction) {
-        instructionFetch.updatePC(instruction.imm + instruction.getPC());
     }
 
     @Override

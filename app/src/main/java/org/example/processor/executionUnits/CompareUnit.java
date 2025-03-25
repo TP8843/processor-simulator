@@ -13,6 +13,8 @@ public record CompareUnit(Buffer<Instruction> input, Buffer<Instruction> output)
         }
 
         Instruction instruction = input.pop().get();
+        
+        System.out.println("Processing instruction in compare unit: " + instruction);
 
         switch (instruction) {
             case BEQInstruction i -> i.addResult(i.getRs1Data() == i.getRs2Data() ? 1 : 0);

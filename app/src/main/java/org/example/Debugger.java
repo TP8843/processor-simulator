@@ -14,7 +14,7 @@ public class Debugger {
             Possible Commands:
                 instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
                 fetchdecode/fetch-decode                  - Fetch to decode buffer
-                decodecompare/decode-compare              - Decode to Compare Unit Buffer
+                branch/branchunit/branch-unit             - Branch Unit
                 decodealu/decode-alu                      - Decode to ALU Buffer
                 alumemory/alu-memory                      - ALU to Memory Access Unit Buffer
                 alurs/alu-rs                              - ALU Reservation Station
@@ -66,7 +66,7 @@ public class Debugger {
             } else if (line.startsWith("continue")) {
                 do {
                     runProcessorCycle();
-                } while (!simulator.alu.isHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
+                } while (!simulator.branchUnit.getEndReached() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
             } else if (line.startsWith("exit")) {
                 System.out.println("Final value: " + simulator.memory.getWord(0));
                 return;
@@ -96,6 +96,7 @@ public class Debugger {
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
             case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
             case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
+            case "branch", "branchunit", "branch-unit": System.out.println(simulator.branchUnit); break;
             case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
             case "state": printState(); break;
             default: {
@@ -118,7 +119,7 @@ public class Debugger {
                         cycles, 
                         (float) simulator.getInstructions() / (float) cycles,
                         (float) cycles / (float) simulator.getInstructions(),
-                        simulator.alu.isHalted() ? "True" : "False"));
+                        simulator.branchUnit.getEndReached() ? "True" : "False"));
     }
 
     private void processBreakpoint(String command){
