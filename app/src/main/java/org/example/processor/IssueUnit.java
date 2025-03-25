@@ -3,8 +3,6 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.Instruction;
 
-import java.util.List;
-
 public class IssueUnit {
     private final Registers registers;
     

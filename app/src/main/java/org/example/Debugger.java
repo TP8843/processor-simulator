@@ -17,7 +17,8 @@ public class Debugger {
                 decodecompare/decode-compare              - Decode to Compare Unit Buffer
                 decodealu/decode-alu                      - Decode to ALU Buffer
                 alumemory/alu-memory                      - ALU to Memory Access Unit Buffer
-                alubranch/alu-branch                      - ALU to Branch Unit Buffer
+                alurs/alu-rs                              - ALU Reservation Station
+                comparers/compare-rs                      - Compare Reservation Station
                 alu                                       - ALU state (currently just if halted)
                 comparebranch/compare-branch              - Compare Unit to Branch Unit Buffer
                 memorywriteback/memory-write-back         - Memory Access Unit to Write Back Unit Buffer
@@ -90,7 +91,8 @@ public class Debugger {
             case "registers": System.out.println(simulator.registers); break;
             case "alumemory", "alu-memory": System.out.println(simulator.aluMemoryBuffer); break;
             case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
-            case "alubranch", "alu-branch": System.out.println(simulator.aluBranchBuffer); break;
+            case "alurs", "alu-rs": System.out.println(simulator.aluReservationStation); break;
+            case "comparers", "compare-rs": System.out.println(simulator.compareReservationStation); break;
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
             case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
             case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;

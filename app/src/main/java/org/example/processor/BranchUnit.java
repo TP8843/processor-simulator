@@ -107,6 +107,7 @@ public class BranchUnit {
     @Override
     public String toString() {
         return String.format("""
-                Branch Unit - nothing now :0""", decodeInput, compareInput);
+                Branch Unit - Branch Addresses:
+                %s""", this.branchAddresses);
     }
 }

@@ -22,7 +22,6 @@ public class Simulator {
     public final ReservationStation aluReservationStation;
     public final ReservationStation compareReservationStation;
     public final Buffer<Instruction> compareBranchBuffer;
-    public final Buffer<Instruction> aluBranchBuffer;
     public final Buffer<Instruction> aluMemoryBuffer;
     public final Buffer<Instruction> memoryWriteBackBuffer;
     
@@ -68,7 +67,6 @@ public class Simulator {
         this.alu = alu;
         this.compareUnit = compareUnit;
         this.compareBranchBuffer = compareBranchBuffer;
-        this.aluBranchBuffer = aluBranchBuffer;
         this.branchUnit = branchUnit;
         this.aluMemoryBuffer = aluMemoryBuffer;
         this.memoryAccessUnit = memoryAccessUnit;
@@ -91,7 +89,7 @@ public class Simulator {
         writeBackUnit.input = memoryAccessUnit.output;
         
         // Once branch unit has updated the PC, instruction fetch can fetch again :D
-        if(aluBranchBuffer.hasValue() && aluBranchBuffer.peek().get().canBranch()) {
+        if(compareBranchBuffer.hasValue() && compareBranchBuffer.peek().get().canBranch()) {
             fetchDecodeBuffer.release();
         }
         
