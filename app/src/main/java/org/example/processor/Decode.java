@@ -1,6 +1,7 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
+import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.BInstructions.BInstruction;
 import org.example.processor.instructions.IInstructions.ECallInstruction;
@@ -32,9 +33,9 @@ public class Decode {
         this.branchOutput = branchOutput;
     }
     
-    public void decode() {
+    public boolean decode() {
         // Do not run if instruction isn't fetched or there isn't space on the output
-        if(!input.hasValue() || !output.hasSpace()) return;
+        if(!input.hasValue() || !output.hasSpace()) return false;
         UndecodedInstruction instruction = input.pop().get();
         
         try {
@@ -56,13 +57,20 @@ public class Decode {
             }
 
             output.put(currentInstruction);
-            branchOutput.put(currentInstruction);
+
+            if(currentInstruction.canBranch()){
+                branchOutput.put(currentInstruction);
+                return true;
+            }
+
         }catch (Exception e){
             System.out.println(String.format("Error decoding instruction at 0x%s: %s",
                     Integer.toHexString(instruction.PC()), e.getMessage()));
-            
-            throw e;
+
+            return false;
         }
+
+        return false;
     }
 
     public boolean getHalted() {

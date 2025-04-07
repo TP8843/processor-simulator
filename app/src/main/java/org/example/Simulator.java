@@ -1,10 +1,7 @@
 package org.example;
 
 import org.example.processor.*;
-import org.example.processor.buffers.Buffer;
-import org.example.processor.buffers.Flushable;
-import org.example.processor.buffers.ReservationStation;
-import org.example.processor.buffers.SingleValueBuffer;
+import org.example.processor.buffers.*;
 import org.example.processor.executionUnits.Alu;
 import org.example.processor.executionUnits.CompareUnit;
 import org.example.processor.instructions.Instruction;
@@ -20,7 +17,7 @@ public class Simulator {
     // Buffers
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
     public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
-    public final Buffer<Instruction> decodeBranchBuffer = new SingleValueBuffer<>();
+    public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
     public final ReservationStation aluReservationStation = new ReservationStation(registers);
     public final ReservationStation compareReservationStation = new ReservationStation(registers);
     public final Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
@@ -36,7 +33,7 @@ public class Simulator {
     public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
     public final Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
     public final CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
-    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, decodeBranchBuffer, jumpBuffers, branchBuffers);
+    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, branchBuffers);
     public final MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
     public final WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
     
@@ -57,11 +54,6 @@ public class Simulator {
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
         
-//        // Once branch unit has updated the PC, instruction fetch can fetch again :D
-//        if(compareBranchBuffer.hasValue() && compareBranchBuffer.peek().get().canBranch()) {
-//            fetchDecodeBuffer.release();
-//        }
-        
         alu.execute();
         aluReservationStation.addData();
         
@@ -70,22 +62,18 @@ public class Simulator {
         
         issueUnit.issue();
 
-        if(branchUnit.updatePC()){
-            System.out.println("Releasing alu memory buffer");
-            decodeIssueBuffer.release();
+        if(decode.decode()){
+            System.out.println("Stalling fetch decode buffer");
+            fetchDecodeBuffer.stall();
         }
 
-        if(branchUnit.generateAddress()){
-            System.out.println("Stalling alu memory buffer");
-            decodeIssueBuffer.stall();
+        decodeBranchBuffer.addData(registers);
+
+        if(branchUnit.updatePC() || branchUnit.generateAddress()){
+            System.out.println("Releasing fetch decode buffer");
+            fetchDecodeBuffer.release();
+            fetchDecodeBuffer.flush();
         }
-
-        decode.decode();
-
-//        // Stop fetching of instructions until branching instruction finishes
-//        if(compareReservationStation.hasValue() && compareReservationStation.peek().get().canBranch()) {
-//            fetchDecodeBuffer.stall();
-//        }
         
         instructionFetch.process();
     }

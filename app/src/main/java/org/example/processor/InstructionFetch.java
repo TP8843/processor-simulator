@@ -18,14 +18,14 @@ public class InstructionFetch {
 
     public void process() {
         if(output.hasSpace()) {
-            System.out.println("Fetching instruction from PC: " + PC);
+            System.out.println("Fetching instruction from PC: 0x" + Integer.toHexString(PC));
             output.put(new UndecodedInstruction(PC, memory.getWord(PC)));
             PC += 4;
         }
     }
 
     public void updatePC(int PC) {
-        System.out.println("Updated PC to: " + PC);
+        System.out.println("Updated PC to: 0x" + Integer.toHexString(PC));
         this.PC = PC;
     }
 

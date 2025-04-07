@@ -45,7 +45,7 @@ public class SingleValueBuffer<T> implements Buffer<T>, Flushable {
     
     @Override
     public boolean hasValue() {
-        return stalled == false && value != null;
+        return !stalled && value != null;
     }
 
     @Override

@@ -27,9 +27,9 @@ public class IssueUnit {
                     aluReservationStation.put(decodeIssueBuffer.pop().get());
             }
             case COMPARE -> {
-                if(compareReservationStation.hasSpace())
-                    compareReservationStation.put(decodeIssueBuffer.pop().get());
+                decodeIssueBuffer.pop();
             }
+            default -> {}
         }
     }
     
