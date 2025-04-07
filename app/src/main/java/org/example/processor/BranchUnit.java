@@ -62,7 +62,7 @@ public class BranchUnit {
             if (i.getResult() != 0) {
                 System.out.println("I'm about to branch out " + i);
                 instructionFetch.updatePC(address);
-//                for (Flushable f : branchBuffers) f.flush();
+                for (Flushable f : branchBuffers) f.flush();
             }
 
             return true;
@@ -80,14 +80,14 @@ public class BranchUnit {
         switch (instruction) {
             case JALRInstruction i -> {
                 instructionFetch.updatePC(((i.rs1Data + i.imm) >> 1) << 1);
-//                for (Flushable f : jumpBuffers) f.flush();
+                for (Flushable f : jumpBuffers) f.flush();
                 System.out.println("JALR instruction" + i);
                 return true;
             }
             
             case JALInstruction i -> {
                 instructionFetch.updatePC(i.imm + i.getPC());
-//                for (Flushable f : jumpBuffers) f.flush();
+                for (Flushable f : jumpBuffers) f.flush();
                 System.out.println("JAL instruction" + i);
                 return true;
             }
