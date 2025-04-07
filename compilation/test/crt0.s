@@ -24,5 +24,5 @@ _start:
   li      x15, 0
   call main
 _eoc:
-  j 0
+  ecall
   

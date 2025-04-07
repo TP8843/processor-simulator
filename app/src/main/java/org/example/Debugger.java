@@ -14,8 +14,9 @@ public class Debugger {
             Possible Commands:
                 instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
                 fetchdecode/fetch-decode                  - Fetch to decode buffer
+                decode-branch/decodebranch                - Decode to branch buffer
+                decode-issue/decodeissue                  - Decode to issue buffer
                 branch/branchunit/branch-unit             - Branch Unit
-                decodealu/decode-alu                      - Decode to ALU Buffer
                 alumemory/alu-memory                      - ALU to Memory Access Unit Buffer
                 alurs/alu-rs                              - ALU Reservation Station
                 comparers/compare-rs                      - Compare Reservation Station
@@ -95,6 +96,7 @@ public class Debugger {
             case "comparers", "compare-rs": System.out.println(simulator.compareReservationStation); break;
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
             case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
+            case "decodebranchbuffer", "decode-branch-buffer", "decode-branch", "decodebranch": System.out.println(simulator.decodeBranchBuffer); break;
             case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
             case "branch", "branchunit", "branch-unit": System.out.println(simulator.branchUnit); break;
             case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;

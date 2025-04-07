@@ -3,6 +3,7 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.BInstructions.BInstruction;
+import org.example.processor.instructions.IInstructions.ECallInstruction;
 import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.RInstruction;
@@ -13,6 +14,9 @@ import static org.example.processor.instructions.Instruction.*;
 
 public class Decode {
     private final Registers registers;
+
+    /// True when the program has halted
+    private boolean halted = false;
 
     public final Buffer<UndecodedInstruction> input;
     public final Buffer<Instruction> output;
@@ -46,6 +50,11 @@ public class Decode {
                 case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
             };
 
+            // Halt on ecall instruction
+            if(currentInstruction instanceof ECallInstruction){
+                halted = true;
+            }
+
             output.put(currentInstruction);
             branchOutput.put(currentInstruction);
         }catch (Exception e){
@@ -54,6 +63,10 @@ public class Decode {
             
             throw e;
         }
+    }
+
+    public boolean getHalted() {
+        return halted;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Simulator {
 
     // Buffers to flush for jumps and branches
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
-    public final Flushable[] branchBuffers = new Flushable[]{ fetchDecodeBuffer, aluReservationStation, compareReservationStation };
+    public final Flushable[] branchBuffers = new Flushable[]{ fetchDecodeBuffer, aluReservationStation, compareReservationStation, aluMemoryBuffer };
 
     public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
     public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
@@ -70,8 +70,15 @@ public class Simulator {
         
         issueUnit.issue();
 
-        branchUnit.updatePC();
-        branchUnit.generateAddress();
+        if(branchUnit.updatePC()){
+            System.out.println("Releasing alu memory buffer");
+            decodeIssueBuffer.release();
+        }
+
+        if(branchUnit.generateAddress()){
+            System.out.println("Stalling alu memory buffer");
+            decodeIssueBuffer.stall();
+        }
 
         decode.decode();
 

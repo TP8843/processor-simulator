@@ -26,7 +26,7 @@ public class BranchUnit {
     /// Whether end of the program has been reached (j 0)
     private boolean endReached = false;
     
-    private Map<Integer, Integer> branchAddresses;
+    private final Map<Integer, Integer> branchAddresses;
 
     public BranchUnit(InstructionFetch instructionFetch, 
                       Buffer<Instruction> compareInput, 
@@ -46,10 +46,10 @@ public class BranchUnit {
         return endReached;
     }
 
-    /// Updates the PC in instruction fetch if required. Returns true if PC updated
-    public void updatePC() {
+    /// Updates the PC in instruction fetch if required. Returns true if branch processed / can release memory buffer
+    public boolean updatePC() {
         // Do not do any processing if either input is null (something has stalled)
-        if(!compareInput.hasValue() || !decodeInput.hasValue()) return;
+        if(!compareInput.hasValue()) return false;
         
         Instruction instruction = compareInput.pop().get();
 
@@ -58,12 +58,16 @@ public class BranchUnit {
                 instructionFetch.updatePC(branchAddresses.remove(instruction.getPC()));
                 for (Flushable f : branchBuffers) f.flush();
             }
+
+            return true;
         }
+
+        return false;
     }
     
-    /// Generates address for branch unit
-    public void generateAddress(){
-        if (!decodeInput.hasValue()) return;
+    /// Generates address for branch unit. True if memory/write-back should be stalled
+    public boolean generateAddress(){
+        if (!decodeInput.hasValue()) return false;
         
         Instruction instruction = decodeInput.pop().get();
         
@@ -75,15 +79,20 @@ public class BranchUnit {
             
             case JALInstruction i -> {
                 // Check if instruction is a stall instruction
-                if(i.imm + i.getPC() == 0)
+                if(i.imm == 0)
                     endReached = true;
                 
                 instructionFetch.updatePC(i.imm + i.getPC());
                 for (Flushable f : jumpBuffers) f.flush();
             }
-            case BInstruction i -> branchAddresses.put(i.getPC(), i.getPC() + i.imm);
+            case BInstruction i -> {
+                branchAddresses.put(i.getPC(), i.getPC() + i.imm);
+                return true;
+            }
             default -> {}
         }
+
+        return false;
     }
 
     @Override
