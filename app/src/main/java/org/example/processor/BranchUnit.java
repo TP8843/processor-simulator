@@ -23,9 +23,6 @@ public class BranchUnit {
     public Buffer<Instruction> compareInput;
     public Buffer<Instruction> decodeInput;
     
-    /// Whether end of the program has been reached (j 0)
-    private boolean endReached = false;
-    
     private final Map<Integer, Integer> branchAddresses;
 
     public BranchUnit(InstructionFetch instructionFetch, 
@@ -39,11 +36,6 @@ public class BranchUnit {
         this.branchAddresses = new HashMap<>();
         this.jumpBuffers = jumpBuffers;
         this.branchBuffers = branchBuffers;
-    }
-    
-    /// Whether the end of the program has been reached
-    public boolean getEndReached() {
-        return endReached;
     }
 
     /// Updates the PC in instruction fetch if required. Returns true if branch processed / can release memory buffer
@@ -78,13 +70,10 @@ public class BranchUnit {
             }
             
             case JALInstruction i -> {
-                // Check if instruction is a stall instruction
-                if(i.imm == 0)
-                    endReached = true;
-                
                 instructionFetch.updatePC(i.imm + i.getPC());
                 for (Flushable f : jumpBuffers) f.flush();
             }
+
             case BInstruction i -> {
                 branchAddresses.put(i.getPC(), i.getPC() + i.imm);
                 return true;
