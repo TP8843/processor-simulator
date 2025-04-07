@@ -14,65 +14,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Simulator {
-    public final Memory memory;
-    public final Registers registers;
+    public final Memory memory = new Memory();
+    public final Registers registers = new Registers();
 
-    public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
-    public final Buffer<Instruction> decodeIssueBuffer;
-    public final ReservationStation aluReservationStation;
-    public final ReservationStation compareReservationStation;
-    public final Buffer<Instruction> compareBranchBuffer;
-    public final Buffer<Instruction> aluMemoryBuffer;
-    public final Buffer<Instruction> memoryWriteBackBuffer;
-    
-    public final InstructionFetch instructionFetch;
-    public final Decode decode;
-    public final IssueUnit issueUnit;
-    public final Alu alu;
-    public final CompareUnit compareUnit;
-    public final BranchUnit branchUnit;
-    public final MemoryAccessUnit memoryAccessUnit;
-    public final WriteBackUnit writeBackUnit;
+    // Buffers
+    public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> decodeBranchBuffer = new SingleValueBuffer<>();
+    public final ReservationStation aluReservationStation = new ReservationStation(registers);
+    public final ReservationStation compareReservationStation = new ReservationStation(registers);
+    public final Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
+
+    // Buffers to flush for jumps and branches
+    public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
+    public final Flushable[] branchBuffers = new Flushable[]{ fetchDecodeBuffer, aluReservationStation, compareReservationStation };
+
+    public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
+    public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
+    public final Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
+    public final CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
+    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, decodeBranchBuffer, jumpBuffers, branchBuffers);
+    public final MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
+    public final WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
-
-    public Simulator(Memory memory,
-                     Registers registers,
-                     InstructionFetch instructionFetch,
-                     Buffer<UndecodedInstruction> fetchDecodeBuffer,
-                     Decode decode,
-                     Buffer<Instruction> decodeIssueBuffer,
-                     IssueUnit issueUnit,
-                     ReservationStation aluReservationStation,
-                     ReservationStation compareReservationStation,
-                     Alu alu,
-                     CompareUnit compareUnit,
-                     Buffer<Instruction> compareBranchBuffer,
-                     Buffer<Instruction> aluBranchBuffer,
-                     BranchUnit branchUnit,
-                     Buffer<Instruction> aluMemoryBuffer,
-                     MemoryAccessUnit memoryAccessUnit,
-                     Buffer<Instruction> memoryWriteBackBuffer,
-                     WriteBackUnit writeBackUnit) {
-        this.memory = memory;
-        this.registers = registers;
-        this.instructionFetch = instructionFetch;
-        this.fetchDecodeBuffer = fetchDecodeBuffer;
-        this.decode = decode;
-        this.issueUnit = issueUnit;
-        this.decodeIssueBuffer = decodeIssueBuffer;
-        this.aluReservationStation = aluReservationStation;
-        this.compareReservationStation = compareReservationStation;
-        this.alu = alu;
-        this.compareUnit = compareUnit;
-        this.compareBranchBuffer = compareBranchBuffer;
-        this.branchUnit = branchUnit;
-        this.aluMemoryBuffer = aluMemoryBuffer;
-        this.memoryAccessUnit = memoryAccessUnit;
-        this.memoryWriteBackBuffer = memoryWriteBackBuffer;
-        this.writeBackUnit = writeBackUnit;
-    }
     
     public int getInstructions() {
         return instructions;
@@ -115,63 +84,9 @@ public class Simulator {
     }
 
     static public Simulator createSimulator(String fileName) {
-        Memory memory = new Memory();
-        Registers registers = new Registers();
-        
-        Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
-        ReservationStation aluReservationStation = new ReservationStation(registers);
-        ReservationStation compareReservationStation = new ReservationStation(registers);
-        Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> decodeBranchBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
-        
-        InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
-        IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
-        Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
-        CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
+        Simulator simulator = new Simulator();
+        simulator.memory.loadProgram(fileName, 8);
 
-        List<Flushable> jumpBuffers = new ArrayList<>();
-        jumpBuffers.add(fetchDecodeBuffer);
-        
-        List<Flushable> branchBuffers = new ArrayList<>();
-        branchBuffers.add(fetchDecodeBuffer);
-        branchBuffers.add(aluReservationStation);
-        branchBuffers.add(compareReservationStation);
-        
-        BranchUnit branchUnit = new BranchUnit(
-                instructionFetch, 
-                compareBranchBuffer, 
-                decodeBranchBuffer,
-                jumpBuffers,
-                branchBuffers);
-        
-        MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
-        WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
-
-        memory.loadProgram(fileName, 8);
-
-        return new Simulator(
-                memory,
-                registers,
-                instructionFetch,
-                fetchDecodeBuffer,
-                decode,
-                decodeIssueBuffer,
-                issueUnit,
-                aluReservationStation,
-                compareReservationStation,
-                alu,
-                compareUnit,
-                compareBranchBuffer,
-                decodeBranchBuffer,
-                branchUnit,
-                aluMemoryBuffer,
-                memoryAccessUnit,
-                memoryWriteBackBuffer,
-                writeBackUnit
-        );
+        return simulator;
     }
 }

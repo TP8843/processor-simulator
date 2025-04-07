@@ -15,10 +15,10 @@ public class BranchUnit {
     private final InstructionFetch instructionFetch;
     
     /// Buffers to be flushed for a jump instruction
-    private final List<Flushable> jumpBuffers;
+    private final Flushable[] jumpBuffers;
     
     /// Buffers to be flushed for a branch instructon
-    private final List<Flushable> branchBuffers;
+    private final Flushable[] branchBuffers;
 
     public Buffer<Instruction> compareInput;
     public Buffer<Instruction> decodeInput;
@@ -31,8 +31,8 @@ public class BranchUnit {
     public BranchUnit(InstructionFetch instructionFetch, 
                       Buffer<Instruction> compareInput, 
                       Buffer<Instruction> decodeInput,
-                      List<Flushable> jumpBuffers,
-                      List<Flushable> branchBuffers) {
+                      Flushable[] jumpBuffers,
+                      Flushable[] branchBuffers) {
         this.instructionFetch = instructionFetch;
         this.compareInput = compareInput;
         this.decodeInput = decodeInput;
@@ -52,16 +52,12 @@ public class BranchUnit {
         if(!compareInput.hasValue() || !decodeInput.hasValue()) return;
         
         Instruction instruction = compareInput.pop().get();
-        
-        switch (instruction) {
-            case BInstruction i -> {
-                if (i.getResult() != 0) {
-                    instructionFetch.updatePC(branchAddresses.remove(instruction.getPC()));
-                    branchBuffers.forEach(buffer -> buffer.flush());
-                }
+
+        if (instruction instanceof BInstruction i) {
+            if (i.getResult() != 0) {
+                instructionFetch.updatePC(branchAddresses.remove(instruction.getPC()));
+                for (Flushable f : branchBuffers) f.flush();
             }
-            
-            default -> {}
         }
     }
     
@@ -74,7 +70,7 @@ public class BranchUnit {
         switch (instruction) {
             case JALRInstruction i -> {
                 instructionFetch.updatePC(((i.rs1Data + i.imm) >> 1) << 1);
-                jumpBuffers.forEach(buffer -> buffer.flush());
+                for (Flushable f : jumpBuffers) f.flush();
             }
             
             case JALInstruction i -> {
@@ -83,7 +79,7 @@ public class BranchUnit {
                     endReached = true;
                 
                 instructionFetch.updatePC(i.imm + i.getPC());
-                jumpBuffers.forEach(buffer -> buffer.flush());
+                for (Flushable f : jumpBuffers) f.flush();
             }
             case BInstruction i -> branchAddresses.put(i.getPC(), i.getPC() + i.imm);
             default -> {}

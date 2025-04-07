@@ -12,7 +12,7 @@ public class Memory {
     /// Number of bytes in word of memory
     public final int wordLength = 4;
     
-    private int[] memory = new int[size /wordLength];
+    private final int[] memory = new int[size /wordLength];
     
     private String previousStore = "None";
     private String previousLoad = "None";
@@ -110,8 +110,6 @@ public class Memory {
             }
             
             // TODO: Allow current program instructions to be printed to terminal
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

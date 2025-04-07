@@ -47,7 +47,7 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
 
     @Override
     public boolean hasValue() {
-        return (stalled == false && value != null && value.hasData());
+        return (!stalled && value != null && value.hasData());
     }
 
     @Override
@@ -79,8 +79,6 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
     public void addData() {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
-        
-        System.out.println("Current value in reservation station: " + value);
 
         value.addDataIfAvailable(registers);
     }
