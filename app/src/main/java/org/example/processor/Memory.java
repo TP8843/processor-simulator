@@ -65,6 +65,8 @@ public class Memory {
 
         previousStore = String.format("Word stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, input);
+
+        System.out.println(previousStore);
     }
 
     public void storeHalfWord(int pos, int input) {
@@ -76,6 +78,8 @@ public class Memory {
 
         previousStore = String.format("Half word stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, transformedInput);
+
+        System.out.println(previousStore);
     }
 
     public void storeByte(int pos, int input) {
@@ -85,6 +89,8 @@ public class Memory {
 
         previousStore = String.format("Byte stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, transformedInput);
+        
+        System.out.println(previousStore);
     }
 
     /// Load program into memory, starting at 0

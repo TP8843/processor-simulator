@@ -26,8 +26,6 @@ public class WriteBackUnit {
         if (!input.hasValue()) return false;
         
         Instruction instruction = input.pop().get();
-        System.out.println("Popping for write back: " + instruction);
-        
         previous = instruction;
         
         switch (instruction) {

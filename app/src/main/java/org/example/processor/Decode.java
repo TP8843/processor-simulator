@@ -31,24 +31,29 @@ public class Decode {
     public void decode() {
         // Do not run if instruction isn't fetched or there isn't space on the output
         if(!input.hasValue() || !output.hasSpace()) return;
-        
         UndecodedInstruction instruction = input.pop().get();
         
-        Instruction currentInstruction;
-        
-        Type type = Opcode.getInstructionType(Opcode.getOpcode(instruction.instruction()));
-        
-        currentInstruction = switch (type){
-            case B_TYPE -> BInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-            case I_TYPE -> IInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-            case J_TYPE -> JInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-            case R_TYPE -> RInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-            case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-            case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-        };
-        
-        output.put(currentInstruction);
-        branchOutput.put(currentInstruction);
+        try {
+            Instruction currentInstruction;
+            Type type = Opcode.getInstructionType(Opcode.getOpcode(instruction.instruction()));
+
+            currentInstruction = switch (type) {
+                case B_TYPE -> BInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case I_TYPE -> IInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case J_TYPE -> JInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case R_TYPE -> RInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+            };
+
+            output.put(currentInstruction);
+            branchOutput.put(currentInstruction);
+        }catch (Exception e){
+            System.out.println(String.format("Error decoding instruction at 0x%s: %s",
+                    Integer.toHexString(instruction.PC()), e.getMessage()));
+            
+            throw e;
+        }
     }
 
     @Override

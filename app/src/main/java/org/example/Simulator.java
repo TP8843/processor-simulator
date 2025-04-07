@@ -88,10 +88,10 @@ public class Simulator {
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
         
-        // Once branch unit has updated the PC, instruction fetch can fetch again :D
-        if(compareBranchBuffer.hasValue() && compareBranchBuffer.peek().get().canBranch()) {
-            fetchDecodeBuffer.release();
-        }
+//        // Once branch unit has updated the PC, instruction fetch can fetch again :D
+//        if(compareBranchBuffer.hasValue() && compareBranchBuffer.peek().get().canBranch()) {
+//            fetchDecodeBuffer.release();
+//        }
         
         alu.execute();
         aluReservationStation.addData();
@@ -106,10 +106,10 @@ public class Simulator {
 
         decode.decode();
 
-        // Stop fetching of instructions until branching instruction finishes
-        if(compareReservationStation.hasValue() && compareReservationStation.peek().get().canBranch()) {
-            fetchDecodeBuffer.stall();
-        }
+//        // Stop fetching of instructions until branching instruction finishes
+//        if(compareReservationStation.hasValue() && compareReservationStation.peek().get().canBranch()) {
+//            fetchDecodeBuffer.stall();
+//        }
         
         instructionFetch.process();
     }
