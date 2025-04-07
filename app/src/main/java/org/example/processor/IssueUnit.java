@@ -9,7 +9,6 @@ public class IssueUnit {
     public final Buffer<Instruction> decodeIssueBuffer;
     
     public final Buffer<Instruction> aluReservationStation;
-    public final Buffer<Instruction> compareReservationStation;
     
     /// Issues an instruction from the decode issue buffer to the correct
     /// reservation station
@@ -35,11 +34,9 @@ public class IssueUnit {
     
     public IssueUnit(Registers registers,
                      Buffer<Instruction> decodeIssueBuffer, 
-                     Buffer<Instruction> aluReservationStation, 
-                     Buffer<Instruction> compareReservationStation) {
+                     Buffer<Instruction> aluReservationStation) {
         this.registers = registers;
         this.decodeIssueBuffer = decodeIssueBuffer;
         this.aluReservationStation = aluReservationStation;
-        this.compareReservationStation = compareReservationStation;
     }
 }

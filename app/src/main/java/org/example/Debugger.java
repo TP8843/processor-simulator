@@ -21,7 +21,6 @@ public class Debugger {
                 alurs/alu-rs                              - ALU Reservation Station
                 comparers/compare-rs                      - Compare Reservation Station
                 alu                                       - ALU state (currently just if halted)
-                comparebranch/compare-branch              - Compare Unit to Branch Unit Buffer
                 memorywriteback/memory-write-back         - Memory Access Unit to Write Back Unit Buffer
                 memory                                    - Memory storing data and program
                 registers                                 - Current value of all registers
@@ -93,7 +92,6 @@ public class Debugger {
             case "alumemory", "alu-memory": System.out.println(simulator.aluMemoryBuffer); break;
             case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
             case "alurs", "alu-rs": System.out.println(simulator.aluReservationStation); break;
-            case "comparers", "compare-rs": System.out.println(simulator.compareReservationStation); break;
             case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
             case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
             case "decodebranchbuffer", "decode-branch-buffer", "decode-branch", "decodebranch": System.out.println(simulator.decodeBranchBuffer); break;

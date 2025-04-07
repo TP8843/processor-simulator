@@ -3,12 +3,8 @@ package org.example;
 import org.example.processor.*;
 import org.example.processor.buffers.*;
 import org.example.processor.executionUnits.Alu;
-import org.example.processor.executionUnits.CompareUnit;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Simulator {
     public final Memory memory = new Memory();
@@ -19,7 +15,6 @@ public class Simulator {
     public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
     public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
     public final ReservationStation aluReservationStation = new ReservationStation(registers);
-    public final ReservationStation compareReservationStation = new ReservationStation(registers);
     public final Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
     public final Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
     public final Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
@@ -30,9 +25,8 @@ public class Simulator {
 
     public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
     public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
-    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation);
+    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation);
     public final Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
-    public final CompareUnit compareUnit = new CompareUnit(compareReservationStation, compareBranchBuffer);
     public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, branchBuffers);
     public final MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
     public final WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
@@ -56,9 +50,6 @@ public class Simulator {
         
         alu.execute();
         aluReservationStation.addData();
-        
-        compareUnit.execute();
-        compareReservationStation.addData();
         
         issueUnit.issue();
 
