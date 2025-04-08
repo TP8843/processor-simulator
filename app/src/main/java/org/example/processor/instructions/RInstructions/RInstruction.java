@@ -1,8 +1,9 @@
-package org.example.processor.instructions;
+package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.Instruction;
 
-public class RInstruction implements Instruction {
+public abstract class RInstruction implements Instruction {
     public enum Type {
         ADD,
         SUB,
@@ -34,7 +35,6 @@ public class RInstruction implements Instruction {
                     case 0x05 -> SHIFT_RIGHT_ARITHMETIC;
                     default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
                 };
-
             }
         }
     }
@@ -42,8 +42,6 @@ public class RInstruction implements Instruction {
     private final Opcode opcode;
     
     private final int PC;
-
-    public final Type type;
     
     /// First source register for instruction
     public final byte rs1;
@@ -52,23 +50,22 @@ public class RInstruction implements Instruction {
     public final byte rs2;
     
     /// True if data has been loaded from registers
-    public final boolean hasData;
+    private boolean hasData;
     
     /// Data for first source register for instruction
-    public final int rs1Data;
+    private int rs1Data;
     
     /// Data for second source regstier for instruction
-    public final int rs2Data;
+    private int rs2Data;
     
     /// Destination register for instruction
     public final byte rd;
 
     /// Result of processing 
-    public final int aluResult;
+    public int result;
     
-    public RInstruction(Opcode opcode, Type type, int PC, byte rs1, byte rs2, byte rd) {
+    public RInstruction(Opcode opcode, int PC, byte rs1, byte rs2, byte rd) {
         this.opcode = opcode;
-        this.type = type;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
@@ -76,24 +73,11 @@ public class RInstruction implements Instruction {
         this.rs1Data = 0;
         this.rs2Data = 0;
         this.rd = rd;
-        this.aluResult = 0;
+        this.result = 0;
     }
 
-    public RInstruction(Opcode opcode, Type type, int PC, byte rs1, byte rs2, boolean hasData, int rs1Data, int rs2Data, byte rd, int aluResult) {
-        this.opcode = opcode;
-        this.type = type;
-        this.PC = PC;
-        this.rs1 = rs1;
-        this.rs2 = rs2;
-        this.hasData = hasData;
-        this.rs1Data = rs1Data;
-        this.rs2Data = rs2Data;
-        this.rd = rd;
-        this.aluResult = aluResult;
-    }
-
-    public RInstruction addAluResult(int aluResult) {
-        return new RInstruction(opcode, type, PC, rs1, rs2, hasData, rs1Data, rs2Data, rd, aluResult);
+    public void addResult(int result) {
+        this.result = result;
     }
 
     @Override
@@ -116,22 +100,21 @@ public class RInstruction implements Instruction {
         return hasData;
     }
     
+    public int getRs1Data() {
+        return rs1Data;
+    }
+    
+    public int getRs2Data() {
+        return rs2Data;
+    }
+    
     @Override
-    public RInstruction addDataIfAvailable(Registers registers) {
-        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return this;
+    public void addDataIfAvailable(Registers registers) {
+        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return;
         
-        return new RInstruction(
-                opcode, 
-                type, 
-                PC, 
-                rs1, 
-                rs2, 
-                true, 
-                registers.getRegister(rs1), 
-                registers.getRegister(rs2), 
-                rd, 
-                aluResult
-        );
+        this.rs1Data = registers.getRegister(rs1);
+        this.rs2Data = registers.getRegister(rs2);
+        this.hasData = true;
     }
 
     @Override
@@ -145,8 +128,26 @@ public class RInstruction implements Instruction {
         byte rs1 = Instruction.decodeRs1(instruction);
         byte rs2 = Instruction.decodeRs2(instruction);
         byte rd = Instruction.decodeRd(instruction);
-        
-        return new RInstruction(opcode, type, PC, rs1, rs2, rd);
+
+        if (Instruction.decodeFunct7(instruction) == 0x00) {
+            return switch (Instruction.decodeFunct3(instruction)) {
+                case 0x00 -> new ADDInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x01 -> new SLLInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x02 -> new SLTInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x03 -> new SLTUInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x04 -> new XORInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x05 -> new SRLInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x06 -> new ORInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x07 -> new ANDInstruction(opcode, PC, rs1, rs2, rd);
+                default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
+            };
+        } else {
+            return switch (Instruction.decodeFunct3(instruction)) {
+                case 0x00 -> new SUBInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x05 -> new SRAInstruction(opcode, PC, rs1, rs2, rd);
+                default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
+            };
+        }
     }
 
     @Override
@@ -154,7 +155,6 @@ public class RInstruction implements Instruction {
         return String.format("""
                 R Type Instruction:
                         Opcode: %s
-                        Type: %s
                         PC: %s
                         RS1: %s
                         RS2: %s
@@ -163,6 +163,6 @@ public class RInstruction implements Instruction {
                         RS2 Data: %s
                         RD: %s
                         ALU Result:  %s""",
-                opcode, type, PC, rs1, rs2, hasData ? "True" : "False", rs1Data, rs2Data, rd, aluResult);
+                opcode, PC, rs1, rs2, hasData ? "True" : "False", rs1Data, rs2Data, rd, result);
     }
 }

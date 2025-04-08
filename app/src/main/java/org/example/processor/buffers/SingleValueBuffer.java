@@ -2,7 +2,7 @@ package org.example.processor.buffers;
 
 import java.util.Optional;
 
-public class SingleValueBuffer<T> implements Buffer<T> {
+public class SingleValueBuffer<T> implements Buffer<T>, Flushable {
     /// Value stored inside the buffer
     private T value;
     
@@ -45,7 +45,7 @@ public class SingleValueBuffer<T> implements Buffer<T> {
     
     @Override
     public boolean hasValue() {
-        return stalled == false && value != null;
+        return !stalled && value != null;
     }
 
     @Override

@@ -5,16 +5,12 @@ import org.example.processor.instructions.Instruction;
 
 import java.util.Optional;
 
-public class ReservationStation implements Buffer<Instruction> {
+public class ReservationStation implements Buffer<Instruction>, Flushable {
     private final Registers registers;
     
     private boolean stalled;
 
     private Instruction value;
-    
-    /// Allows 2 components to get from this class before deleting the value
-    // TODO: Remove requirement for this by refactoring compare unit
-    private int taken = 2;
     
     public ReservationStation(Registers registers) {
         this.registers = registers;
@@ -25,16 +21,9 @@ public class ReservationStation implements Buffer<Instruction> {
         if (value != null && value.hasData()) {
             Instruction value = this.value;
             
-            if (taken == 2) {
-                // Reserve destination in registers before allowing first pop
-                value.reserveDestination(registers);
-            }
-            
-            taken -= 1;
-            
-            if (taken == 0) {
-                this.value = null;
-            }
+            // Reserve destination in registers before allowing pop
+            value.reserveDestination(registers);
+            this.value = null;
             
             return Optional.of(value);
         }
@@ -58,7 +47,7 @@ public class ReservationStation implements Buffer<Instruction> {
 
     @Override
     public boolean hasValue() {
-        return (stalled == false && value != null && value.hasData());
+        return (!stalled && value != null && value.hasData());
     }
 
     @Override
@@ -75,7 +64,6 @@ public class ReservationStation implements Buffer<Instruction> {
     public boolean put(Instruction value) {
         if (this.value == null) {
             this.value = value;
-            taken = 2;
             return true;
         }
 
@@ -92,16 +80,13 @@ public class ReservationStation implements Buffer<Instruction> {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
 
-        value = value.addDataIfAvailable(registers);
-        
-        
+        value.addDataIfAvailable(registers);
     }
 
     @Override
     public String toString() {
         return String.format("""
                 Current Value: %s
-                Taken: %s
-                Stalled: %s""", value, taken, stalled ? "True" : "False");
+                Stalled: %s""", value, stalled ? "True" : "False");
     }
 }

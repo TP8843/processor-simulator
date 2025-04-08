@@ -1,65 +1,38 @@
 package org.example;
 
 import org.example.processor.*;
-import org.example.processor.buffers.Buffer;
-import org.example.processor.buffers.ReservationStation;
-import org.example.processor.buffers.SingleValueBuffer;
+import org.example.processor.buffers.*;
+import org.example.processor.executionUnits.Alu;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
 
 public class Simulator {
-    public final Memory memory;
-    public final Registers registers;
+    public final Memory memory = new Memory();
+    public final Registers registers = new Registers();
 
-    public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
-    public final ReservationStation decodeBuffer;
-    public final Buffer<Instruction> compareBranchBuffer;
-    public final Buffer<Instruction> aluBranchBuffer;
-    public final Buffer<Instruction> aluMemoryBuffer;
-    public final Buffer<Instruction> memoryWriteBackBuffer;
-    
-    public final InstructionFetch instructionFetch;
-    public final Decode decode;
-    public final Alu alu;
-    public final CompareUnit compareUnit;
-    public final BranchUnit branchUnit;
-    public final MemoryAccessUnit memoryAccessUnit;
-    public final WriteBackUnit writeBackUnit;
+    // Buffers
+    public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
+    public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
+    public final ReservationStation aluReservationStation = new ReservationStation(registers);
+    public final Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
+
+    // Buffers to flush for jumps and branches
+    public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
+    public final Flushable[] branchBuffers = new Flushable[]{ fetchDecodeBuffer };
+
+    public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
+    public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation);
+    public final Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
+    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, branchBuffers);
+    public final MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
+    public final WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
-
-    public Simulator(Memory memory,
-                     Registers registers,
-                     InstructionFetch instructionFetch,
-                     Buffer<UndecodedInstruction> fetchDecodeBuffer,
-                     Decode decode,
-                     ReservationStation decodeBuffer,
-                     Alu alu,
-                     CompareUnit compareUnit,
-                     Buffer<Instruction> compareBranchBuffer,
-                     Buffer<Instruction> aluBranchBuffer,
-                     BranchUnit branchUnit,
-                     Buffer<Instruction> aluMemoryBuffer,
-                     MemoryAccessUnit memoryAccessUnit,
-                     Buffer<Instruction> memoryWriteBackBuffer,
-                     WriteBackUnit writeBackUnit) {
-        this.memory = memory;
-        this.registers = registers;
-        this.instructionFetch = instructionFetch;
-        this.fetchDecodeBuffer = fetchDecodeBuffer;
-        this.decode = decode;
-        this.decodeBuffer = decodeBuffer;
-        this.alu = alu;
-        this.compareUnit = compareUnit;
-        this.compareBranchBuffer = compareBranchBuffer;
-        this.aluBranchBuffer = aluBranchBuffer;
-        this.branchUnit = branchUnit;
-        this.aluMemoryBuffer = aluMemoryBuffer;
-        this.memoryAccessUnit = memoryAccessUnit;
-        this.memoryWriteBackBuffer = memoryWriteBackBuffer;
-        this.writeBackUnit = writeBackUnit;
-    }
     
     public int getInstructions() {
         return instructions;
@@ -75,70 +48,30 @@ public class Simulator {
         memoryAccessUnit.process();
         writeBackUnit.input = memoryAccessUnit.output;
         
-        // Once branch unit has updated the PC, instruction fetch can fetch again :D
-        if(aluBranchBuffer.hasValue() && aluBranchBuffer.peek().get().canBranch()) {
-            fetchDecodeBuffer.release();
-        }
-
-        // If the branch updates the PC, flush the current instruction
-        if(branchUnit.updatePC()) {
-            fetchDecodeBuffer.flush();
-        }
-
         alu.execute();
-        compareUnit.execute();
+        aluReservationStation.addData();
         
-        // Add data to current instruction in the buffer, and reserve the destination in the ALU buffer
-        // TODO: Reserve destination when ready in buffer
-        decodeBuffer.addData();
+        issueUnit.issue();
 
-        decode.decode();
-
-        // Stop fetching of instructions until branching instruction finishes
-        if(decodeBuffer.hasValue() && decodeBuffer.peek().get().canBranch()) {
+        if(decode.decode()){
+            System.out.println("Stalling fetch decode buffer");
             fetchDecodeBuffer.stall();
+        }
+
+        decodeBranchBuffer.addData(registers);
+
+        if(branchUnit.updatePC() || branchUnit.generateAddress()){
+            System.out.println("Releasing fetch decode buffer");
+            fetchDecodeBuffer.release();
         }
         
         instructionFetch.process();
     }
 
     static public Simulator createSimulator(String fileName) {
-        Memory memory = new Memory();
-        Registers registers = new Registers();
-        
-        Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
-        ReservationStation decodeBuffer = new ReservationStation(registers);
-        Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> aluBranchBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
-        Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
-        
-        InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-        Decode decode = new Decode(registers, fetchDecodeBuffer, decodeBuffer);
-        Alu alu = new Alu(decodeBuffer, aluMemoryBuffer, aluBranchBuffer);
-        CompareUnit compareUnit = new CompareUnit(decodeBuffer, compareBranchBuffer);
-        BranchUnit branchUnit = new BranchUnit(instructionFetch, compareBranchBuffer, aluBranchBuffer);
-        MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
-        WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
+        Simulator simulator = new Simulator();
+        simulator.memory.loadProgram(fileName, 8);
 
-        memory.loadProgram(fileName, 8);
-
-        return new Simulator(
-                memory,
-                registers,
-                instructionFetch,
-                fetchDecodeBuffer,
-                decode,
-                decodeBuffer,
-                alu,
-                compareUnit,
-                compareBranchBuffer,
-                aluBranchBuffer,
-                branchUnit,
-                aluMemoryBuffer,
-                memoryAccessUnit,
-                memoryWriteBackBuffer,
-                writeBackUnit
-        );
+        return simulator;
     }
 }

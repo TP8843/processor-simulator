@@ -1,19 +1,12 @@
-package org.example.processor.instructions;
+package org.example.processor.instructions.JInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.IInstructions.JALRInstruction;
+import org.example.processor.instructions.Instruction;
 
-public class JInstruction implements Instruction {
-    public enum Type {
-        JUMP_AND_LINK;
-        
-        static public Type decodeType(int instruction) {
-            return JUMP_AND_LINK;
-        }
-    }
+public abstract class JInstruction implements Instruction {
     
     private final Opcode opcode;
-
-    public final Type type;
 
     private final int PC;
 
@@ -24,28 +17,22 @@ public class JInstruction implements Instruction {
     public final byte rd;
     
     /// Result of processing 
-    public final int aluResult;
+    private int result;
 
-    public JInstruction(Opcode opcode, Type type, int PC, int imm, byte rd) {
+    public JInstruction(Opcode opcode, int PC, int imm, byte rd) {
         this.opcode = opcode;
-        this.type = type;
         this.PC = PC;
         this.imm = imm;
         this.rd = rd;
-        this.aluResult = 0;
+        this.result = 0;
     }
 
-    public JInstruction(Opcode opcode, Type type, int PC, int imm, byte rd, int aluResult) {
-        this.opcode = opcode;
-        this.type = type;
-        this.PC = PC;
-        this.imm = imm;
-        this.rd = rd;
-        this.aluResult = aluResult;
+    public void addResult(int result) {
+        this.result = result;
     }
-
-    public JInstruction addAluResult(int aluResult) {
-        return new JInstruction(opcode, type, PC, imm, rd, aluResult);
+    
+    public int getResult() {
+        return result;
     }
 
     @Override
@@ -69,9 +56,7 @@ public class JInstruction implements Instruction {
     }
     
     @Override
-    public JInstruction addDataIfAvailable(Registers registers) {
-        return this;
-    }
+    public void addDataIfAvailable(Registers registers) {}
 
     @Override
     public void reserveDestination(Registers registers) {
@@ -87,11 +72,10 @@ public class JInstruction implements Instruction {
     
     static public JInstruction decode(int instruction, int PC, Registers registers) {
         Opcode opcode = Opcode.getOpcode(instruction);
-        Type type = Type.decodeType(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
 
-        return new JInstruction(opcode, type, PC, imm, rd);
+        return new JALInstruction(opcode, PC, imm, rd);
     }
 
     @Override
@@ -99,11 +83,10 @@ public class JInstruction implements Instruction {
         return String.format("""
                 J Type Instruction:
                         Opcode: %s
-                        Type: %s
                         PC %s
                         IMM: %s
                         RD: %s
                         ALU Result:  %s""",
-                opcode, type, PC, imm, rd, aluResult);
+                opcode, PC, imm, rd, result);
     }
 }

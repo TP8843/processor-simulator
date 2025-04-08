@@ -6,7 +6,7 @@ import org.example.processor.instructions.Instruction;
 import java.util.Optional;
 
 /// Blocks until the data the instruction requires is available
-public class DataBlockingBuffer implements Buffer<Instruction> {
+public class DataBlockingBuffer implements Buffer<Instruction>, Flushable {
     private boolean stalled;
     
     private Instruction value;
@@ -71,7 +71,7 @@ public class DataBlockingBuffer implements Buffer<Instruction> {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
         
-        value = value.addDataIfAvailable(registers);
+        value.addDataIfAvailable(registers);
     }
 
     @Override

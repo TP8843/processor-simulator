@@ -1,11 +1,5 @@
 package org.example;
 
-import org.example.processor.Decode;
-import org.example.processor.Registers;
-import org.example.processor.instructions.IInstruction;
-import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.JInstruction;
-
 public class Main {
     public static void main(String[] args) {
         if (args.length == 0) {

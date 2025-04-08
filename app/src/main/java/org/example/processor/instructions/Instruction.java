@@ -1,6 +1,7 @@
 package org.example.processor.instructions;
 
 import org.example.processor.Registers;
+import org.example.processor.executionUnits.EU;
 
 public interface Instruction {
     enum Type {
@@ -69,14 +70,20 @@ public interface Instruction {
     /// Returns if instruction can cause a branch
     boolean canBranch();
     
+    /// Gets the EU that an instruction should be sent to
+    EU getEU();
+    
     /// Returns if register data has been loaded to instruction
     boolean hasData();
     
     /// Adds data to the registers if required
-    Instruction addDataIfAvailable(Registers registers);
+    void addDataIfAvailable(Registers registers);
     
     /// Reserves the destination register for instruction
     default void reserveDestination(Registers registers) {}
+    
+    /// Allow double dispatch for instruction execution
+    void visit(InstructionVisitable visitable);
 
     static byte decodeRs1(int instruction) {
         return (byte) ((instruction >> 15) & 0b11111);

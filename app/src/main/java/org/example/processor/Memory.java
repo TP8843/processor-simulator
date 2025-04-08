@@ -12,7 +12,7 @@ public class Memory {
     /// Number of bytes in word of memory
     public final int wordLength = 4;
     
-    private int[] memory = new int[size /wordLength];
+    private final int[] memory = new int[size /wordLength];
     
     private String previousStore = "None";
     private String previousLoad = "None";
@@ -65,6 +65,8 @@ public class Memory {
 
         previousStore = String.format("Word stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, input);
+
+        System.out.println(previousStore);
     }
 
     public void storeHalfWord(int pos, int input) {
@@ -76,6 +78,8 @@ public class Memory {
 
         previousStore = String.format("Half word stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, transformedInput);
+
+        System.out.println(previousStore);
     }
 
     public void storeByte(int pos, int input) {
@@ -85,6 +89,8 @@ public class Memory {
 
         previousStore = String.format("Byte stored into byte %s, array location %s, value %s",
                 pos, pos / wordLength, transformedInput);
+        
+        System.out.println(previousStore);
     }
 
     /// Load program into memory, starting at 0
@@ -104,8 +110,6 @@ public class Memory {
             }
             
             // TODO: Allow current program instructions to be printed to terminal
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
