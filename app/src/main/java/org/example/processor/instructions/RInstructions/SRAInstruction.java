@@ -1,7 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 /// Shift Right Arithmetic Instruction
 public class SRAInstruction extends RInstruction{
@@ -12,10 +11,5 @@ public class SRAInstruction extends RInstruction{
     @Override
     public EU getEU() {
         return EU.ALU;
-    }
-    
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
     }
 }

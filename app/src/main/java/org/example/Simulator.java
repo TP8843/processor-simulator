@@ -2,7 +2,10 @@ package org.example;
 
 import org.example.processor.*;
 import org.example.processor.buffers.*;
+import org.example.processor.executionUnits.Agu;
 import org.example.processor.executionUnits.Alu;
+import org.example.processor.executionUnits.CompareUnit;
+import org.example.processor.executionUnits.MemoryLoadUnit;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
 
@@ -14,22 +17,40 @@ public class Simulator {
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new SingleValueBuffer<>();
     public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
     public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
-    public final ReservationStation aluReservationStation = new ReservationStation(registers);
-    public final Buffer<Instruction> compareBranchBuffer = new SingleValueBuffer<>();
-    public final Buffer<Instruction> aluMemoryBuffer = new SingleValueBuffer<>();
-    public final Buffer<Instruction> memoryWriteBackBuffer = new SingleValueBuffer<>();
 
-    // Buffers to flush for jumps and branches
+    public final ReservationStation aluReservationStation = new ReservationStation(registers);
+    public final ReservationStation compareReservationStation = new ReservationStation(registers);
+
+    public final ReservationStation aguReservationStation = new ReservationStation(registers);
+    public final Buffer<Instruction> aguLoadBuffer = new SingleValueBuffer<>();
+
+    /// Initial buffers to flush for jumps and branches
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
-    public final Flushable[] branchBuffers = new Flushable[]{ fetchDecodeBuffer };
+
+    /// Buffers to flush for a branch mispredict
+    public final Flushable[] mispredictBuffers = new Flushable[]{
+            fetchDecodeBuffer,
+            decodeBranchBuffer,
+            decodeIssueBuffer,
+            aluReservationStation,
+            compareReservationStation,
+            aguReservationStation
+    };
+
+    public final Agu agu = new Agu(aguReservationStation, aguLoadBuffer);
+    public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
+
+    public final Alu alu = new Alu(aluReservationStation);
+    public final CompareUnit compareUnit = new CompareUnit(compareReservationStation);
+
+    public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
     public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
+    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers);
+
+    public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers);
     public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
-    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation);
-    public final Alu alu = new Alu(aluReservationStation, aluMemoryBuffer);
-    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, branchBuffers);
-    public final MemoryAccessUnit memoryAccessUnit = new MemoryAccessUnit(memory, aluMemoryBuffer, memoryWriteBackBuffer);
-    public final WriteBackUnit writeBackUnit = new WriteBackUnit(registers, memoryWriteBackBuffer);
+    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation, aguReservationStation, rob);
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
@@ -39,31 +60,36 @@ public class Simulator {
     }
 
     public void runCycle() {
-        if (writeBackUnit.writeBack()){
+        // Commit head of ROB
+        if(rob.processHead()){
             instructions += 1;
-            System.out.println("Finished processing instruction 0x" + 
-                    Integer.toHexString(writeBackUnit.previous.getPC()));
+            System.out.println("Commited instruction 0x" + Integer.toHexString(rob.getPrevious().getPC()));
         }
 
-        memoryAccessUnit.process();
-        writeBackUnit.input = memoryAccessUnit.output;
+        compareUnit.execute();
+
+        memoryLoadUnit.execute();
+        agu.execute();
         
         alu.execute();
-        aluReservationStation.addData();
-        
-        issueUnit.issue();
 
-        if(decode.decode()){
-            System.out.println("Stalling fetch decode buffer");
+        compareReservationStation.addData();
+        aguReservationStation.addData();
+        aluReservationStation.addData();
+
+        // Branch and issue should happen in same cycle after decode (so in this order)
+
+        // Stall fetching while jump / branch instruction is processing
+        if(decode.decode())
             fetchDecodeBuffer.stall();
-        }
 
         decodeBranchBuffer.addData(registers);
 
-        if(branchUnit.updatePC() || branchUnit.generateAddress()){
-            System.out.println("Releasing fetch decode buffer");
+        // Release fetching once address has been updated
+        if(branchUnit.generateAddress())
             fetchDecodeBuffer.release();
-        }
+
+        issueUnit.issue();
         
         instructionFetch.process();
     }

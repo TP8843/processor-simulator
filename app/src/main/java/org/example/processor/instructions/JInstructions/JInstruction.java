@@ -3,8 +3,9 @@ package org.example.processor.instructions.JInstructions;
 import org.example.processor.Registers;
 import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.RegisterWrite;
 
-public abstract class JInstruction implements Instruction {
+public abstract class JInstruction implements RegisterWrite {
     
     private final Opcode opcode;
 
@@ -15,6 +16,9 @@ public abstract class JInstruction implements Instruction {
 
     /// Destination register for instruction
     public final byte rd;
+
+    /// Whether a result has been added to the instruction
+    private boolean hasResult = false;
     
     /// Result of processing 
     private int result;
@@ -29,10 +33,22 @@ public abstract class JInstruction implements Instruction {
 
     public void addResult(int result) {
         this.result = result;
+        this.hasResult = true;
     }
-    
+
+    @Override
+    public boolean hasResult() {
+        return hasResult;
+    }
+
+    @Override
     public int getResult() {
         return result;
+    }
+
+    @Override
+    public byte getDestination() {
+        return rd;
     }
 
     @Override
@@ -84,9 +100,11 @@ public abstract class JInstruction implements Instruction {
                 J Type Instruction:
                         Opcode: %s
                         PC %s
+                        Is Ready: %s
                         IMM: %s
                         RD: %s
-                        ALU Result:  %s""",
-                opcode, PC, imm, rd, result);
+                        Has Result: %s
+                        Result:  %s""",
+                opcode, PC, isReady() ? "True" : "False", imm, rd, hasResult ? "True": "False", result);
     }
 }

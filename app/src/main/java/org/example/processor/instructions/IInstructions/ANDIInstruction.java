@@ -1,7 +1,6 @@
 package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 public class ANDIInstruction extends IInstruction{
     public ANDIInstruction(Opcode opcode, int PC, byte rs1, int imm, byte rd) {
@@ -11,10 +10,5 @@ public class ANDIInstruction extends IInstruction{
     @Override
     public EU getEU() {
         return EU.ALU;
-    }
-    
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
     }
 }

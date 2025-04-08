@@ -1,7 +1,6 @@
 package org.example.processor.instructions.BInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 public class BLTInstruction  extends BInstruction{
     public BLTInstruction(Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
@@ -11,10 +10,5 @@ public class BLTInstruction  extends BInstruction{
     @Override
     public EU getEU() {
         return EU.COMPARE;
-    }
-    
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
     }
 }

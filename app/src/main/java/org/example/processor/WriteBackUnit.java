@@ -32,8 +32,8 @@ public class WriteBackUnit {
             case JALRInstruction i -> registers.setRegister(i.rd, i.getResult());
             case JInstruction i -> registers.setRegister(i.rd, i.getResult());
             case IInstruction i -> registers.setRegister(i.rd, i.getResult());
-            case RInstruction i -> registers.setRegister(i.rd, i.result);
-            case UInstruction i -> registers.setRegister(i.rd, i.result);
+            case RInstruction i -> registers.setRegister(i.rd, i.getResult());
+            case UInstruction i -> registers.setRegister(i.rd, i.getResult());
             default -> {}
         }
         

@@ -2,73 +2,43 @@ package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.Flushable;
-import org.example.processor.buffers.SingleValueBuffer;
 import org.example.processor.instructions.BInstructions.*;
+import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.JInstructions.JALInstruction;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class BranchUnit {
     private final InstructionFetch instructionFetch;
     
-    /// Buffers to be flushed for a jump instruction
+    /// Buffers to be flushed for jump/branch instructions
     private final Flushable[] jumpBuffers;
-    
-    /// Buffers to be flushed for a branch instructon
-    private final Flushable[] branchBuffers;
+
+    /// Buffers to be flushed on a mispredict for a branch instruction
+    private final Flushable[] mispredictBuffers;
 
     public Buffer<Instruction> decodeInput;
-
-    /// Holds instruction between address generation and comparison stages
-    private final Buffer<Instruction> internal = new SingleValueBuffer<>();
-
-    /// Stores the final address for the current branch instruction
-    private int address;
 
     public BranchUnit(InstructionFetch instructionFetch,
                       Buffer<Instruction> decodeInput,
                       Flushable[] jumpBuffers,
-                      Flushable[] branchBuffers) {
+                      Flushable[] mispredictBuffers) {
         this.instructionFetch = instructionFetch;
         this.decodeInput = decodeInput;
-//        this.branchAddresses = new HashMap<>();
         this.jumpBuffers = jumpBuffers;
-        this.branchBuffers = branchBuffers;
+        this.mispredictBuffers = mispredictBuffers;
     }
 
-    /// Updates the PC in instruction fetch if required. Returns true if branch processed / can release memory buffer
-    public boolean updatePC() {
-        // Do not do any processing if either input is null (something has stalled)
-        if(!internal.hasValue()) return false;
-        
-        Instruction instruction = internal.pop().get();
+    /// Called if a branch shouldn't have occurred.
+    /// Updates the PC and flushes buffers
+    public void branchMispredict(Branch instruction) {
+        // If we shouldn't have branched, panic (or, update the PC, flush the required buffers, and chill)
+        if(instruction.hasResult() && !instruction.getResult()){
+            for (Flushable f : mispredictBuffers) f.flush();
 
-        switch (instruction) {
-            case BEQInstruction i -> i.addResult(i.getRs1Data() == i.getRs2Data() ? 1 : 0);
-            case BNEInstruction i -> i.addResult(i.getRs1Data() != i.getRs2Data() ? 1 : 0);
-            case BLTInstruction i -> i.addResult(i.getRs1Data() < i.getRs2Data() ? 1 : 0);
-            case BGTEInstruction i -> i.addResult(i.getRs1Data() >= i.getRs2Data() ? 1 : 0);
-            case BLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0 ? 1 : 0);
-            case BGTEUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) >= 0 ? 1 : 0);
-            default -> {
-            }
+            // Update PC to the next instruction after the branch
+            instructionFetch.updatePC(instruction.getPC() + 4);
         }
-
-        if (instruction instanceof BInstruction i) {
-            if (i.getResult() != 0) {
-                System.out.println("I'm about to branch out " + i);
-                instructionFetch.updatePC(address);
-                for (Flushable f : branchBuffers) f.flush();
-            }
-
-            return true;
-        }
-
-        return false;
     }
     
     /// Generates address for branch unit. True if memory/write-back should be stalled
@@ -81,33 +51,23 @@ public class BranchUnit {
             case JALRInstruction i -> {
                 instructionFetch.updatePC(((i.rs1Data + i.imm) >> 1) << 1);
                 for (Flushable f : jumpBuffers) f.flush();
-                System.out.println("JALR instruction" + i);
                 return true;
             }
             
             case JALInstruction i -> {
                 instructionFetch.updatePC(i.imm + i.getPC());
                 for (Flushable f : jumpBuffers) f.flush();
-                System.out.println("JAL instruction" + i);
                 return true;
             }
 
             case BInstruction i -> {
-                address = i.getPC() + i.imm;
-                internal.put(i);
-                return false;
+                instructionFetch.updatePC(i.imm + i.getPC());
+                for (Flushable f : jumpBuffers) f.flush();
+                return true;
             }
             default -> {}
         }
 
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("""
-                Branch Unit -
-                  Address: %s
-                  Internal Buffer: %s""", this.address, this.internal);
     }
 }

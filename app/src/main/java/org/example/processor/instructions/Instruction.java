@@ -81,9 +81,9 @@ public interface Instruction {
     
     /// Reserves the destination register for instruction
     default void reserveDestination(Registers registers) {}
-    
-    /// Allow double dispatch for instruction execution
-    void visit(InstructionVisitable visitable);
+
+    /// Whether the instruction is currently ready to be committed
+    default boolean isReady() { return true; }
 
     static byte decodeRs1(int instruction) {
         return (byte) ((instruction >> 15) & 0b11111);

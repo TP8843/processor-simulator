@@ -1,9 +1,10 @@
 package org.example.processor.instructions.BInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.Instruction;
 
-public abstract class BInstruction implements Instruction {
+public abstract class BInstruction implements Instruction, Branch {
     private final Instruction.Opcode opcode;
 
     private final int PC;
@@ -26,8 +27,11 @@ public abstract class BInstruction implements Instruction {
     /// Immediate value for instruction
     public final int imm;
 
-    /// Result of processing 
-    private int result;
+    /// Whether a comparison result has been added
+    private boolean hasResult = false;
+
+    /// Result of comparison
+    private boolean result;
 
     public BInstruction(Instruction.Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
@@ -38,11 +42,7 @@ public abstract class BInstruction implements Instruction {
         this.rs2Data = 0;
         this.hasRegisterData = false;
         this.imm = imm;
-        this.result = 0;
-    }
-
-    public void addResult(int result) {
-       this.result = result;
+        this.result = false;
     }
     
     @Override
@@ -81,9 +81,24 @@ public abstract class BInstruction implements Instruction {
     public int getRs2Data() {
         return rs2Data;
     }
-    
-    public int getResult() {
+
+    /// Adds the result of the comparison to the instruction
+    public void addResult(boolean result) {
+        this.result = result;
+        this.hasResult = true;
+    }
+
+    /// Whether a result has been added to the instruction
+    public boolean hasResult() { return hasResult; }
+
+    /// The result of the comparison
+    public boolean getResult() {
         return result;
+    }
+
+    @Override
+    public boolean isReady() {
+        return hasResult();
     }
     
     static private int decodeImmediate(int instruction){
@@ -116,21 +131,25 @@ public abstract class BInstruction implements Instruction {
                 B Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
                         RS2: %s
                         Has Data: %s
                         RS1 Data: %s
                         RS2 Data: %s
                         IMM: %s
+                        Has Result: %s
                         Result: %s""",
                 opcode,
-                PC, 
+                PC,
+                isReady() ? "True" : "False",
                 rs1, 
                 rs2,
                 hasRegisterData? "True": "False",
                 rs1Data,
                 rs2Data,
                 imm,
+                hasResult ? "True" : "False",
                 result);
     }
 }

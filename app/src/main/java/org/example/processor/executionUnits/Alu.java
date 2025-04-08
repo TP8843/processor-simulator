@@ -3,19 +3,18 @@ package org.example.processor.executionUnits;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.IInstructions.*;
+import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.JInstructions.JALInstruction;
 import org.example.processor.instructions.RInstructions.*;
 import org.example.processor.instructions.SInstructions.SInstruction;
 import org.example.processor.instructions.UInstructions.AUIInstruction;
 import org.example.processor.instructions.UInstructions.LUIInstruction;
 
-public record Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput) {
+public record Alu(Buffer<Instruction> input) {
 
     public void execute() {
         // If input not available or output full, do not run anything
-        if (!input.hasValue() || !(memoryOutput.hasSpace())) {
-            return;
-        }
+        if (!input.hasValue()) return;
 
         Instruction instruction = input.pop().get();
 
@@ -60,14 +59,12 @@ public record Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput) {
             case SLTInstruction i -> i.addResult((i.getRs1Data() < i.getRs2Data()) ? 1 : 0);
             case SLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0 ? 1 : 0);
 
-            case SInstruction i -> i.addResult(i.getRs1Data() + i.imm);
+            case SInstruction i -> i.addAddress(i.getRs1Data() + i.imm);
 
             case LUIInstruction i -> i.addResult(i.imm);
             case AUIInstruction i -> i.addResult(i.imm + i.getPC());
 
             default -> throw new IllegalArgumentException("Instruction not valid for ALU: " + instruction);
         }
-
-        memoryOutput.put(instruction);
     }
 }

@@ -2,8 +2,9 @@ package org.example.processor.instructions.SInstructions;
 
 import org.example.processor.Registers;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.MemoryWrite;
 
-public abstract class SInstruction implements Instruction {
+public abstract class SInstruction implements MemoryWrite {
     private final Opcode opcode;
     
     private final int PC;
@@ -18,33 +19,48 @@ public abstract class SInstruction implements Instruction {
     private boolean hasData;
     
     /// Data for first source register for instruction
-    private int rs1Data;
+    private int rs1Data = 0;
     
     /// Data for second source register for instruction
-    private int rs2Data;
+    private int rs2Data = 0;
 
     /// Immediate value for instruction
     public final int imm;
 
-    /// Result of processing 
-    public int result;
+    /// Whether the store address has been added for the instruction
+    private boolean hasAddress = false;
+
+    /// Final store address
+    private int address;
 
     public SInstruction(Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
         this.PC = PC;
         this.rs1 = rs1;
         this.rs2 = rs2;
-        this.hasData = false;
-        this.rs1Data = 0;
-        this.rs2Data = 0;
         this.imm = imm;
-        this.result = 0;
     }
 
-    public void addResult(int result) {
-        this.result = result;
+    public void addAddress(int result) {
+        this.address = result;
+        this.hasAddress = true;
     }
-    
+
+    @Override
+    public boolean hasAddress() {
+        return hasAddress;
+    }
+
+    @Override
+    public int getAddress() {
+        return address;
+    }
+
+    @Override
+    public int getValue() {
+        return this.rs2Data;
+    }
+
     public int getRs1Data() {
         return rs1Data;
     }
@@ -108,13 +124,25 @@ public abstract class SInstruction implements Instruction {
                 S Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
-                        RS2: %s
+                        RS2 / Register to Store: %s
                         Has Data: %s
                         RS1 Data: %s
-                        RS2 Data: %s
+                        RS2 Data / Value to Store: %s
                         IMM: %s
-                        ALU Result:  %s""",
-                opcode, PC, rs1, rs2, hasData ? "True" : "False", rs1Data, rs2Data, imm, result);
+                        Has Address: %s
+                        Address:  %s""",
+                opcode,
+                PC,
+                isReady() ? "True" : "False",
+                rs1,
+                rs2,
+                hasData ? "True" : "False",
+                rs1Data,
+                rs2Data,
+                imm,
+                hasAddress ? "True": "False",
+                getAddress());
     }
 }

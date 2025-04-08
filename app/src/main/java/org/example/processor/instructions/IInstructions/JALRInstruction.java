@@ -1,7 +1,6 @@
 package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 public class JALRInstruction extends IInstruction{
     public JALRInstruction(Opcode opcode, int PC, byte rs1, int imm, byte rd) {
@@ -16,10 +15,5 @@ public class JALRInstruction extends IInstruction{
     @Override
     public boolean canBranch() {
         return true;
-    }
-
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
     }
 }

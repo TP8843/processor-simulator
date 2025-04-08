@@ -1,9 +1,11 @@
 package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.RegisterWrite;
 
-public abstract class IInstruction implements Instruction {
+public abstract class IInstruction implements RegisterWrite {
     private final Opcode opcode;
     
     private final int PC;
@@ -23,6 +25,9 @@ public abstract class IInstruction implements Instruction {
     /// Destination register for instruction
     public final byte rd;
 
+    /// Whether a result has been added
+    private boolean hasResult;
+
     /// Result of processing 
     private int result;
 
@@ -39,10 +44,22 @@ public abstract class IInstruction implements Instruction {
 
     public void addResult(int result) {
         this.result = result;
+        hasResult = true;
     }
-    
+
+    @Override
+    public boolean hasResult() {
+        return hasResult;
+    }
+
+    @Override
     public int getResult() {
         return result;
+    }
+
+    @Override
+    public byte getDestination() {
+        return rd;
     }
     
     @Override
@@ -58,7 +75,6 @@ public abstract class IInstruction implements Instruction {
     @Override
     public boolean canBranch() {
         return false;
-        // TODO: Override in JALRInstruction
     }
     
     @Override
@@ -88,7 +104,7 @@ public abstract class IInstruction implements Instruction {
         byte rs1 = Instruction.decodeRs1(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);
-        
+
         return switch (Instruction.Opcode.getOpcode(instruction)) {
             case LOAD -> decodeLoad(instruction, opcode, PC, rs1, imm, rd);
             case ARITHMETIC_LOGICAL_IMMEDIATE -> decodeArithmetic(instruction, opcode, PC, rs1, imm, rd);
@@ -142,12 +158,23 @@ public abstract class IInstruction implements Instruction {
                 I Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
                         Has Data: %s
                         RS1 Data: %s
                         IMM: %s
                         RD: %s
+                        Has Result: %s
                         Result:  %s""",
-                opcode, PC, rs1, hasData ? "True" : "False", rs1Data, imm, rd, result);
+                opcode,
+                PC,
+                isReady() ? "True" : "False",
+                rs1,
+                hasData ? "True" : "False",
+                rs1Data,
+                imm,
+                rd,
+                hasResult ? "True" : "False",
+                result);
     }
 }
