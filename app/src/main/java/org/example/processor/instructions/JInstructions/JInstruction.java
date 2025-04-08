@@ -5,7 +5,7 @@ import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
-public abstract class JInstruction implements Instruction, RegisterWrite {
+public abstract class JInstruction implements RegisterWrite {
     
     private final Opcode opcode;
 
@@ -44,6 +44,11 @@ public abstract class JInstruction implements Instruction, RegisterWrite {
     @Override
     public int getResult() {
         return result;
+    }
+
+    @Override
+    public byte getDestination() {
+        return rd;
     }
 
     @Override
@@ -95,9 +100,11 @@ public abstract class JInstruction implements Instruction, RegisterWrite {
                 J Type Instruction:
                         Opcode: %s
                         PC %s
+                        Is Ready: %s
                         IMM: %s
                         RD: %s
-                        ALU Result:  %s""",
-                opcode, PC, imm, rd, result);
+                        Has Result: %s
+                        Result:  %s""",
+                opcode, PC, isReady() ? "True" : "False", imm, rd, hasResult ? "True": "False", result);
     }
 }

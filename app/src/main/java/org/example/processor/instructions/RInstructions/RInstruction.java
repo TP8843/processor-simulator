@@ -4,7 +4,7 @@ import org.example.processor.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
-public abstract class RInstruction implements Instruction, RegisterWrite {
+public abstract class RInstruction implements RegisterWrite {
     public enum Type {
         ADD,
         SUB,
@@ -95,6 +95,11 @@ public abstract class RInstruction implements Instruction, RegisterWrite {
     }
 
     @Override
+    public byte getDestination() {
+        return rd;
+    }
+
+    @Override
     public Opcode getOpcode() {
         return opcode;
     }
@@ -170,13 +175,25 @@ public abstract class RInstruction implements Instruction, RegisterWrite {
                 R Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
                         RS2: %s
                         Has Data: %s
                         RS1 Data: %s
                         RS2 Data: %s
                         RD: %s
-                        ALU Result:  %s""",
-                opcode, PC, rs1, rs2, hasData ? "True" : "False", rs1Data, rs2Data, rd, result);
+                        Has Result: %s
+                        Result:  %s""",
+                opcode,
+                PC,
+                isReady() ? "True" : "False",
+                rs1,
+                rs2,
+                hasData ? "True" : "False",
+                rs1Data,
+                rs2Data,
+                rd,
+                hasResult ? "True" : "False",
+                result);
     }
 }

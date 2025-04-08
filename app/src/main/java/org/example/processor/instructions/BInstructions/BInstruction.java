@@ -82,23 +82,23 @@ public abstract class BInstruction implements Instruction, Branch {
         return rs2Data;
     }
 
-    @Override
-    public boolean isReady() {
-        return hasCompareResult();
-    }
-
     /// Adds the result of the comparison to the instruction
-    public void addCompareResult(boolean result) {
+    public void addResult(boolean result) {
         this.result = result;
         this.hasResult = true;
     }
 
     /// Whether a result has been added to the instruction
-    public boolean hasCompareResult() { return hasResult; }
+    public boolean hasResult() { return hasResult; }
 
     /// The result of the comparison
-    public boolean getCompareResult() {
+    public boolean getResult() {
         return result;
+    }
+
+    @Override
+    public boolean isReady() {
+        return hasResult();
     }
     
     static private int decodeImmediate(int instruction){
@@ -131,21 +131,25 @@ public abstract class BInstruction implements Instruction, Branch {
                 B Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
                         RS2: %s
                         Has Data: %s
                         RS1 Data: %s
                         RS2 Data: %s
                         IMM: %s
+                        Has Result: %s
                         Result: %s""",
                 opcode,
-                PC, 
+                PC,
+                isReady() ? "True" : "False",
                 rs1, 
                 rs2,
                 hasRegisterData? "True": "False",
                 rs1Data,
                 rs2Data,
                 imm,
+                hasResult ? "True" : "False",
                 result);
     }
 }

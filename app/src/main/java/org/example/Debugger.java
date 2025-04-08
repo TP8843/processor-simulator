@@ -13,17 +13,21 @@ public class Debugger {
     private final String printError = """
             Possible Commands:
                 instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
-                fetchdecode/fetch-decode                  - Fetch to decode buffer
-                decode-branch/decodebranch                - Decode to branch buffer
-                decode-issue/decodeissue                  - Decode to issue buffer
-                branch/branchunit/branch-unit             - Branch Unit
-                alumemory/alu-memory                      - ALU to Memory Access Unit Buffer
-                alurs/alu-rs                              - ALU Reservation Station
-                comparers/compare-rs                      - Compare Reservation Station
-                alu                                       - ALU state (currently just if halted)
-                memorywriteback/memory-write-back         - Memory Access Unit to Write Back Unit Buffer
-                memory                                    - Memory storing data and program
-                registers                                 - Current value of all registers
+                fetch-decode/fetchDecode                  - Fetch to Decode Buffer
+                decode-branch/decodeBranch                - Decode to Branch Buffer
+                decode-issue/decodeIssue                  - Decode to Issue Buffer
+            
+                alu-rs/aluRs                              - ALU Reservation Station
+                agu-rs/aguRs                              - AGU Reservation Station
+                compare-rs/compareRs                      - Compare Reservation Station
+            
+                agu-memory/aguMemory                      - AGU to Memory Load Unit Buffer
+            
+                rob                                       - Reorder Buffer
+                registers                                 - Registers
+                memory                                    - Memory
+                state                                     - Current State of Simulation
+                
             """;
 
     private final String generalError = """
@@ -41,7 +45,7 @@ public class Debugger {
                 list                - lists all current breakpoints
             """;
 
-    private Set<Integer> breakPoints = new HashSet<>();
+    private final Set<Integer> breakPoints = new HashSet<>();
     
     private int cycles = 0;
     
@@ -86,22 +90,25 @@ public class Debugger {
 
     private void processPrint(String unit) {
         switch (unit) {
-            case "alu": System.out.println(simulator.alu); break;
-            case "memory": System.out.println(simulator.memory); break;
+            case "instruction-fetch", "fetch", "instructionfetch": System.out.println(simulator.instructionFetch); break;
+            case "fetch-decode", "fetchdecode": System.out.println(simulator.fetchDecodeBuffer); break;
+            case "decode-branch", "decodebranch": System.out.println(simulator.decodeBranchBuffer); break;
+            case "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
+
+            case "alu-rs", "alurs": System.out.println(simulator.aluReservationStation); break;
+            case "agu-rs", "agus": System.out.println(simulator.aguReservationStation); break;
+            case "compare-rs", "comparers": System.out.println(simulator.compareReservationStation); break;
+
+            case "agu-memory", "agumemory": System.out.println(simulator.aguLoadBuffer); break;
+
+            case "rob": System.out.println(simulator.rob); break;
             case "registers": System.out.println(simulator.registers); break;
-            case "alumemory", "alu-memory": System.out.println(simulator.aluMemoryBuffer); break;
-            case "comparebranch", "compare-branch": System.out.println(simulator.compareBranchBuffer); break;
-            case "alurs", "alu-rs": System.out.println(simulator.aluReservationStation); break;
-            case "memorywriteback", "memory-write-back", "memory-writeback": System.out.println(simulator.memoryWriteBackBuffer); break;
-            case "decodeissuebuffer", "decode-issue-buffer", "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
-            case "decodebranchbuffer", "decode-branch-buffer", "decode-branch", "decodebranch": System.out.println(simulator.decodeBranchBuffer); break;
-            case "fetchdecode", "fetch-decode": System.out.println(simulator.fetchDecodeBuffer); break;
-            case "branch", "branchunit", "branch-unit": System.out.println(simulator.branchUnit); break;
-            case "instruction-fetch", "instructionfetch", "fetch": System.out.println(simulator.instructionFetch); break;
+            case "memory": System.out.println(simulator.memory); break;
             case "state": printState(); break;
+
             default: {
                 System.out.println("Unknown command: " + unit);
-                System.out.print(printError);
+                System.out.println(printError);
                 break;
             }
         }

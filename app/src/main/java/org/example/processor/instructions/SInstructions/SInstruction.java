@@ -4,7 +4,7 @@ import org.example.processor.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.MemoryWrite;
 
-public abstract class SInstruction implements Instruction, MemoryWrite {
+public abstract class SInstruction implements MemoryWrite {
     private final Opcode opcode;
     
     private final int PC;
@@ -124,13 +124,25 @@ public abstract class SInstruction implements Instruction, MemoryWrite {
                 S Type Instruction:
                         Opcode: %s
                         PC: %s
+                        Is Ready: %s
                         RS1: %s
                         RS2 / Register to Store: %s
                         Has Data: %s
                         RS1 Data: %s
                         RS2 Data / Value to Store: %s
                         IMM: %s
+                        Has Address: %s
                         Address:  %s""",
-                opcode, PC, rs1, rs2, hasData ? "True" : "False", rs1Data, rs2Data, imm, getAddress());
+                opcode,
+                PC,
+                isReady() ? "True" : "False",
+                rs1,
+                rs2,
+                hasData ? "True" : "False",
+                rs1Data,
+                rs2Data,
+                imm,
+                hasAddress ? "True": "False",
+                getAddress());
     }
 }

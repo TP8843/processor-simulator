@@ -2,6 +2,12 @@ package org.example.processor.executionUnits;
 
 /// All possible execution units to send an instruction
 public enum EU {
+    /// Integer Operations
     ALU,
-    COMPARE
+
+    /// Comparisons for Branches
+    COMPARE,
+
+    /// Address Generation Unit (for loads/stores)
+    AGU
 }

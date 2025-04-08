@@ -1,9 +1,14 @@
 package org.example.processor.instructions;
 
-public interface Branch {
+public interface Branch extends Instruction{
     /// True if a compare result has been added to the instruction
-    boolean hasCompareResult();
+    boolean hasResult();
 
     /// Get the result of the comparison for the branch
-    public boolean getCompareResult();
+    boolean getResult();
+
+    @Override
+    default boolean isReady(){
+        return hasResult();
+    }
 }
