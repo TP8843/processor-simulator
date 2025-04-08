@@ -1,7 +1,6 @@
 package org.example.processor.instructions.SInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 /// Store Half Word Instruction
 public class SHWInstruction extends SInstruction {

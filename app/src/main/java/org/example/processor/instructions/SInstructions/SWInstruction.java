@@ -1,7 +1,6 @@
 package org.example.processor.instructions.SInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 public class SWInstruction extends SInstruction {
     public SWInstruction(Opcode opcode, int PC, byte rs1, byte rs2, int imm) {

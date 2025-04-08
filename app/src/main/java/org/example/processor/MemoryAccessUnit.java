@@ -28,9 +28,9 @@ public class MemoryAccessUnit {
         Instruction instruction = input.pop().get();
         
         switch (instruction) {
-            case SBInstruction i -> memory.storeByte(i.result, i.getRs2Data());
-            case SHWInstruction i -> memory.storeHalfWord(i.result, i.getRs2Data());
-            case SWInstruction i -> memory.storeWord(i.result, i.getRs2Data());
+            case SBInstruction i -> memory.storeByte(i.getAddress(), i.getRs2Data());
+            case SHWInstruction i -> memory.storeHalfWord(i.getAddress(), i.getRs2Data());
+            case SWInstruction i -> memory.storeWord(i.getAddress(), i.getRs2Data());
             
             case LBInstruction i -> i.addResult(memory.getByte(i.getResult(), false));
             case LBUInstruction i -> i.addResult(memory.getByte(i.getResult(), true));

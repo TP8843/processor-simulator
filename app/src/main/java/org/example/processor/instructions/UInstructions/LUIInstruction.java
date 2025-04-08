@@ -1,7 +1,6 @@
 package org.example.processor.instructions.UInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 /// Load Upper Immediate Instruction
 public class LUIInstruction extends UInstruction {

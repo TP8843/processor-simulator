@@ -60,7 +60,7 @@ public record Alu(Buffer<Instruction> input, Buffer<Instruction> memoryOutput) {
             case SLTInstruction i -> i.addResult((i.getRs1Data() < i.getRs2Data()) ? 1 : 0);
             case SLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0 ? 1 : 0);
 
-            case SInstruction i -> i.addResult(i.getRs1Data() + i.imm);
+            case SInstruction i -> i.addAddress(i.getRs1Data() + i.imm);
 
             case LUIInstruction i -> i.addResult(i.imm);
             case AUIInstruction i -> i.addResult(i.imm + i.getPC());

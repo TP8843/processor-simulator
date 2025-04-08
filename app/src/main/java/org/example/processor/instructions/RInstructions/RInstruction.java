@@ -2,8 +2,9 @@ package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.Registers;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.RegisterWrite;
 
-public abstract class RInstruction implements Instruction {
+public abstract class RInstruction implements Instruction, RegisterWrite {
     public enum Type {
         ADD,
         SUB,
@@ -61,8 +62,11 @@ public abstract class RInstruction implements Instruction {
     /// Destination register for instruction
     public final byte rd;
 
+    /// Whether a result has been added to the instruction
+    private boolean hasResult;
+
     /// Result of processing 
-    public int result;
+    private int result;
     
     public RInstruction(Opcode opcode, int PC, byte rs1, byte rs2, byte rd) {
         this.opcode = opcode;
@@ -78,6 +82,16 @@ public abstract class RInstruction implements Instruction {
 
     public void addResult(int result) {
         this.result = result;
+        hasResult = true;
+    }
+
+    public boolean hasResult(){
+        return hasResult;
+    }
+
+    @Override
+    public int getResult() {
+        return result;
     }
 
     @Override

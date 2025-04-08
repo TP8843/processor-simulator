@@ -2,8 +2,9 @@ package org.example.processor.instructions.UInstructions;
 
 import org.example.processor.Registers;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.RegisterWrite;
 
-public abstract class UInstruction implements Instruction {
+public abstract class UInstruction implements Instruction, RegisterWrite {
     private final Opcode opcode;
 
     private final int PC;
@@ -14,19 +15,32 @@ public abstract class UInstruction implements Instruction {
     /// Destination register for instruction
     public final byte rd;
 
+    /// Whether a result has been calculated for instruction
+    private boolean hasResult = false;
+
     /// Result of processing 
-    public int result;
+    private int result = 0;
 
     public UInstruction(Opcode opcode, int PC, int imm, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
         this.imm = imm;
         this.rd = rd;
-        this.result = 0;
     }
 
     public void addResult(int result) {
         this.result = result;
+        this.hasResult = true;
+    }
+
+    @Override
+    public boolean hasResult() {
+        return hasResult;
+    }
+
+    @Override
+    public int getResult() {
+        return result;
     }
 
     @Override

@@ -1,9 +1,10 @@
 package org.example.processor.instructions.BInstructions;
 
 import org.example.processor.Registers;
+import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.Instruction;
 
-public abstract class BInstruction implements Instruction {
+public abstract class BInstruction implements Instruction, Branch {
     private final Instruction.Opcode opcode;
 
     private final int PC;
@@ -79,6 +80,11 @@ public abstract class BInstruction implements Instruction {
     
     public int getRs2Data() {
         return rs2Data;
+    }
+
+    @Override
+    public boolean isReady() {
+        return hasCompareResult();
     }
 
     /// Adds the result of the comparison to the instruction

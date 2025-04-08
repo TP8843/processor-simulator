@@ -1,7 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 /// Set Less Than Unsigned Instruction
 public class SLTUInstruction extends RInstruction{

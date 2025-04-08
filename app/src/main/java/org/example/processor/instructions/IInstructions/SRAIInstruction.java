@@ -1,7 +1,6 @@
 package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 /// Shift Right Arithmetic Immediate
 public class SRAIInstruction extends IInstruction{

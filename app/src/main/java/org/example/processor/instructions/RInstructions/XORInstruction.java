@@ -1,7 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.executionUnits.EU;
-import org.example.processor.instructions.InstructionVisitable;
 
 public class XORInstruction extends RInstruction{
     public XORInstruction(Opcode opcode, int PC, byte rs1, byte rs2, byte rd) {
