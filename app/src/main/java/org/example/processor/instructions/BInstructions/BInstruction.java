@@ -26,8 +26,11 @@ public abstract class BInstruction implements Instruction {
     /// Immediate value for instruction
     public final int imm;
 
-    /// Result of processing 
-    private int result;
+    /// Whether a comparison result has been added
+    private boolean hasResult = false;
+
+    /// Result of comparison
+    private boolean result;
 
     public BInstruction(Instruction.Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
@@ -38,11 +41,7 @@ public abstract class BInstruction implements Instruction {
         this.rs2Data = 0;
         this.hasRegisterData = false;
         this.imm = imm;
-        this.result = 0;
-    }
-
-    public void addResult(int result) {
-       this.result = result;
+        this.result = false;
     }
     
     @Override
@@ -81,8 +80,18 @@ public abstract class BInstruction implements Instruction {
     public int getRs2Data() {
         return rs2Data;
     }
-    
-    public int getResult() {
+
+    /// Adds the result of the comparison to the instruction
+    public void addCompareResult(boolean result) {
+        this.result = result;
+        this.hasResult = true;
+    }
+
+    /// Whether a result has been added to the instruction
+    public boolean hasCompareResult() { return hasResult; }
+
+    /// The result of the comparison
+    public boolean getCompareResult() {
         return result;
     }
     

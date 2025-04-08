@@ -12,9 +12,4 @@ public class BLTUInstruction extends BInstruction {
     public EU getEU() {
         return EU.COMPARE;
     }
-    
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
-    }
 }

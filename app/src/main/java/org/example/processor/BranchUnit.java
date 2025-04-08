@@ -8,10 +8,6 @@ import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.JInstructions.JALInstruction;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class BranchUnit {
     private final InstructionFetch instructionFetch;
     
@@ -48,18 +44,18 @@ public class BranchUnit {
         Instruction instruction = internal.pop().get();
 
         switch (instruction) {
-            case BEQInstruction i -> i.addResult(i.getRs1Data() == i.getRs2Data() ? 1 : 0);
-            case BNEInstruction i -> i.addResult(i.getRs1Data() != i.getRs2Data() ? 1 : 0);
-            case BLTInstruction i -> i.addResult(i.getRs1Data() < i.getRs2Data() ? 1 : 0);
-            case BGTEInstruction i -> i.addResult(i.getRs1Data() >= i.getRs2Data() ? 1 : 0);
-            case BLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0 ? 1 : 0);
-            case BGTEUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) >= 0 ? 1 : 0);
+            case BEQInstruction i -> i.addCompareResult(i.getRs1Data() == i.getRs2Data());
+            case BNEInstruction i -> i.addCompareResult(i.getRs1Data() != i.getRs2Data());
+            case BLTInstruction i -> i.addCompareResult(i.getRs1Data() < i.getRs2Data());
+            case BGTEInstruction i -> i.addCompareResult(i.getRs1Data() >= i.getRs2Data());
+            case BLTUInstruction i -> i.addCompareResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0);
+            case BGTEUInstruction i -> i.addCompareResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) >= 0);
             default -> {
             }
         }
 
         if (instruction instanceof BInstruction i) {
-            if (i.getResult() != 0) {
+            if (i.hasCompareResult() && i.getCompareResult()) {
                 System.out.println("I'm about to branch out " + i);
                 instructionFetch.updatePC(address);
                 for (Flushable f : branchBuffers) f.flush();

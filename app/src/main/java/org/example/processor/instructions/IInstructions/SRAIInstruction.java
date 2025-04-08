@@ -13,9 +13,4 @@ public class SRAIInstruction extends IInstruction{
     public EU getEU() {
         return EU.ALU;
     }
-    
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
-    }
 }

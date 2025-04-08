@@ -17,9 +17,4 @@ public class JALRInstruction extends IInstruction{
     public boolean canBranch() {
         return true;
     }
-
-    @Override
-    public void visit(InstructionVisitable visitable) {
-        visitable.execute(this);
-    }
 }
