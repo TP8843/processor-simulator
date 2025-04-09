@@ -19,7 +19,7 @@ public class IssueUnit {
     /// Issues an instruction from the decode issue buffer to the correct
     /// reservation station
     public void issue(){
-        if(!decodeIssueBuffer.hasValue() || !rob.hasSpace()) return;
+        if(!decodeIssueBuffer.hasValue() || rob.isFull()) return;
         
         var instruction = decodeIssueBuffer.peek().get();
 
