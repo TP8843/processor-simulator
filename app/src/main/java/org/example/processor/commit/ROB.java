@@ -1,23 +1,22 @@
-package org.example.processor.buffers;
+package org.example.processor.commit;
 
 import org.example.processor.*;
-import org.example.processor.instructions.Branch;
-import org.example.processor.instructions.Instruction;
-import org.example.processor.instructions.MemoryWrite;
-import org.example.processor.instructions.RegisterWrite;
+import org.example.processor.buffers.CircularQueue;
+import org.example.processor.buffers.Flushable;
+import org.example.processor.data.Registers;
+import org.example.processor.instructions.*;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 public class ROB implements Flushable {
     /// Size of the reorder buffer
-    public static final int SIZE = 128;
+    public final int size;
 
     /// Instruction just commited (for debugging)
     private Instruction previous;
 
     /// Backing queue for ROB
-    private final CircularQueue<Instruction> queue = new CircularQueue<>(SIZE);
+    private final CircularQueue<Instruction> queue;
 
     /// Branch Unit (to handle mispredictions)
     private final BranchUnit branchUnit;
@@ -28,15 +27,28 @@ public class ROB implements Flushable {
     /// Allows for writing to registers on commit
     private final Registers registers;
 
+    private boolean halted;
+
     public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers) {
+        this(branchUnit, memoryUnit, registers, 128);
+    }
+
+    public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers, int size) {
         this.branchUnit = branchUnit;
         this.memoryUnit = memoryUnit;
         this.registers = registers;
+        this.size = size;
+        this.queue = new CircularQueue<>(size);
     }
 
     /// Gets instruction just commited by ROB
     public Instruction getPrevious() {
         return previous;
+    }
+
+    /// Whether the program has halted
+    public boolean getHalted() {
+        return halted;
     }
 
     /// Adds an instruction to the ROB if there is space
@@ -66,6 +78,27 @@ public class ROB implements Flushable {
         return true;
     }
 
+    /// Add data (return true), or if not available, add source instruction for data (return false)
+    public void initOperand(Operand operand) {
+        // Register 0 is always equal to 0
+        if(operand.register == 0) {
+            operand.addData(0);
+            return;
+        }
+
+        for(Instruction instruction : queue) {
+            if(instruction instanceof RegisterWrite i && i.getDestination() == operand.register){
+                if(i.hasResult()) operand.addData(i.getResult());
+                else operand.addSource(i);
+
+                return;
+            }
+        }
+
+        // If no instruction with destination == operand.register, pull data from register
+        operand.addData(registers.getRegister(operand.register));
+    }
+
     /// Commit an instruction
     private void handleInstruction(Instruction instruction){
         switch (instruction){
@@ -80,6 +113,8 @@ public class ROB implements Flushable {
             case RegisterWrite i -> registers.setRegister(i.getDestination(), i.getResult());
 
             case MemoryWrite i -> memoryUnit.writeMemory(i);
+
+            case Environment i -> halted = true;
 
             default -> {}
         }

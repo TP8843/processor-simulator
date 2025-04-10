@@ -1,7 +1,8 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.buffers.ROB;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 
 public class IssueUnit {
@@ -22,9 +23,6 @@ public class IssueUnit {
         if(!decodeIssueBuffer.hasValue() || rob.isFull()) return;
         
         var instruction = decodeIssueBuffer.peek().get();
-
-        // Add data if available, and if data is not available (returned instruction has not got data) output = null
-        instruction.addDataIfAvailable(registers);
         
         switch (instruction.getEU()) {
             case ALU -> {
@@ -48,6 +46,11 @@ public class IssueUnit {
                     aguReservationStation.put(decodeIssueBuffer.pop().get());
                 }
             }
+
+            case NONE -> {
+                rob.add(instruction);
+            }
+
             default -> {}
         }
     }

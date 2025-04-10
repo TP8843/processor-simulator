@@ -1,5 +1,6 @@
-package org.example.processor;
+package org.example.processor.commit;
 
+import org.example.processor.data.Memory;
 import org.example.processor.instructions.MemoryWrite;
 import org.example.processor.instructions.SInstructions.SBInstruction;
 import org.example.processor.instructions.SInstructions.SHWInstruction;
@@ -15,9 +16,9 @@ public class MemoryWriteUnit {
     public void writeMemory(MemoryWrite instruction) {
         
         switch (instruction) {
-            case SBInstruction i -> memory.storeByte(i.getAddress(), i.getRs2Data());
-            case SHWInstruction i -> memory.storeHalfWord(i.getAddress(), i.getRs2Data());
-            case SWInstruction i -> memory.storeWord(i.getAddress(), i.getRs2Data());
+            case SBInstruction i -> memory.storeByte(i.getAddress(), i.rs2.getData());
+            case SHWInstruction i -> memory.storeHalfWord(i.getAddress(), i.rs2.getData());
+            case SWInstruction i -> memory.storeWord(i.getAddress(), i.rs2.getData());
             
             default -> {}
         }

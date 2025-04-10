@@ -1,9 +1,12 @@
 package org.example.processor.buffers;
 
+import org.example.processor.instructions.Instruction;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 
-public class CircularQueue<T> implements Flushable {
+public class CircularQueue<T> implements Flushable, Iterable<T> {
     /// Size of the circular queue
     public final int size;
 
@@ -85,5 +88,27 @@ public class CircularQueue<T> implements Flushable {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            int i = tail;
+
+            @Override
+            public boolean hasNext() {
+                return i != head;
+            }
+
+            @Override
+            public T next() {
+                i = i - 1;
+                if(i < 0) i += size;
+
+                @SuppressWarnings("unchecked")
+                T value = (T) data[i];
+                return value;
+            }
+        };
     }
 }

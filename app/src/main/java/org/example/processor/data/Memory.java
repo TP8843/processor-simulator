@@ -1,9 +1,8 @@
-package org.example.processor;
+package org.example.processor.data;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Scanner;
 
 public class Memory {
     /// Number of words in memory

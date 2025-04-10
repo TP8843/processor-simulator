@@ -1,4 +1,4 @@
-package org.example.processor;
+package org.example.processor.data;
 
 public class Registers {
     /// Stores all register values in the processor

@@ -1,6 +1,7 @@
 package org.example.processor.instructions;
 
-import org.example.processor.Registers;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.EU;
 
 public interface Instruction {
@@ -10,7 +11,8 @@ public interface Instruction {
         J_TYPE,
         R_TYPE,
         S_TYPE,
-        U_TYPE
+        U_TYPE,
+        ENVIRONMENT
     }
     
     enum Opcode {
@@ -47,11 +49,12 @@ public interface Instruction {
         public static Type getInstructionType(Opcode opcode){
             return switch (opcode){
                 case ARITHMETIC_LOGICAL -> Type.R_TYPE;
-                case ARITHMETIC_LOGICAL_IMMEDIATE, ENVIRONMENT, JUMP_AND_LINK_REGISTER, LOAD -> Type.I_TYPE;
+                case ARITHMETIC_LOGICAL_IMMEDIATE, JUMP_AND_LINK_REGISTER, LOAD -> Type.I_TYPE;
                 case STORE -> Type.S_TYPE;
                 case BRANCH -> Type.B_TYPE;
                 case JUMP_AND_LINK -> Type.J_TYPE;
                 case LOAD_UPPER_IMMEDIATE, ADD_UPPER_IMMEDIATE_TO_PC -> Type.U_TYPE;
+                case ENVIRONMENT -> Type.ENVIRONMENT;
             };
         }
     }
@@ -76,8 +79,11 @@ public interface Instruction {
     /// Returns if register data has been loaded to instruction
     boolean hasData();
     
-    /// Adds data to the registers if required
-    void addDataIfAvailable(Registers registers);
+    /// Gets data from source instructions for registers if required
+    void getDataIfAvailable(Registers registers);
+
+    /// Initialise all operands with either data or source instructions
+    default void initOperands(ROB rob) {}
     
     /// Reserves the destination register for instruction
     default void reserveDestination(Registers registers) {}

@@ -1,6 +1,6 @@
 package org.example.processor.buffers;
 
-import org.example.processor.Registers;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 
 import java.util.Optional;
@@ -11,9 +11,16 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
     private boolean stalled;
 
     private Instruction value;
+
+    private final CircularQueue<Instruction> queue;
     
     public ReservationStation(Registers registers) {
+        this(registers, 16);
+    }
+
+    public ReservationStation(Registers registers, int size) {
         this.registers = registers;
+        this.queue = new CircularQueue<>(size);
     }
 
     @Override
@@ -80,7 +87,7 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
 
-        value.addDataIfAvailable(registers);
+        value.getDataIfAvailable(registers);
     }
 
     @Override

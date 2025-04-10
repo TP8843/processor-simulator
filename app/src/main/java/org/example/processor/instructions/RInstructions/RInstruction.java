@@ -1,7 +1,9 @@
 package org.example.processor.instructions.RInstructions;
 
-import org.example.processor.Registers;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.Operand;
 import org.example.processor.instructions.RegisterWrite;
 
 public abstract class RInstruction implements RegisterWrite {
@@ -45,19 +47,10 @@ public abstract class RInstruction implements RegisterWrite {
     private final int PC;
     
     /// First source register for instruction
-    public final byte rs1;
+    public final Operand rs1;
     
     /// Second source register for instruction
-    public final byte rs2;
-    
-    /// True if data has been loaded from registers
-    private boolean hasData;
-    
-    /// Data for first source register for instruction
-    private int rs1Data;
-    
-    /// Data for second source regstier for instruction
-    private int rs2Data;
+    public final Operand rs2;
     
     /// Destination register for instruction
     public final byte rd;
@@ -71,11 +64,8 @@ public abstract class RInstruction implements RegisterWrite {
     public RInstruction(Opcode opcode, int PC, byte rs1, byte rs2, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
-        this.rs1 = rs1;
-        this.rs2 = rs2;
-        this.hasData = false;
-        this.rs1Data = 0;
-        this.rs2Data = 0;
+        this.rs1 = new Operand(rs1);
+        this.rs2 = new Operand(rs2);
         this.rd = rd;
         this.result = 0;
     }
@@ -116,24 +106,19 @@ public abstract class RInstruction implements RegisterWrite {
     
     @Override
     public boolean hasData() {
-        return hasData;
-    }
-    
-    public int getRs1Data() {
-        return rs1Data;
-    }
-    
-    public int getRs2Data() {
-        return rs2Data;
+        return rs1.hasData() && rs2.hasData();
     }
     
     @Override
-    public void addDataIfAvailable(Registers registers) {
-        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return;
-        
-        this.rs1Data = registers.getRegister(rs1);
-        this.rs2Data = registers.getRegister(rs2);
-        this.hasData = true;
+    public void getDataIfAvailable(Registers registers) {
+        this.rs1.getDataWhenAvailable();
+        this.rs2.getDataWhenAvailable();
+    }
+
+    @Override
+    public void initOperands(ROB rob) {
+        rob.initOperand(this.rs1);
+        rob.initOperand(this.rs2);
     }
 
     @Override
@@ -179,8 +164,6 @@ public abstract class RInstruction implements RegisterWrite {
                         RS1: %s
                         RS2: %s
                         Has Data: %s
-                        RS1 Data: %s
-                        RS2 Data: %s
                         RD: %s
                         Has Result: %s
                         Result:  %s""",
@@ -189,9 +172,7 @@ public abstract class RInstruction implements RegisterWrite {
                 isReady() ? "True" : "False",
                 rs1,
                 rs2,
-                hasData ? "True" : "False",
-                rs1Data,
-                rs2Data,
+                hasData() ? "True" : "False",
                 rd,
                 hasResult ? "True" : "False",
                 result);

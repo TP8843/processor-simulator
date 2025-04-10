@@ -1,6 +1,6 @@
 package org.example.processor.buffers;
 
-import org.example.processor.Registers;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 
 import java.util.Optional;
@@ -71,7 +71,7 @@ public class DataBlockingBuffer implements Buffer<Instruction>, Flushable {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
         
-        value.addDataIfAvailable(registers);
+        value.getDataIfAvailable(registers);
     }
 
     @Override

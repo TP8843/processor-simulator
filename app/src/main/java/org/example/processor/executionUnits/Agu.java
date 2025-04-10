@@ -16,8 +16,8 @@ public record Agu(Buffer<Instruction> input, Buffer<Instruction> loadOutput) {
         Instruction instruction = input.pop().get();
 
         switch (instruction) {
-            case LoadInstruction i -> i.addAddress(i.rs1Data + i.imm);
-            case SInstruction i -> i.addAddress(i.getRs1Data() + i.imm);
+            case LoadInstruction i -> i.addAddress(i.rs1.getData() + i.imm);
+            case SInstruction i -> i.addAddress(i.rs1.getData() + i.imm);
 
             default -> throw new IllegalArgumentException("Instruction not valid for AGU: " + instruction);
         }

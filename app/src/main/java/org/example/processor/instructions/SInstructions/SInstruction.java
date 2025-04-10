@@ -1,8 +1,10 @@
 package org.example.processor.instructions.SInstructions;
 
-import org.example.processor.Registers;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.MemoryWrite;
+import org.example.processor.instructions.Operand;
 
 public abstract class SInstruction implements MemoryWrite {
     private final Opcode opcode;
@@ -10,19 +12,10 @@ public abstract class SInstruction implements MemoryWrite {
     private final int PC;
 
     /// First source register for instruction
-    public final byte rs1;
+    public final Operand rs1;
 
     /// Second source register for instruction
-    public final byte rs2;
-    
-    /// True if data has been fetched from registers
-    private boolean hasData;
-    
-    /// Data for first source register for instruction
-    private int rs1Data = 0;
-    
-    /// Data for second source register for instruction
-    private int rs2Data = 0;
+    public final Operand rs2;
 
     /// Immediate value for instruction
     public final int imm;
@@ -36,8 +29,8 @@ public abstract class SInstruction implements MemoryWrite {
     public SInstruction(Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
         this.PC = PC;
-        this.rs1 = rs1;
-        this.rs2 = rs2;
+        this.rs1 = new Operand(rs1);
+        this.rs2 = new Operand(rs2);
         this.imm = imm;
     }
 
@@ -58,15 +51,7 @@ public abstract class SInstruction implements MemoryWrite {
 
     @Override
     public int getValue() {
-        return this.rs2Data;
-    }
-
-    public int getRs1Data() {
-        return rs1Data;
-    }
-    
-    public int getRs2Data() {
-        return rs2Data;
+        return this.rs2.getData();
     }
 
     @Override
@@ -86,18 +71,21 @@ public abstract class SInstruction implements MemoryWrite {
     
     @Override
     public boolean hasData() {
-        return hasData;
+        return rs1.hasData() && rs2.hasData();
     }
     
     @Override
-    public void addDataIfAvailable(Registers registers) {
-        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return;
-        
-        this.rs1Data = registers.getRegister(rs1);
-        this.rs2Data = registers.getRegister(rs2);
-        this.hasData = true;
+    public void getDataIfAvailable(Registers registers) {
+        rs1.getDataWhenAvailable();
+        rs2.getDataWhenAvailable();
     }
-    
+
+    @Override
+    public void initOperands(ROB rob) {
+        rob.initOperand(this.rs1);
+        rob.initOperand(this.rs2);
+    }
+
     static private int decodeImmediate(int instruction){
         return ((instruction >> 7) & 0b11111) |
                 (instruction >> 25) << 5;
@@ -128,8 +116,6 @@ public abstract class SInstruction implements MemoryWrite {
                         RS1: %s
                         RS2 / Register to Store: %s
                         Has Data: %s
-                        RS1 Data: %s
-                        RS2 Data / Value to Store: %s
                         IMM: %s
                         Has Address: %s
                         Address:  %s""",
@@ -138,9 +124,7 @@ public abstract class SInstruction implements MemoryWrite {
                 isReady() ? "True" : "False",
                 rs1,
                 rs2,
-                hasData ? "True" : "False",
-                rs1Data,
-                rs2Data,
+                hasData() ? "True" : "False",
                 imm,
                 hasAddress ? "True": "False",
                 getAddress());

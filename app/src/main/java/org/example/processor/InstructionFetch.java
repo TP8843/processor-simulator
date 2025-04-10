@@ -1,6 +1,7 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
+import org.example.processor.data.Memory;
 import org.example.processor.instructions.UndecodedInstruction;
 
 public class InstructionFetch {

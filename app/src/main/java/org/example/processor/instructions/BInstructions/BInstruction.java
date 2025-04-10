@@ -1,28 +1,21 @@
 package org.example.processor.instructions.BInstructions;
 
-import org.example.processor.Registers;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.Operand;
 
 public abstract class BInstruction implements Instruction, Branch {
     private final Instruction.Opcode opcode;
 
     private final int PC;
-
-    /// True if register data has been loaded into instruction
-    private boolean hasRegisterData;
     
     /// First source register for instruction
-    public final byte rs1;
-    
-    /// Data for first source register for instruction
-    private int rs1Data;
+    public final Operand rs1;
 
     /// Second source register for instruction
-    public final byte rs2;
-    
-    /// Data for second source register for instruction
-    private int rs2Data;
+    public final Operand rs2;
 
     /// Immediate value for instruction
     public final int imm;
@@ -36,29 +29,29 @@ public abstract class BInstruction implements Instruction, Branch {
     public BInstruction(Instruction.Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         this.opcode = opcode;
         this.PC = PC;
-        this.rs1 = rs1;
-        this.rs2 = rs2;
-        this.rs1Data = 0;
-        this.rs2Data = 0;
-        this.hasRegisterData = false;
+        this.rs1 = new Operand(rs1);
+        this.rs2 = new Operand(rs2);
         this.imm = imm;
         this.result = false;
     }
     
     @Override
     public boolean hasData() {
-        return hasRegisterData;
+        return this.rs1.hasData() && this.rs2.hasData();
     }
     
     @Override
-    public void addDataIfAvailable(Registers registers) {
-        if (!registers.isValid(rs1) || !registers.isValid(rs2)) return;
-        
-        rs1Data = registers.getRegister(rs1);
-        rs2Data = registers.getRegister(rs2);
-        hasRegisterData = true;
+    public void getDataIfAvailable(Registers registers) {
+        rs1.getDataWhenAvailable();
+        rs2.getDataWhenAvailable();
     }
-    
+
+    @Override
+    public void initOperands(ROB rob) {
+        rob.initOperand(this.rs1);
+        rob.initOperand(this.rs2);
+    }
+
     @Override
     public Instruction.Opcode getOpcode() {
         return opcode;
@@ -72,14 +65,6 @@ public abstract class BInstruction implements Instruction, Branch {
     @Override
     public boolean canBranch() {
         return true;
-    }
-
-    public int getRs1Data() {
-        return rs1Data;
-    }
-    
-    public int getRs2Data() {
-        return rs2Data;
     }
 
     /// Adds the result of the comparison to the instruction
@@ -135,8 +120,6 @@ public abstract class BInstruction implements Instruction, Branch {
                         RS1: %s
                         RS2: %s
                         Has Data: %s
-                        RS1 Data: %s
-                        RS2 Data: %s
                         IMM: %s
                         Has Result: %s
                         Result: %s""",
@@ -145,9 +128,7 @@ public abstract class BInstruction implements Instruction, Branch {
                 isReady() ? "True" : "False",
                 rs1, 
                 rs2,
-                hasRegisterData? "True": "False",
-                rs1Data,
-                rs2Data,
+                hasData() ? "True": "False",
                 imm,
                 hasResult ? "True" : "False",
                 result);

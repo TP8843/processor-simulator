@@ -1,8 +1,12 @@
 package org.example.processor.instructions.IInstructions;
 
-import org.example.processor.Registers;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
+import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
+import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.Operand;
 import org.example.processor.instructions.RegisterWrite;
 
 public abstract class IInstruction implements RegisterWrite {
@@ -11,13 +15,7 @@ public abstract class IInstruction implements RegisterWrite {
     private final int PC;
 
     /// First source register for instruction
-    public final byte rs1;
-    
-    /// True if the instruction has its data fetched from registers
-    public boolean hasData;
-    
-    /// Data for first source register for instruction
-    public int rs1Data;
+    public final Operand rs1;
     
     /// Immediate value for instruction
     public final int imm;
@@ -34,9 +32,7 @@ public abstract class IInstruction implements RegisterWrite {
     public IInstruction(Opcode opcode, int PC, byte rs1, int imm, byte rd) {
         this.opcode = opcode;
         this.PC = PC;
-        this.rs1 = rs1;
-        this.hasData = false;
-        this.rs1Data = 0;
+        this.rs1 = new Operand(rs1);
         this.imm = imm;
         this.rd = rd;
         this.result = 0;
@@ -79,17 +75,19 @@ public abstract class IInstruction implements RegisterWrite {
     
     @Override
     public boolean hasData() {
-        return hasData;
+        return rs1.hasData();
     }
     
     @Override 
-    public void addDataIfAvailable(Registers registers) {
-        if(!registers.isValid(rs1)) return;
-        
-        this.rs1Data = registers.getRegister(rs1);
-        this.hasData = true;
+    public void getDataIfAvailable(Registers registers) {
+        this.rs1.getDataWhenAvailable();
     }
-    
+
+    @Override
+    public void initOperands(ROB rob) {
+        rob.initOperand(this.rs1);
+    }
+
     @Override
     public void reserveDestination(Registers registers) {
         registers.setInvalid(rd);
@@ -108,16 +106,7 @@ public abstract class IInstruction implements RegisterWrite {
         return switch (Instruction.Opcode.getOpcode(instruction)) {
             case LOAD -> decodeLoad(instruction, opcode, PC, rs1, imm, rd);
             case ARITHMETIC_LOGICAL_IMMEDIATE -> decodeArithmetic(instruction, opcode, PC, rs1, imm, rd);
-            case ENVIRONMENT -> decodeEnvironment(instruction, opcode, PC, rs1, imm, rd);
             case JUMP_AND_LINK_REGISTER -> new JALRInstruction(opcode, PC, rs1, imm, rd);
-            default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
-        };
-    }
-
-    static private IInstruction decodeEnvironment(int instruction, Opcode opcode, int PC, byte rs1, int imm, byte rd) {
-        return switch (Instruction.decodeFunct7(instruction)) {
-            case 0x0 -> new ECallInstruction(opcode, PC, rs1, imm, rd);
-            case 0x1 -> new EBreakInstruction(opcode, PC, rs1, imm, rd);
             default -> throw new IllegalArgumentException("invalid opcode for I type instruction " + instruction);
         };
     }
@@ -161,7 +150,6 @@ public abstract class IInstruction implements RegisterWrite {
                         Is Ready: %s
                         RS1: %s
                         Has Data: %s
-                        RS1 Data: %s
                         IMM: %s
                         RD: %s
                         Has Result: %s
@@ -170,8 +158,7 @@ public abstract class IInstruction implements RegisterWrite {
                 PC,
                 isReady() ? "True" : "False",
                 rs1,
-                hasData ? "True" : "False",
-                rs1Data,
+                hasData() ? "True" : "False",
                 imm,
                 rd,
                 hasResult ? "True" : "False",

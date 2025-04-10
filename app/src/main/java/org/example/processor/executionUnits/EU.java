@@ -9,5 +9,8 @@ public enum EU {
     COMPARE,
 
     /// Address Generation Unit (for loads/stores)
-    AGU
+    AGU,
+
+    /// No Processing Required (Mainly for Environment)
+    NONE
 }

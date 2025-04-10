@@ -1,6 +1,6 @@
 package org.example.processor.executionUnits;
 
-import org.example.processor.Memory;
+import org.example.processor.data.Memory;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;

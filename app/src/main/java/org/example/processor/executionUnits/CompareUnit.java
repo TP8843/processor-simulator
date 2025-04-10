@@ -20,12 +20,12 @@ public class CompareUnit {
         Instruction instruction = input.pop().get();
 
         switch (instruction) {
-            case BEQInstruction i -> i.addResult(i.getRs1Data() == i.getRs2Data());
-            case BNEInstruction i -> i.addResult(i.getRs1Data() != i.getRs2Data());
-            case BLTInstruction i -> i.addResult(i.getRs1Data() < i.getRs2Data());
-            case BGTEInstruction i -> i.addResult(i.getRs1Data() >= i.getRs2Data());
-            case BLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) < 0);
-            case BGTEUInstruction i -> i.addResult(Integer.compareUnsigned(i.getRs1Data(), i.getRs2Data()) >= 0);
+            case BEQInstruction i -> i.addResult(i.rs1.getData() == i.rs2.getData());
+            case BNEInstruction i -> i.addResult(i.rs1.getData() != i.rs2.getData());
+            case BLTInstruction i -> i.addResult(i.rs1.getData() < i.rs2.getData());
+            case BGTEInstruction i -> i.addResult(i.rs1.getData() >= i.rs2.getData());
+            case BLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.rs1.getData(), i.rs2.getData()) < 0);
+            case BGTEUInstruction i -> i.addResult(Integer.compareUnsigned(i.rs1.getData(), i.rs2.getData()) >= 0);
             default -> {
             }
         }

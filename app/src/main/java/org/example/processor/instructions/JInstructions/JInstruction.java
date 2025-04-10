@@ -1,7 +1,6 @@
 package org.example.processor.instructions.JInstructions;
 
-import org.example.processor.Registers;
-import org.example.processor.instructions.IInstructions.JALRInstruction;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
@@ -72,7 +71,7 @@ public abstract class JInstruction implements RegisterWrite {
     }
     
     @Override
-    public void addDataIfAvailable(Registers registers) {}
+    public void getDataIfAvailable(Registers registers) {}
 
     @Override
     public void reserveDestination(Registers registers) {

@@ -1,10 +1,11 @@
 package org.example.processor;
 
 import org.example.processor.buffers.Buffer;
-import org.example.processor.executionUnits.EU;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.BInstructions.BInstruction;
-import org.example.processor.instructions.IInstructions.ECallInstruction;
+import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.RInstruction;
@@ -16,18 +17,20 @@ import static org.example.processor.instructions.Instruction.*;
 public class Decode {
     private final Registers registers;
 
-    /// True when the program has halted
-    private boolean halted = false;
+    /// For initialising instructions
+    private final ROB rob;
 
     public final Buffer<UndecodedInstruction> input;
     public final Buffer<Instruction> output;
     public final Buffer<Instruction> branchOutput;
 
-    public Decode(Registers registers, 
+    public Decode(Registers registers,
+                  ROB rob,
                   Buffer<UndecodedInstruction> input, 
                   Buffer<Instruction> output, 
                   Buffer<Instruction> branchOutput) {
         this.registers = registers;
+        this.rob = rob;
         this.input = input;
         this.output = output;
         this.branchOutput = branchOutput;
@@ -49,12 +52,11 @@ public class Decode {
                 case R_TYPE -> RInstruction.decode(instruction.instruction(), instruction.PC(), registers);
                 case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC(), registers);
                 case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
+                case ENVIRONMENT -> Environment.decode(instruction.instruction(), instruction.PC(), registers);
             };
 
-            // Halt on ecall instruction
-            if(currentInstruction instanceof ECallInstruction){
-                halted = true;
-            }
+            // Add data if available, and if data is not available (returned instruction has not got data) output = null
+            currentInstruction.initOperands(rob);
 
             output.put(currentInstruction);
 
@@ -64,22 +66,12 @@ public class Decode {
             }
 
         }catch (Exception e){
-            System.out.println(String.format("Error decoding instruction at 0x%s: %s",
-                    Integer.toHexString(instruction.PC()), e.getMessage()));
+            System.out.printf("Error decoding instruction at 0x%s: %s%n",
+                    Integer.toHexString(instruction.PC()), e.getMessage());
 
             return false;
         }
 
         return false;
-    }
-
-    public boolean getHalted() {
-        return halted;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("""
-                Decode - nothing anymore :0""");
     }
 }

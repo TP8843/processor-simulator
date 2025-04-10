@@ -70,7 +70,7 @@ public class Debugger {
             } else if (line.startsWith("continue")) {
                 do {
                     runProcessorCycle();
-                } while (!simulator.decode.getHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
+                } while (!simulator.rob.getHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
             } else if (line.startsWith("exit")) {
                 System.out.println("Final value: " + simulator.memory.getWord(0));
                 return;
@@ -126,7 +126,7 @@ public class Debugger {
                         cycles, 
                         (float) simulator.getInstructions() / (float) cycles,
                         (float) cycles / (float) simulator.getInstructions(),
-                        simulator.decode.getHalted() ? "True" : "False"));
+                        simulator.rob.getHalted() ? "True" : "False"));
     }
 
     private void processBreakpoint(String command){

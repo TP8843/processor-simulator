@@ -1,6 +1,6 @@
 package org.example.processor.instructions.UInstructions;
 
-import org.example.processor.Registers;
+import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
@@ -69,7 +69,7 @@ public abstract class UInstruction implements RegisterWrite {
     }
     
     @Override
-    public void addDataIfAvailable(Registers registers) {}
+    public void getDataIfAvailable(Registers registers) {}
 
     @Override
     public void reserveDestination(Registers registers) {

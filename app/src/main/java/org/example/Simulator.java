@@ -2,6 +2,10 @@ package org.example;
 
 import org.example.processor.*;
 import org.example.processor.buffers.*;
+import org.example.processor.commit.MemoryWriteUnit;
+import org.example.processor.commit.ROB;
+import org.example.processor.data.Memory;
+import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.Agu;
 import org.example.processor.executionUnits.Alu;
 import org.example.processor.executionUnits.CompareUnit;
@@ -49,7 +53,7 @@ public class Simulator {
     public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers);
 
     public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers);
-    public final Decode decode = new Decode(registers, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+    public final Decode decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
     public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation, aguReservationStation, rob);
     
     /// Counts the number of instructions ran through the pipeline

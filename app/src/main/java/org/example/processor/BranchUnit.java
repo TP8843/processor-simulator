@@ -49,7 +49,7 @@ public class BranchUnit {
         
         switch (instruction) {
             case JALRInstruction i -> {
-                instructionFetch.updatePC(((i.rs1Data + i.imm) >> 1) << 1);
+                instructionFetch.updatePC(((i.rs1.getData() + i.imm) >> 1) << 1);
                 for (Flushable f : jumpBuffers) f.flush();
                 return true;
             }
