@@ -6,6 +6,7 @@ import org.example.processor.buffers.Flushable;
 import org.example.processor.data.Registers;
 import org.example.processor.instructions.*;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 public class ROB implements Flushable {
@@ -86,7 +87,8 @@ public class ROB implements Flushable {
             return;
         }
 
-        for(Instruction instruction : queue) {
+        for (Iterator<Instruction> it = queue.reverseIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next();
             if(instruction instanceof RegisterWrite i && i.getDestination() == operand.register){
                 if(i.hasResult()) operand.addData(i.getResult());
                 else operand.addSource(i);

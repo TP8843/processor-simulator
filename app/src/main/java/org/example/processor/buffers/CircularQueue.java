@@ -91,7 +91,28 @@ public class CircularQueue<T> implements Flushable, Iterable<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<T> iterator(){
+        return new Iterator<T>() {
+            int i = head;
+
+            @Override
+            public boolean hasNext() {
+                return i <= tail;
+            }
+
+            @Override
+            public T next() {
+                i = i + 1;
+                if(i >= size) i -= size;
+
+                @SuppressWarnings("unchecked")
+                T value = (T) data[i];
+                return value;
+            }
+        };
+    }
+
+    public Iterator<T> reverseIterator() {
         return new Iterator<T>() {
             int i = tail;
 
