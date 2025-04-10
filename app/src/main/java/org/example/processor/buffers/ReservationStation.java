@@ -1,38 +1,37 @@
 package org.example.processor.buffers;
 
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class ReservationStation implements Buffer<Instruction>, Flushable {
-    private final Registers registers;
+    /// Maximum number of items in reservation station
+    public final int size;
     
     private boolean stalled;
 
-    private Instruction value;
-
-    private final CircularQueue<Instruction> queue;
+    private final ArrayList<Instruction> instructions;
     
-    public ReservationStation(Registers registers) {
-        this(registers, 16);
+    public ReservationStation() {
+        this(16);
     }
 
-    public ReservationStation(Registers registers, int size) {
-        this.registers = registers;
-        this.queue = new CircularQueue<>(size);
+    public ReservationStation(int size) {
+        this.instructions = new ArrayList<>(size);
+        this.size = size;
     }
 
     @Override
     public Optional<Instruction> pop() {
-        if (value != null && value.hasData()) {
-            Instruction value = this.value;
-            
-            // Reserve destination in registers before allowing pop
-            value.reserveDestination(registers);
-            this.value = null;
-            
-            return Optional.of(value);
+        if(stalled || instructions.isEmpty()) return Optional.empty();
+
+        for(int i = 0; i < instructions.size(); i++){
+            Instruction instruction = instructions.get(i);
+            if(instruction.hasData()){
+                instructions.remove(i);
+                return Optional.of(instruction);
+            }
         }
 
         return Optional.empty();
@@ -40,8 +39,12 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
 
     @Override
     public Optional<Instruction> peek() {
-        if (value != null) {
-            return Optional.of(value);
+        if(stalled || instructions.isEmpty()) return Optional.empty();
+
+        for (Instruction instruction : instructions) {
+            if (instruction.hasData()) {
+                return Optional.of(instruction);
+            }
         }
 
         return Optional.empty();
@@ -49,12 +52,12 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
 
     @Override
     public boolean hasSpace() {
-        return value == null;
+        return instructions.size() < size;
     }
 
     @Override
     public boolean hasValue() {
-        return (!stalled && value != null && value.hasData());
+        return (!stalled && !instructions.isEmpty());
     }
 
     @Override
@@ -69,31 +72,28 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
 
     @Override
     public boolean put(Instruction value) {
-        if (this.value == null) {
-            this.value = value;
-            return true;
-        }
+        if(instructions.size() >= size) return false;
 
-        return false;
+        instructions.add(value);
+        return true;
     }
 
     @Override
     public void flush() {
-        value = null;
+        instructions.clear();
     }
 
     /// Adds the data to the currently stored instruction
     public void addData() {
-        // Can only add data if instruction actually in buffer
-        if(value == null) return;
-
-        value.getDataIfAvailable(registers);
+        for(Instruction instruction : instructions){
+            instruction.getDataIfAvailable();
+        }
     }
 
     @Override
     public String toString() {
         return String.format("""
-                Current Value: %s
-                Stalled: %s""", value, stalled ? "True" : "False");
+                Current Values: %s
+                Stalled: %s""", instructions, stalled ? "True" : "False");
     }
 }

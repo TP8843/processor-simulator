@@ -22,10 +22,10 @@ public class Simulator {
     public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
     public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
 
-    public final ReservationStation aluReservationStation = new ReservationStation(registers);
-    public final ReservationStation compareReservationStation = new ReservationStation(registers);
+    public final ReservationStation aluReservationStation = new ReservationStation();
+    public final ReservationStation compareReservationStation = new ReservationStation();
 
-    public final ReservationStation aguReservationStation = new ReservationStation(registers);
+    public final ReservationStation aguReservationStation = new ReservationStation();
     public final Buffer<Instruction> aguLoadBuffer = new SingleValueBuffer<>();
 
     /// Initial buffers to flush for jumps and branches
@@ -87,7 +87,7 @@ public class Simulator {
         if(decode.decode())
             fetchDecodeBuffer.stall();
 
-        decodeBranchBuffer.addData(registers);
+        decodeBranchBuffer.addData();
 
         // Release fetching once address has been updated
         if(branchUnit.generateAddress())

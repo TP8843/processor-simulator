@@ -67,11 +67,11 @@ public class DataBlockingBuffer implements Buffer<Instruction>, Flushable {
     }
     
     /// Adds the data to the currently stored instruction
-    public void addData(Registers registers) {
+    public void addData() {
         // Can only add data if instruction actually in buffer
         if(value == null) return;
         
-        value.getDataIfAvailable(registers);
+        value.getDataIfAvailable();
     }
 
     @Override

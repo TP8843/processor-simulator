@@ -80,13 +80,10 @@ public interface Instruction {
     boolean hasData();
     
     /// Gets data from source instructions for registers if required
-    void getDataIfAvailable(Registers registers);
+    void getDataIfAvailable();
 
     /// Initialise all operands with either data or source instructions
     default void initOperands(ROB rob) {}
-    
-    /// Reserves the destination register for instruction
-    default void reserveDestination(Registers registers) {}
 
     /// Whether the instruction is currently ready to be committed
     default boolean isReady() { return true; }

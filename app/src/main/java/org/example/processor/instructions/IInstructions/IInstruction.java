@@ -2,8 +2,6 @@ package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.commit.ROB;
 import org.example.processor.data.Registers;
-import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
-import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.Operand;
@@ -79,7 +77,7 @@ public abstract class IInstruction implements RegisterWrite {
     }
     
     @Override 
-    public void getDataIfAvailable(Registers registers) {
+    public void getDataIfAvailable() {
         this.rs1.getDataWhenAvailable();
     }
 
@@ -88,10 +86,6 @@ public abstract class IInstruction implements RegisterWrite {
         rob.initOperand(this.rs1);
     }
 
-    @Override
-    public void reserveDestination(Registers registers) {
-        registers.setInvalid(rd);
-    }
     
     static private int decodeImmediate(int instruction) {
         return (instruction >> 20);

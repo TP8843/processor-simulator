@@ -4,7 +4,6 @@ import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
 import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
-import org.example.processor.instructions.IInstructions.IInstruction;
 
 public abstract class Environment implements Instruction{
     private final Opcode opcode;
@@ -37,7 +36,7 @@ public abstract class Environment implements Instruction{
     }
 
     @Override
-    public void getDataIfAvailable(Registers registers) {}
+    public void getDataIfAvailable() {}
 
     @Override
     public EU getEU() {

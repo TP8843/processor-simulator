@@ -110,7 +110,7 @@ public abstract class RInstruction implements RegisterWrite {
     }
     
     @Override
-    public void getDataIfAvailable(Registers registers) {
+    public void getDataIfAvailable() {
         this.rs1.getDataWhenAvailable();
         this.rs2.getDataWhenAvailable();
     }
@@ -119,11 +119,6 @@ public abstract class RInstruction implements RegisterWrite {
     public void initOperands(ROB rob) {
         rob.initOperand(this.rs1);
         rob.initOperand(this.rs2);
-    }
-
-    @Override
-    public void reserveDestination(Registers registers) {
-        registers.setInvalid(rd);
     }
     
     static public RInstruction decode(int instruction, int PC, Registers registers) {

@@ -41,7 +41,7 @@ public abstract class BInstruction implements Instruction, Branch {
     }
     
     @Override
-    public void getDataIfAvailable(Registers registers) {
+    public void getDataIfAvailable() {
         rs1.getDataWhenAvailable();
         rs2.getDataWhenAvailable();
     }

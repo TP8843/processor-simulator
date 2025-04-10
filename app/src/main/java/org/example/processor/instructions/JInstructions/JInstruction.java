@@ -71,12 +71,7 @@ public abstract class JInstruction implements RegisterWrite {
     }
     
     @Override
-    public void getDataIfAvailable(Registers registers) {}
-
-    @Override
-    public void reserveDestination(Registers registers) {
-        registers.setInvalid(rd);
-    }
+    public void getDataIfAvailable() {}
 
     static public int decodeImmediate(int instruction){
         return (instruction & (0b11111111 << 12)) |

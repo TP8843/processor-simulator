@@ -69,12 +69,7 @@ public abstract class UInstruction implements RegisterWrite {
     }
     
     @Override
-    public void getDataIfAvailable(Registers registers) {}
-
-    @Override
-    public void reserveDestination(Registers registers) {
-        registers.setInvalid(rd);
-    }
+    public void getDataIfAvailable() {}
 
     static private int decodeImmediate(int instruction){
         return ((instruction >> 12) << 12);

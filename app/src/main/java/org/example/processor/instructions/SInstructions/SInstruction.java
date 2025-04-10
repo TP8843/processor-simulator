@@ -75,7 +75,7 @@ public abstract class SInstruction implements MemoryWrite {
     }
     
     @Override
-    public void getDataIfAvailable(Registers registers) {
+    public void getDataIfAvailable() {
         rs1.getDataWhenAvailable();
         rs2.getDataWhenAvailable();
     }
