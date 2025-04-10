@@ -1,6 +1,5 @@
 package org.example.processor.instructions.JInstructions;
 
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
@@ -80,7 +79,7 @@ public abstract class JInstruction implements RegisterWrite {
                 ((instruction >> 31) << 20);
     }
     
-    static public JInstruction decode(int instruction, int PC, Registers registers) {
+    static public JInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);

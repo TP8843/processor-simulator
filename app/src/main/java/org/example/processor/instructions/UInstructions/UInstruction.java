@@ -1,6 +1,5 @@
 package org.example.processor.instructions.UInstructions;
 
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
@@ -75,7 +74,7 @@ public abstract class UInstruction implements RegisterWrite {
         return ((instruction >> 12) << 12);
     }
     
-    static public UInstruction decode(int instruction, int PC, Registers registers) {
+    static public UInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
         int imm = decodeImmediate(instruction);
         byte rd = Instruction.decodeRd(instruction);

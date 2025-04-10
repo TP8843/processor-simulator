@@ -1,7 +1,6 @@
 package org.example.processor.instructions.RInstructions;
 
 import org.example.processor.commit.ROB;
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.Operand;
 import org.example.processor.instructions.RegisterWrite;
@@ -121,7 +120,7 @@ public abstract class RInstruction implements RegisterWrite {
         rob.initOperand(this.rs2);
     }
     
-    static public RInstruction decode(int instruction, int PC, Registers registers) {
+    static public RInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
         Type type = Type.decodeType(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);

@@ -1,7 +1,6 @@
 package org.example.processor.instructions.SInstructions;
 
 import org.example.processor.commit.ROB;
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.MemoryWrite;
 import org.example.processor.instructions.Operand;
@@ -91,7 +90,7 @@ public abstract class SInstruction implements MemoryWrite {
                 (instruction >> 25) << 5;
     }
     
-    static public SInstruction decode(int instruction, int PC, Registers registers){
+    static public SInstruction decode(int instruction, int PC){
         Opcode opcode = Opcode.getOpcode(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);
         byte rs2 = Instruction.decodeRs2(instruction);

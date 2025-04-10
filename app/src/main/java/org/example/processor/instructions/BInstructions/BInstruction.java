@@ -1,7 +1,6 @@
 package org.example.processor.instructions.BInstructions;
 
 import org.example.processor.commit.ROB;
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.Operand;
@@ -93,7 +92,7 @@ public abstract class BInstruction implements Instruction, Branch {
                 ((instruction >> 31) << 12);
     }
     
-    static public BInstruction decode(int instruction, int PC, Registers registers){
+    static public BInstruction decode(int instruction, int PC){
         Instruction.Opcode opcode = Instruction.Opcode.getOpcode(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);
         byte rs2 = Instruction.decodeRs2(instruction);

@@ -5,7 +5,6 @@ import org.example.processor.commit.ROB;
 import org.example.processor.data.Registers;
 import org.example.processor.instructions.*;
 import org.example.processor.instructions.BInstructions.BInstruction;
-import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.JInstructions.JInstruction;
 import org.example.processor.instructions.RInstructions.RInstruction;
@@ -46,13 +45,13 @@ public class Decode {
             Type type = Opcode.getInstructionType(Opcode.getOpcode(instruction.instruction()));
 
             currentInstruction = switch (type) {
-                case B_TYPE -> BInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case I_TYPE -> IInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case J_TYPE -> JInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case R_TYPE -> RInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC(), registers);
-                case ENVIRONMENT -> Environment.decode(instruction.instruction(), instruction.PC(), registers);
+                case B_TYPE -> BInstruction.decode(instruction.instruction(), instruction.PC());
+                case I_TYPE -> IInstruction.decode(instruction.instruction(), instruction.PC());
+                case J_TYPE -> JInstruction.decode(instruction.instruction(), instruction.PC());
+                case R_TYPE -> RInstruction.decode(instruction.instruction(), instruction.PC());
+                case S_TYPE -> SInstruction.decode(instruction.instruction(), instruction.PC());
+                case U_TYPE -> UInstruction.decode(instruction.instruction(), instruction.PC());
+                case ENVIRONMENT -> Environment.decode(instruction.instruction(), instruction.PC());
             };
 
             // Add data if available, and if data is not available (returned instruction has not got data) output = null

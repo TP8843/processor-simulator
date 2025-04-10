@@ -1,6 +1,5 @@
 package org.example.processor.instructions;
 
-import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
 import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
@@ -43,7 +42,7 @@ public abstract class Environment implements Instruction{
         return EU.NONE;
     }
 
-    static public Environment decode(int instruction, int PC, Registers registers) {
+    static public Environment decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
 
         return switch (Instruction.decodeFunct7(instruction)) {

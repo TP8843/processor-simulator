@@ -1,7 +1,6 @@
 package org.example.processor.instructions.IInstructions;
 
 import org.example.processor.commit.ROB;
-import org.example.processor.data.Registers;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.Operand;
@@ -91,7 +90,7 @@ public abstract class IInstruction implements RegisterWrite {
         return (instruction >> 20);
     }
     
-    static public IInstruction decode(int instruction, int PC, Registers registers) {
+    static public IInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);
         int imm = decodeImmediate(instruction);
