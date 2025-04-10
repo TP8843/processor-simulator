@@ -12,13 +12,15 @@ import org.example.processor.instructions.SInstructions.SInstruction;
 import org.example.processor.instructions.UInstructions.AUIInstruction;
 import org.example.processor.instructions.UInstructions.LUIInstruction;
 
+import java.util.Optional;
+
 public record Alu(Buffer<Instruction> input) {
 
     public void execute() {
-        // If input not available or output full, do not run anything
-        if (!input.hasValue()) return;
+        Optional<Instruction> value = input.pop();
+        if(value.isEmpty()) return;
 
-        Instruction instruction = input.pop().get();
+        Instruction instruction = value.get();
 
         switch (instruction) {
             case LBInstruction i -> i.addResult(i.rs1.getData() + i.imm);

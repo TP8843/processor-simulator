@@ -4,6 +4,8 @@ import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.BInstructions.*;
 import org.example.processor.instructions.Instruction;
 
+import java.util.Optional;
+
 public class CompareUnit {
     /// Buffer to receive instructions from the reservation station
     public Buffer<Instruction> input;
@@ -14,10 +16,9 @@ public class CompareUnit {
 
     /// Runs execution for an instruction, and adds the comparison result
     public void execute() {
-        // If input not available, do not run anything
-        if (!input.hasValue()) return;
-
-        Instruction instruction = input.pop().get();
+        Optional<Instruction> value = input.pop();
+        if(value.isEmpty()) return;
+        Instruction instruction = value.get();
 
         switch (instruction) {
             case BEQInstruction i -> i.addResult(i.rs1.getData() == i.rs2.getData());

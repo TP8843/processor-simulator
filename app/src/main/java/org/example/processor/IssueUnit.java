@@ -5,6 +5,8 @@ import org.example.processor.commit.ROB;
 import org.example.processor.data.Registers;
 import org.example.processor.instructions.Instruction;
 
+import java.util.Optional;
+
 public class IssueUnit {
     private final Registers registers;
     
@@ -21,29 +23,34 @@ public class IssueUnit {
     /// reservation station
     public void issue(){
         if(!decodeIssueBuffer.hasValue() || rob.isFull()) return;
-        
-        var instruction = decodeIssueBuffer.peek().get();
+
+        Optional<Instruction> value = decodeIssueBuffer.peek();
+        if(value.isEmpty()) return;
+        var instruction = value.get();
         
         switch (instruction.getEU()) {
             case ALU -> {
                 if(aluReservationStation.hasSpace()){
                     // Add instruction to ROB before adding to RS
                     rob.add(instruction);
-                    aluReservationStation.put(decodeIssueBuffer.pop().get());
+                    decodeIssueBuffer.pop();
+                    aluReservationStation.put(instruction);
                 }
             }
             case COMPARE -> {
                 if(compareReservationStation.hasSpace()){
                     // Add instruction to ROB before adding to RS
                     rob.add(instruction);
-                    compareReservationStation.put(decodeIssueBuffer.pop().get());
+                    decodeIssueBuffer.pop();
+                    compareReservationStation.put(instruction);
                 }
             }
             case AGU -> {
                 if(aguReservationStation.hasSpace()){
                     // Add instruction to ROB before adding to RS
                     rob.add(instruction);
-                    aguReservationStation.put(decodeIssueBuffer.pop().get());
+                    decodeIssueBuffer.pop();
+                    aguReservationStation.put(instruction);
                 }
             }
 

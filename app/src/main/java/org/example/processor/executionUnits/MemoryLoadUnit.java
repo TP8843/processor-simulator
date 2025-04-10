@@ -5,6 +5,8 @@ import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
 
+import java.util.Optional;
+
 public class MemoryLoadUnit {
     /// Memory to load data from
     private final Memory memory;
@@ -18,10 +20,9 @@ public class MemoryLoadUnit {
     }
 
     public void execute(){
-        // If input null, skip processing
-        if (!input.hasValue())return;
-
-        Instruction instruction = input.pop().get();
+        Optional<Instruction> value = input.pop();
+        if(value.isEmpty()) return;
+        Instruction instruction = value.get();
 
         switch (instruction) {
             case LBInstruction i -> i.addResult(memory.getByte(i.getAddress(), false));

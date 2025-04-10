@@ -11,6 +11,8 @@ import org.example.processor.instructions.RInstructions.RInstruction;
 import org.example.processor.instructions.SInstructions.SInstruction;
 import org.example.processor.instructions.UInstructions.UInstruction;
 
+import java.util.Optional;
+
 import static org.example.processor.instructions.Instruction.*;
 
 public class Decode {
@@ -36,9 +38,11 @@ public class Decode {
     }
     
     public boolean decode() {
-        // Do not run if instruction isn't fetched or there isn't space on the output
-        if(!input.hasValue() || !output.hasSpace()) return false;
-        UndecodedInstruction instruction = input.pop().get();
+        if(!output.hasSpace()) return false;
+
+        Optional<UndecodedInstruction> value = input.pop();
+        if(value.isEmpty()) return false;
+        UndecodedInstruction instruction = value.get();
         
         try {
             Instruction currentInstruction;

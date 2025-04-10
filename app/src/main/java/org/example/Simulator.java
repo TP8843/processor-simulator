@@ -19,13 +19,13 @@ public class Simulator {
 
     // Buffers
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new MultiValueBuffer<>(4);
-    public final Buffer<Instruction> decodeIssueBuffer = new SingleValueBuffer<>();
+    public final Buffer<Instruction> decodeIssueBuffer = new MultiValueBuffer<>(4);
     public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
 
-    public final ReservationStation aluReservationStation = new ReservationStation();
-    public final ReservationStation compareReservationStation = new ReservationStation();
+    public final ReservationStation aluReservationStation = new ReservationStation(16);
+    public final ReservationStation compareReservationStation = new ReservationStation(16);
 
-    public final ReservationStation aguReservationStation = new ReservationStation();
+    public final ReservationStation aguReservationStation = new ReservationStation(16);
     public final Buffer<Instruction> aguLoadBuffer = new MultiValueBuffer<>(4);
 
     /// Initial buffers to flush for jumps and branches

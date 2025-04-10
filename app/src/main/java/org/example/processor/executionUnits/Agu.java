@@ -5,15 +5,14 @@ import org.example.processor.instructions.IInstructions.LoadInstructions.*;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.SInstructions.SInstruction;
 
+import java.util.Optional;
+
 public record Agu(Buffer<Instruction> input, Buffer<Instruction> loadOutput) {
     /// Generates addresses for load and store instructions
     public void execute() {
-        // If input not available or output full, do not run anything
-        if (!input.hasValue() || !loadOutput.hasSpace()) {
-            return;
-        }
-
-        Instruction instruction = input.pop().get();
+        Optional<Instruction> value = input.pop();
+        if (value.isEmpty()) return;
+        Instruction instruction = value.get();
 
         switch (instruction) {
             case LoadInstruction i -> i.addAddress(i.rs1.getData() + i.imm);

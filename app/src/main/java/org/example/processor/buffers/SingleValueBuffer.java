@@ -21,7 +21,7 @@ public class SingleValueBuffer<T> implements Buffer<T>, Flushable {
     
     @Override
     public Optional<T> peek() {
-        if(value != null) {
+        if(value != null && !stalled) {
             return Optional.of(value);
         }
         
