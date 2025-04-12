@@ -64,10 +64,12 @@ public class Simulator {
     }
 
     public void runCycle() {
-        // Commit head of ROB
-        if(rob.processHead()){
-            instructions += 1;
-            System.out.println("Commited instruction 0x" + Integer.toHexString(rob.getPrevious().getPC()));
+        for (int i = 0; i < 1; i++) {
+            // Commit head of ROB
+            if(rob.processHead()){
+                instructions += 1;
+                System.out.println("Commited instruction 0x" + Integer.toHexString(rob.getPrevious().getPC()));
+            }
         }
 
         compareUnit.execute();
@@ -81,21 +83,24 @@ public class Simulator {
         aguReservationStation.addData();
         aluReservationStation.addData();
 
-        // Branch and issue should happen in same cycle after decode (so in this order)
+        for (int i = 0; i < 1; i++) {
+            // Branch and issue should happen in same cycle after decode (so in this order)
+            // Stall fetching while jump / branch instruction is processing
+            if(decode.decode())
+                fetchDecodeBuffer.stall();
 
-        // Stall fetching while jump / branch instruction is processing
-        if(decode.decode())
-            fetchDecodeBuffer.stall();
+            decodeBranchBuffer.addData();
 
-        decodeBranchBuffer.addData();
+            // Release fetching once address has been updated
+            if(branchUnit.generateAddress())
+                fetchDecodeBuffer.release();
 
-        // Release fetching once address has been updated
-        if(branchUnit.generateAddress())
-            fetchDecodeBuffer.release();
+            issueUnit.issue();
+        }
 
-        issueUnit.issue();
-        
-        instructionFetch.process();
+        for (int i = 0; i < 1; i++) {
+            instructionFetch.process();
+        }
     }
 
     static public Simulator createSimulator(String fileName) {

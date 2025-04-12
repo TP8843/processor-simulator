@@ -1,6 +1,7 @@
 package org.example.processor.instructions.SInstructions;
 
 import org.example.processor.commit.ROB;
+import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.MemoryWrite;
 import org.example.processor.instructions.Operand;
@@ -103,6 +104,11 @@ public abstract class SInstruction implements MemoryWrite {
             default -> throw new IllegalArgumentException("Invalid funct for S type instruction: " + instruction);
         };
 
+    }
+
+    @Override
+    public EU getEU(){
+        return EU.AGU;
     }
 
     @Override

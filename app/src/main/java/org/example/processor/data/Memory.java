@@ -30,64 +30,64 @@ public class Memory {
     public int getHalfWord(int pos, boolean unsigned) {
         if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
         
-        int value = (memory[pos / wordLength] >> ((pos % wordLength) * 8) & 0b1111111111111111);
+        int value = (memory[pos / 4] >> ((2 - pos % 4) * 8) & 0b1111111111111111);
         
         if (unsigned) {
             previousLoad = String.format("Unsigned half word loaded from byte %s, array location %s, value %s",
-                    pos, pos / wordLength, value);
+                    pos, pos / 4, value);
             return value;
         } else {
             previousLoad = String.format("Signed half word loaded from byte %s, array location %s, value %s",
-                    pos, pos / wordLength, (value << 16) >> 16);
+                    pos, pos / 4, (value << 16) >> 16);
             return (value << 16) >> 16;
         }
     }
 
     public int getByte(int pos, boolean unsigned) {
-        int value = (memory[pos / wordLength] >> ((pos % wordLength) * 8) & 0b11111111);
+        int value = (memory[pos / 4] >> ((3 - pos % 4) * 8) & 0b11111111);
         
         if (unsigned) {
             previousLoad = String.format("Unsigned byte loaded from byte %s, array location %s, value %s",
-                    pos, pos / wordLength, value);
+                    pos, pos / 4, value);
             return value;
         } else {
             previousLoad = String.format("Signed byte loaded from byte %s, array location %s, value %s",
-                    pos, pos / wordLength, (value << 16) >> 16);
+                    pos, pos / 4, (value << 16) >> 16);
             return (value << 16) >> 16;
         }
     }
     
     public void storeWord(int pos, int input) {
-        if (pos % wordLength != 0) throw new IllegalArgumentException("Memory access is not word aligned");
+        if (pos % 4 != 0) throw new IllegalArgumentException("Memory access is not word aligned");
         
-        memory[pos / wordLength] = input;
+        memory[pos / 4] = input;
 
         previousStore = String.format("Word stored into byte %s, array location %s, value %s",
-                pos, pos / wordLength, input);
+                pos, pos / 4, input);
 
         System.out.println(previousStore);
     }
 
     public void storeHalfWord(int pos, int input) {
-        if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
+        if (pos % (4 / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
 
-        final int transformedInput = ((input & 0xFF) << (((pos % wordLength) / 2) * 16));
+        final int transformedInput = (input & 0xFF) << ((2 - pos % 4) * 8);
         
-        memory[pos / wordLength] = memory[pos / wordLength] | transformedInput;
+        memory[pos / 4] = memory[pos / 4] | transformedInput;
 
         previousStore = String.format("Half word stored into byte %s, array location %s, value %s",
-                pos, pos / wordLength, transformedInput);
+                pos, pos / 4, transformedInput);
 
         System.out.println(previousStore);
     }
 
     public void storeByte(int pos, int input) {
-        final int transformedInput = ((input & 0xF) << ((pos % wordLength) * 8));
+        final int transformedInput = ((input & 0xF) << ((3 - pos % 4) * 8));
         
-        memory[pos / wordLength] = memory[pos / wordLength] | transformedInput;
+        memory[pos / 4] = memory[pos / 4] | transformedInput;
 
         previousStore = String.format("Byte stored into byte %s, array location %s, value %s",
-                pos, pos / wordLength, transformedInput);
+                pos, pos / 4, transformedInput);
         
         System.out.println(previousStore);
     }
@@ -103,7 +103,7 @@ public class Memory {
             while(inputStream.available() >= 4) {
                 inputStream.read(buffer.array());
                 buffer.rewind();
-                memory[lineCount + (startPosition / wordLength)] = buffer.getInt();
+                memory[lineCount + (startPosition / 4)] = buffer.getInt();
 
                 lineCount += 1;
             }

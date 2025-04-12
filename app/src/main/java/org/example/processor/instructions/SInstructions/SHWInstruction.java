@@ -7,9 +7,4 @@ public class SHWInstruction extends SInstruction {
     public SHWInstruction(Opcode opcode, int PC, byte rs1, byte rs2, int imm) {
         super(opcode, PC, rs1, rs2, imm);
     }
-
-    @Override
-    public EU getEU() {
-        return EU.ALU;
-    }
 }
