@@ -23,12 +23,6 @@ public record Alu(Buffer<Instruction> input) {
         Instruction instruction = value.get();
 
         switch (instruction) {
-            case LBInstruction i -> i.addResult(i.rs1.getData() + i.imm);
-            case LBUInstruction i -> i.addResult(i.rs1.getData() + i.imm);
-            case LHWInstruction i -> i.addResult(i.rs1.getData() + i.imm);
-            case LHWUInstruction i -> i.addResult(i.rs1.getData() + i.imm);
-            case LWInstruction i -> i.addResult(i.rs1.getData() + i.imm);
-
             case SLTIInstruction i -> i.addResult(i.rs1.getData() < i.imm ? 1 : 0);
             case SLTIUInstruction i -> i.addResult(Integer.compareUnsigned(i.rs1.getData(), i.imm) < 0 ? 1 : 0);
 
@@ -62,8 +56,6 @@ public record Alu(Buffer<Instruction> input) {
 
             case SLTInstruction i -> i.addResult((i.rs1.getData() < i.rs2.getData()) ? 1 : 0);
             case SLTUInstruction i -> i.addResult(Integer.compareUnsigned(i.rs1.getData(), i.rs2.getData()) < 0 ? 1 : 0);
-
-            case SInstruction i -> i.addAddress(i.rs1.getData() + i.imm);
 
             case LUIInstruction i -> i.addResult(i.imm);
             case AUIInstruction i -> i.addResult(i.imm + i.getPC());

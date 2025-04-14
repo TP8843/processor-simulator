@@ -5,6 +5,8 @@ import org.example.processor.buffers.CircularQueue;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.data.Registers;
 import org.example.processor.instructions.*;
+import org.example.processor.instructions.IInstructions.LoadInstructions.*;
+import org.example.processor.instructions.SInstructions.SInstruction;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -99,6 +101,26 @@ public class ROB implements Flushable {
 
         // If no instruction with destination == operand.register, pull data from register
         operand.addData(registers.getRegister(operand.register));
+    }
+
+    /// Initialise the sources for a load instruction
+    public void initLoad(LoadInstruction loadInstruction) {
+        byte bytes = switch (loadInstruction) {
+            case LHWInstruction _, LHWUInstruction _ -> 2;
+            case LBInstruction _, LBUInstruction _ -> 1;
+            default -> 4;
+        };
+
+        for (Iterator<Instruction> it = queue.reverseIterator(); it.hasNext(); ) {
+            Instruction instruction = it.next();
+
+            // If instruction is a load instruction in the correct range of addresses
+            if(instruction instanceof SInstruction i &&
+               i.getAddress() >= loadInstruction.getAddress() &&
+               i.getAddress() < loadInstruction.getAddress() + bytes){
+                loadInstruction.addSource(i);
+            }
+        }
     }
 
     /// Commit an instruction

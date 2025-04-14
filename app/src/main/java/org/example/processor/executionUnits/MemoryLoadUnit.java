@@ -24,14 +24,22 @@ public class MemoryLoadUnit {
         if(value.isEmpty()) return;
         Instruction instruction = value.get();
 
-        switch (instruction) {
-            case LBInstruction i -> i.addResult(memory.getByte(i.getAddress(), false));
-            case LBUInstruction i -> i.addResult(memory.getByte(i.getAddress(), true));
-            case LHWInstruction i -> i.addResult(memory.getHalfWord(i.getAddress(), false));
-            case LHWUInstruction i -> i.addResult(memory.getHalfWord(i.getAddress(), true));
-            case LWInstruction i -> i.addResult(memory.getWord(i.getAddress()));
+        if(instruction instanceof LoadInstruction i){
+            int memoryMask = i.getMemoryMask();
 
-            default -> {}
+            if(memoryMask == 0xffffffff) return;
+
+            int memoryLoad = switch (instruction) {
+                case LBInstruction _ -> memory.getByte(i.getAddress(), false);
+                case LBUInstruction _ -> memory.getByte(i.getAddress(), true);
+                case LHWInstruction _ -> memory.getHalfWord(i.getAddress(), false);
+                case LHWUInstruction _ -> memory.getHalfWord(i.getAddress(), true);
+                case LWInstruction _ -> memory.getWord(i.getAddress());
+
+                default -> 0;
+            };
+
+            i.addResult(memoryLoad & ~memoryMask);
         }
     }
 }

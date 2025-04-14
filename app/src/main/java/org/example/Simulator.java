@@ -26,7 +26,7 @@ public class Simulator {
     public final ReservationStation compareReservationStation = new ReservationStation(16);
 
     public final ReservationStation aguReservationStation = new ReservationStation(16);
-    public final Buffer<Instruction> aguLoadBuffer = new MultiValueBuffer<>(4);
+    public final ReservationStation aguLoadBuffer = new ReservationStation(16);
 
     /// Initial buffers to flush for jumps and branches
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
@@ -45,6 +45,7 @@ public class Simulator {
     public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
 
     public final Alu alu = new Alu(aluReservationStation);
+    public final Alu alu2 = new Alu(aluReservationStation);
     public final CompareUnit compareUnit = new CompareUnit(compareReservationStation);
 
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
@@ -64,7 +65,7 @@ public class Simulator {
     }
 
     public void runCycle() {
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 4; i++) {
             // Commit head of ROB
             if(rob.processHead()){
                 instructions += 1;
@@ -75,15 +76,17 @@ public class Simulator {
         compareUnit.execute();
 
         memoryLoadUnit.execute();
+        aguLoadBuffer.addData();
         agu.execute();
         
         alu.execute();
+        alu2.execute();
 
         compareReservationStation.addData();
         aguReservationStation.addData();
         aluReservationStation.addData();
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 4; i++) {
             // Branch and issue should happen in same cycle after decode (so in this order)
             // Stall fetching while jump / branch instruction is processing
             if(decode.decode())
@@ -98,7 +101,7 @@ public class Simulator {
             issueUnit.issue();
         }
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 4; i++) {
             instructionFetch.process();
         }
     }

@@ -112,6 +112,12 @@ public abstract class SInstruction implements MemoryWrite {
     }
 
     @Override
+    public boolean isReady() {
+        // Only "ready" if it has the store address (also means it must have the data)
+        return hasAddress();
+    }
+
+    @Override
     public String toString() {
         return String.format("""
                 S Type Instruction:

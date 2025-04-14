@@ -24,7 +24,7 @@ public abstract class IInstruction implements RegisterWrite {
     private boolean hasResult;
 
     /// Result of processing 
-    private int result;
+    protected int result;
 
     public IInstruction(Opcode opcode, int PC, byte rs1, int imm, byte rd) {
         this.opcode = opcode;
