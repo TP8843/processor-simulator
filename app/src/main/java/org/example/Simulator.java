@@ -17,7 +17,7 @@ public class Simulator {
     // Buffers
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new MultiValueBuffer<>(16);
     public final Buffer<Instruction> decodeIssueBuffer = new MultiValueBuffer<>(16);
-    public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
+    public final BranchBuffer decodeBranchBuffer = new BranchBuffer();
 
     public final ReservationStation aluReservationStation = new ReservationStation(16);
     public final ReservationStation compareReservationStation = new ReservationStation(16);
@@ -98,18 +98,12 @@ public class Simulator {
         for (int i = 0; i < 4; i++) {
             // Branch and issue should happen in same cycle after decode (so in this order)
             // Stall fetching while jump / branch instruction is processing
-            if(decode.decode()){
-                fetchDecodeBuffer.stall();
-                System.out.println("Yaas, it's stallin' time: " + decodeBranchBuffer.peek().get());
-            }
+            if(decode.decode()) fetchDecodeBuffer.stall();
 
             decodeBranchBuffer.addData();
 
             // Release fetching once address has been updated
-            if(branchUnit.generateAddress()){
-                fetchDecodeBuffer.release();
-                System.out.println("OMG, releasing the stall fr");
-            }
+            if(branchUnit.generateAddress()) fetchDecodeBuffer.release();
 
             issueUnit.issue();
         }

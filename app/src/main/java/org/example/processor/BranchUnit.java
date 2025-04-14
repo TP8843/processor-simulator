@@ -25,6 +25,12 @@ public class BranchUnit {
 
     public Buffer<Instruction> decodeInput;
 
+    /// The number of times a branch has been issued
+    private int branchCount;
+
+    /// The number of branch mispredicts
+    private int mispredictCount;
+
     public BranchUnit(InstructionFetch instructionFetch,
                       Buffer<Instruction> decodeInput,
                       Flushable[] jumpBuffers,
@@ -37,11 +43,23 @@ public class BranchUnit {
         this.fetchDecodeBuffer = fetchDecodeBuffer;
     }
 
+    /// The number of times a branch has been issued
+    public int getBranchCount() {
+        return branchCount;
+    }
+
+    /// The number of branch mispredictions
+    public int getMispredictCount() {
+        return mispredictCount;
+    }
+
     /// Called if a branch shouldn't have occurred.
     /// Updates the PC and flushes buffers
     public void branchMispredict(Branch instruction) {
         // If we shouldn't have branched, panic (or, update the PC, flush the required buffers, and chill)
         if(instruction.hasResult() && !instruction.getResult()){
+            mispredictCount += 1;
+
             for (Flushable f : mispredictBuffers) f.flush();
             this.fetchDecodeBuffer.release();
 
@@ -71,6 +89,8 @@ public class BranchUnit {
             }
 
             case BInstruction i -> {
+                branchCount += 1;
+
                 instructionFetch.updatePC(i.imm + i.getPC());
                 for (Flushable f : jumpBuffers) f.flush();
                 return true;

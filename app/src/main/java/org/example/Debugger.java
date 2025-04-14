@@ -115,18 +115,23 @@ public class Debugger {
     }
 
     private void printState() {
-        System.out.println(
-                        String.format("""
-                            Current PC: 0x%s
-                            Current Cycle Count: %s
-                            Current Instructions per Cycle: %s
-                            Current Cycles per Instruction: %s
-                            Halted: %s""", 
-                        Integer.toHexString(simulator.instructionFetch.getPC()), 
-                        cycles, 
-                        (float) simulator.getInstructions() / (float) cycles,
-                        (float) cycles / (float) simulator.getInstructions(),
-                        simulator.rob.getHalted() ? "True" : "False"));
+        System.out.printf("""
+                        Current PC: 0x%s
+                        Current Cycle Count: %s
+                        Current Instructions per Cycle: %s
+                        Current Cycles per Instruction: %s
+                        Current Branch Count: %s
+                        Current Mispredict Count: %s
+                        Current Branch Prediction Accuracy: %s
+                        Halted: %s%n""",
+        Integer.toHexString(simulator.instructionFetch.getPC()),
+        cycles,
+        (float) simulator.getInstructions() / (float) cycles,
+        (float) cycles / (float) simulator.getInstructions(),
+        simulator.branchUnit.getBranchCount(),
+        simulator.branchUnit.getMispredictCount(),
+        1f - (float) simulator.branchUnit.getMispredictCount() / (float) simulator.branchUnit.getBranchCount(),
+        simulator.rob.getHalted() ? "True" : "False");
     }
 
     private void processBreakpoint(String command){

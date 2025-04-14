@@ -1,19 +1,24 @@
 package org.example.processor.buffers;
 
-import org.example.processor.data.Registers;
+import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 
 import java.util.Optional;
 
 /// Blocks until the data the instruction requires is available
-public class DataBlockingBuffer implements Buffer<Instruction>, Flushable {
+public class BranchBuffer implements Buffer<Instruction>, Flushable {
     private boolean stalled;
     
     private Instruction value;
 
     @Override
     public Optional<Instruction> pop() {
-        if (value != null && value.hasData()) {
+        if (value != null) {
+            // Only stall if JALR instruction (needs register value for address) and does not yet have data
+            if(value instanceof JALRInstruction jalrInstruction){
+                if(!jalrInstruction.hasData()) return Optional.empty();
+            }
+
             Instruction value = this.value;
             this.value = null;
             return Optional.of(value);
