@@ -3,6 +3,7 @@ package org.example.processor.instructions.RInstructions;
 import org.example.processor.commit.ROB;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.Operand;
+import org.example.processor.instructions.RInstructions.multiply.*;
 import org.example.processor.instructions.RegisterWrite;
 
 public abstract class RInstruction implements RegisterWrite {
@@ -127,7 +128,9 @@ public abstract class RInstruction implements RegisterWrite {
         byte rs2 = Instruction.decodeRs2(instruction);
         byte rd = Instruction.decodeRd(instruction);
 
-        if (Instruction.decodeFunct7(instruction) == 0x00) {
+        int funct7 = Instruction.decodeFunct7(instruction);
+
+        if (funct7 == 0x00) {
             return switch (Instruction.decodeFunct3(instruction)) {
                 case 0x00 -> new ADDInstruction(opcode, PC, rs1, rs2, rd);
                 case 0x01 -> new SLLInstruction(opcode, PC, rs1, rs2, rd);
@@ -137,14 +140,28 @@ public abstract class RInstruction implements RegisterWrite {
                 case 0x05 -> new SRLInstruction(opcode, PC, rs1, rs2, rd);
                 case 0x06 -> new ORInstruction(opcode, PC, rs1, rs2, rd);
                 case 0x07 -> new ANDInstruction(opcode, PC, rs1, rs2, rd);
-                default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
+                default -> throw new IllegalArgumentException("Invalid funct3: " + instruction);
             };
-        } else {
+        } else if (funct7 == 0x01) {
+            return switch (Instruction.decodeFunct3(instruction)) {
+                case 0x00 -> new MULInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x01 -> new MULHighInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x02 -> new MULHIGHSUInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x03 -> new MULHighUInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x04 -> new DIVInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x05 -> new DIVUInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x06 -> new REMInstruction(opcode, PC, rs1, rs2, rd);
+                case 0x07 -> new REMUInstruction(opcode, PC, rs1, rs2, rd);
+                default -> throw new IllegalArgumentException("Invalid funct3: " + instruction);
+            };
+        } else if(funct7 == 0x20){
             return switch (Instruction.decodeFunct3(instruction)) {
                 case 0x00 -> new SUBInstruction(opcode, PC, rs1, rs2, rd);
                 case 0x05 -> new SRAInstruction(opcode, PC, rs1, rs2, rd);
-                default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
+                default -> throw new IllegalArgumentException("Invalid funct3: " + instruction);
             };
+        } else {
+            throw new IllegalArgumentException("Invalid funct7: " + instruction);
         }
     }
 

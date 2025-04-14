@@ -6,10 +6,7 @@ import org.example.processor.commit.MemoryWriteUnit;
 import org.example.processor.commit.ROB;
 import org.example.processor.data.Memory;
 import org.example.processor.data.Registers;
-import org.example.processor.executionUnits.Agu;
-import org.example.processor.executionUnits.Alu;
-import org.example.processor.executionUnits.CompareUnit;
-import org.example.processor.executionUnits.MemoryLoadUnit;
+import org.example.processor.executionUnits.*;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
 
@@ -24,6 +21,7 @@ public class Simulator {
 
     public final ReservationStation aluReservationStation = new ReservationStation(16);
     public final ReservationStation compareReservationStation = new ReservationStation(16);
+    public final ReservationStation multiplyReservationStation = new ReservationStation(16);
 
     public final ReservationStation aguReservationStation = new ReservationStation(16);
     public final ReservationStation aguLoadBuffer = new ReservationStation(16);
@@ -38,15 +36,16 @@ public class Simulator {
             decodeIssueBuffer,
             aluReservationStation,
             compareReservationStation,
-            aguReservationStation
+            aguReservationStation,
+            multiplyReservationStation
     };
 
     public final Agu agu = new Agu(aguReservationStation, aguLoadBuffer);
     public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
 
     public final Alu alu = new Alu(aluReservationStation);
-    public final Alu alu2 = new Alu(aluReservationStation);
     public final CompareUnit compareUnit = new CompareUnit(compareReservationStation);
+    public final MultiplyUnit multiplyUnit = new MultiplyUnit(multiplyReservationStation);
 
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
@@ -55,7 +54,13 @@ public class Simulator {
 
     public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers);
     public final Decode decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
-    public final IssueUnit issueUnit = new IssueUnit(registers, decodeIssueBuffer, aluReservationStation, compareReservationStation, aguReservationStation, rob);
+    public final IssueUnit issueUnit = new IssueUnit(
+            decodeIssueBuffer,
+            aluReservationStation,
+            compareReservationStation,
+            aguReservationStation,
+            multiplyReservationStation,
+            rob);
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
@@ -78,13 +83,17 @@ public class Simulator {
         memoryLoadUnit.execute();
         aguLoadBuffer.addData();
         agu.execute();
-        
-        alu.execute();
-        alu2.execute();
+
+        multiplyUnit.execute();
+
+        for (int i = 0; i < 4; i++) {
+            alu.execute();
+        }
 
         compareReservationStation.addData();
         aguReservationStation.addData();
         aluReservationStation.addData();
+        multiplyReservationStation.addData();
 
         for (int i = 0; i < 4; i++) {
             // Branch and issue should happen in same cycle after decode (so in this order)

@@ -1,0 +1,62 @@
+
+recursive-factorial/recursive-factorial.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000008 <_start>:
+   8:	00001197          	auipc	gp,0x1
+   c:	80018193          	addi	gp,gp,-2048 # 808 <__global_pointer$>
+  10:	00001117          	auipc	sp,0x1
+  14:	7f810113          	addi	sp,sp,2040 # 1808 <__stack_top>
+  18:	00000093          	li	ra,0
+  1c:	00000213          	li	tp,0
+  20:	00000293          	li	t0,0
+  24:	00000313          	li	t1,0
+  28:	00000393          	li	t2,0
+  2c:	00000413          	li	s0,0
+  30:	00000493          	li	s1,0
+  34:	00000513          	li	a0,0
+  38:	00000593          	li	a1,0
+  3c:	00000613          	li	a2,0
+  40:	00000693          	li	a3,0
+  44:	00000713          	li	a4,0
+  48:	00000793          	li	a5,0
+  4c:	054000ef          	jal	a0 <main>
+
+00000050 <_eoc>:
+  50:	00000073          	ecall
+
+00000054 <output>:
+  54:	ff010113          	addi	sp,sp,-16
+  58:	00a12623          	sw	a0,12(sp)
+  5c:	00c12783          	lw	a5,12(sp)
+  60:	00f02023          	sw	a5,0(zero) # 0 <_start-0x8>
+  64:	01010113          	addi	sp,sp,16
+  68:	00008067          	ret
+
+0000006c <factorial>:
+  6c:	ff010113          	addi	sp,sp,-16
+  70:	00112623          	sw	ra,12(sp)
+  74:	00812423          	sw	s0,8(sp)
+  78:	00050413          	mv	s0,a0
+  7c:	00100793          	li	a5,1
+  80:	00f50863          	beq	a0,a5,90 <factorial+0x24>
+  84:	fff50513          	addi	a0,a0,-1
+  88:	fe5ff0ef          	jal	6c <factorial>
+  8c:	02850533          	mul	a0,a0,s0
+  90:	00c12083          	lw	ra,12(sp)
+  94:	00812403          	lw	s0,8(sp)
+  98:	01010113          	addi	sp,sp,16
+  9c:	00008067          	ret
+
+000000a0 <main>:
+  a0:	ff010113          	addi	sp,sp,-16
+  a4:	00112623          	sw	ra,12(sp)
+  a8:	00500513          	li	a0,5
+  ac:	fc1ff0ef          	jal	6c <factorial>
+  b0:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
+  b4:	00000513          	li	a0,0
+  b8:	00c12083          	lw	ra,12(sp)
+  bc:	01010113          	addi	sp,sp,16
+  c0:	00008067          	ret

@@ -11,6 +11,9 @@ public enum EU {
     /// Address Generation Unit (for loads/stores)
     AGU,
 
+    /// Multiply Unit (for multiplication and division)
+    MULTIPLY,
+
     /// No Processing Required (Mainly for Environment)
     NONE
 }

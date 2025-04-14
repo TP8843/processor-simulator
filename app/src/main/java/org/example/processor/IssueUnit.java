@@ -8,13 +8,12 @@ import org.example.processor.instructions.Instruction;
 import java.util.Optional;
 
 public class IssueUnit {
-    private final Registers registers;
-    
     public final Buffer<Instruction> decodeIssueBuffer;
     
     public final Buffer<Instruction> aluReservationStation;
     public final Buffer<Instruction> compareReservationStation;
     public final Buffer<Instruction> aguReservationStation;
+    public final Buffer<Instruction> multiplyReservationStation;
 
     /// ROB so that instructions can be added immediately on issue
     public final ROB rob;
@@ -53,6 +52,13 @@ public class IssueUnit {
                     aguReservationStation.put(instruction);
                 }
             }
+            case MULTIPLY -> {
+                if(multiplyReservationStation.hasSpace()){
+                    rob.add(instruction);
+                    decodeIssueBuffer.pop();
+                    multiplyReservationStation.put(instruction);
+                }
+            }
 
             case NONE -> {
                 rob.add(instruction);
@@ -62,17 +68,17 @@ public class IssueUnit {
         }
     }
     
-    public IssueUnit(Registers registers,
-                     Buffer<Instruction> decodeIssueBuffer, 
+    public IssueUnit(Buffer<Instruction> decodeIssueBuffer,
                      Buffer<Instruction> aluReservationStation,
                      Buffer<Instruction> compareReservationStation,
                      Buffer<Instruction> aguReservationStation,
+                     Buffer<Instruction> multiplyReservationStation,
                      ROB rob) {
-        this.registers = registers;
         this.decodeIssueBuffer = decodeIssueBuffer;
         this.aluReservationStation = aluReservationStation;
         this.compareReservationStation = compareReservationStation;
         this.aguReservationStation = aguReservationStation;
+        this.multiplyReservationStation = multiplyReservationStation;
         this.rob = rob;
     }
 }
