@@ -15,8 +15,8 @@ public class Simulator {
     public final Registers registers = new Registers();
 
     // Buffers
-    public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new MultiValueBuffer<>(4);
-    public final Buffer<Instruction> decodeIssueBuffer = new MultiValueBuffer<>(4);
+    public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new MultiValueBuffer<>(16);
+    public final Buffer<Instruction> decodeIssueBuffer = new MultiValueBuffer<>(16);
     public final DataBlockingBuffer decodeBranchBuffer = new DataBlockingBuffer();
 
     public final ReservationStation aluReservationStation = new ReservationStation(16);
@@ -40,9 +40,6 @@ public class Simulator {
             multiplyReservationStation
     };
 
-    public final Agu agu = new Agu(aguReservationStation, aguLoadBuffer);
-    public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
-
     public final Alu alu = new Alu(aluReservationStation);
     public final CompareUnit compareUnit = new CompareUnit(compareReservationStation);
     public final MultiplyUnit multiplyUnit = new MultiplyUnit(multiplyReservationStation);
@@ -50,7 +47,7 @@ public class Simulator {
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
     public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
-    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers);
+    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
 
     public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers);
     public final Decode decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
@@ -61,6 +58,9 @@ public class Simulator {
             aguReservationStation,
             multiplyReservationStation,
             rob);
+
+    public final Agu agu = new Agu(aguReservationStation, aguLoadBuffer, rob);
+    public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
@@ -98,14 +98,18 @@ public class Simulator {
         for (int i = 0; i < 4; i++) {
             // Branch and issue should happen in same cycle after decode (so in this order)
             // Stall fetching while jump / branch instruction is processing
-            if(decode.decode())
+            if(decode.decode()){
                 fetchDecodeBuffer.stall();
+                System.out.println("Yaas, it's stallin' time: " + decodeBranchBuffer.peek().get());
+            }
 
             decodeBranchBuffer.addData();
 
             // Release fetching once address has been updated
-            if(branchUnit.generateAddress())
+            if(branchUnit.generateAddress()){
                 fetchDecodeBuffer.release();
+                System.out.println("OMG, releasing the stall fr");
+            }
 
             issueUnit.issue();
         }

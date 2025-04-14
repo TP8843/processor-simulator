@@ -26,7 +26,6 @@ public class MultiplyUnit {
     public void execute() {
         // Reduce count every clock cycle
         if(this.remainingCycles > 0){
-            System.out.println("Remaining Cycles: " + this.remainingCycles);
             this.remainingCycles -= 1;
             return;
         }
@@ -35,7 +34,6 @@ public class MultiplyUnit {
             i.addResult(this.currentResult);
             this.currentResult = 0;
             this.currentInstruction = null;
-            System.out.println("Finished processing Instruction in multiply unit: " + i);
         }
 
         Optional<Instruction> value = input.pop();

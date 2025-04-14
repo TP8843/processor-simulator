@@ -7,6 +7,9 @@ import org.example.processor.instructions.Branch;
 import org.example.processor.instructions.IInstructions.JALRInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.JInstructions.JALInstruction;
+import org.example.processor.instructions.UndecodedInstruction;
+
+import java.util.Optional;
 
 public class BranchUnit {
     private final InstructionFetch instructionFetch;
@@ -17,16 +20,21 @@ public class BranchUnit {
     /// Buffers to be flushed on a mispredict for a branch instruction
     private final Flushable[] mispredictBuffers;
 
+    /// Allow the fetch decode buffer to be released on a branch mispredic
+    private final Buffer<UndecodedInstruction> fetchDecodeBuffer;
+
     public Buffer<Instruction> decodeInput;
 
     public BranchUnit(InstructionFetch instructionFetch,
                       Buffer<Instruction> decodeInput,
                       Flushable[] jumpBuffers,
-                      Flushable[] mispredictBuffers) {
+                      Flushable[] mispredictBuffers,
+                      Buffer<UndecodedInstruction> fetchDecodeBuffer) {
         this.instructionFetch = instructionFetch;
         this.decodeInput = decodeInput;
         this.jumpBuffers = jumpBuffers;
         this.mispredictBuffers = mispredictBuffers;
+        this.fetchDecodeBuffer = fetchDecodeBuffer;
     }
 
     /// Called if a branch shouldn't have occurred.
@@ -35,6 +43,7 @@ public class BranchUnit {
         // If we shouldn't have branched, panic (or, update the PC, flush the required buffers, and chill)
         if(instruction.hasResult() && !instruction.getResult()){
             for (Flushable f : mispredictBuffers) f.flush();
+            this.fetchDecodeBuffer.release();
 
             // Update PC to the next instruction after the branch
             instructionFetch.updatePC(instruction.getPC() + 4);
@@ -43,9 +52,10 @@ public class BranchUnit {
     
     /// Generates address for branch unit. True if memory/write-back should be stalled
     public boolean generateAddress(){
-        if (!decodeInput.hasValue()) return false;
-        
-        Instruction instruction = decodeInput.pop().get();
+        Optional<Instruction> value = decodeInput.pop();
+        if(value.isEmpty()) return false;
+
+        Instruction instruction = value.get();
         
         switch (instruction) {
             case JALRInstruction i -> {
@@ -68,6 +78,6 @@ public class BranchUnit {
             default -> {}
         }
 
-        return false;
+        return true;
     }
 }

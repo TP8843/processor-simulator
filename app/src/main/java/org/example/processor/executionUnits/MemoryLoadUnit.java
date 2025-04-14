@@ -27,7 +27,10 @@ public class MemoryLoadUnit {
         if(instruction instanceof LoadInstruction i){
             int memoryMask = i.getMemoryMask();
 
-            if(memoryMask == 0xffffffff) return;
+            if(memoryMask == 0xffffffff) {
+                i.addResult(i.getResult());
+                return;
+            }
 
             int memoryLoad = switch (instruction) {
                 case LBInstruction _ -> memory.getByte(i.getAddress(), false);
@@ -39,7 +42,7 @@ public class MemoryLoadUnit {
                 default -> 0;
             };
 
-            i.addResult(memoryLoad & ~memoryMask);
+            i.addResult(i.getResult() | memoryLoad & ~memoryMask);
         }
     }
 }

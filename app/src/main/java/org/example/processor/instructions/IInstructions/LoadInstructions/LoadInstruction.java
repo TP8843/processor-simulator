@@ -1,5 +1,6 @@
 package org.example.processor.instructions.IInstructions.LoadInstructions;
 
+import org.example.processor.commit.ROB;
 import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.IInstructions.IInstruction;
 import org.example.processor.instructions.SInstructions.SBInstruction;
@@ -94,5 +95,33 @@ public class LoadInstruction extends IInstruction {
     @Override
     public EU getEU() {
         return EU.AGU;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                I Type Instruction:
+                        Opcode: %s
+                        PC: %s
+                        Is Ready: %s
+                        RS1: %s
+                        Has Data: %s
+                        Memory Mask: %s
+                        Sources: %s
+                        IMM: %s
+                        RD: %s
+                        Has Result: %s
+                        Result:  %s""",
+                getOpcode(),
+                getPC(),
+                isReady() ? "True" : "False",
+                rs1,
+                hasData() ? "True" : "False",
+                memoryMask,
+                sources,
+                imm,
+                rd,
+                hasResult() ? "True" : "False",
+                result);
     }
 }
