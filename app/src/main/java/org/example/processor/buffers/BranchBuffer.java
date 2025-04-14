@@ -43,7 +43,7 @@ public class BranchBuffer implements Buffer<Instruction>, Flushable {
 
     @Override
     public boolean hasValue() {
-        return (stalled == false && value != null && value.hasData());
+        return value != null;
     }
 
     @Override
@@ -82,6 +82,7 @@ public class BranchBuffer implements Buffer<Instruction>, Flushable {
     @Override
     public String toString() {
         return String.format("""
-                Current Value: %s""", value);
+                Current Value: %s
+                Stalled: %s""", value, stalled ? "True" : "False");
     }
 }
