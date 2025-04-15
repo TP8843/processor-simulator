@@ -1,5 +1,6 @@
-package org.example.processor;
+package org.example.processor.branch;
 
+import org.example.processor.InstructionFetch;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.instructions.BInstructions.*;
@@ -20,8 +21,11 @@ public class BranchUnit {
     /// Buffers to be flushed on a mispredict for a branch instruction
     private final Flushable[] mispredictBuffers;
 
-    /// Allow the fetch decode buffer to be released on a branch mispredic
+    /// Allow the fetch decode buffer to be released on a branch misprediction
     private final Buffer<UndecodedInstruction> fetchDecodeBuffer;
+
+    /// Default to always predict true
+    public final BranchPredictor branchPredictor = (i) -> true;
 
     public Buffer<Instruction> decodeInput;
 
@@ -55,17 +59,23 @@ public class BranchUnit {
 
     /// Called if a branch shouldn't have occurred.
     /// Updates the PC and flushes buffers
-    public void branchMispredict(Branch instruction) {
+    public boolean branchMispredict(Branch instruction) {
+        branchCount += 1;
+
         // If we shouldn't have branched, panic (or, update the PC, flush the required buffers, and chill)
-        if(instruction.hasResult() && !instruction.getResult()){
+        if(instruction.hasResult() && (instruction.getResult() != instruction.getSpeculativeBranch())){
             mispredictCount += 1;
+
+            if(instruction.getResult()) instructionFetch.updatePC(instruction.getAddress());
+            else instructionFetch.updatePC(instruction.getPC() + 4);
 
             for (Flushable f : mispredictBuffers) f.flush();
             this.fetchDecodeBuffer.release();
 
-            // Update PC to the next instruction after the branch
-            instructionFetch.updatePC(instruction.getPC() + 4);
+            return true;
         }
+
+        return false;
     }
     
     /// Generates address for branch unit. True if memory/write-back should be stalled
@@ -89,10 +99,11 @@ public class BranchUnit {
             }
 
             case BInstruction i -> {
-                branchCount += 1;
-
-                instructionFetch.updatePC(i.imm + i.getPC());
-                for (Flushable f : jumpBuffers) f.flush();
+                if(branchPredictor.predict(i)){
+                    i.speculativeBranch();
+                    instructionFetch.updatePC(i.getAddress());
+                    for (Flushable f : jumpBuffers) f.flush();
+                }
                 return true;
             }
             default -> {}

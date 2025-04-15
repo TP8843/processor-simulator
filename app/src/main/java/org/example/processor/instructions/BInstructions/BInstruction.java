@@ -19,6 +19,9 @@ public abstract class BInstruction implements Instruction, Branch {
     /// Immediate value for instruction
     public final int imm;
 
+    /// Whether the instruction has been speculatively branched
+    public boolean speculativeBranch;
+
     /// Whether a comparison result has been added
     private boolean hasResult = false;
 
@@ -78,6 +81,21 @@ public abstract class BInstruction implements Instruction, Branch {
     /// The result of the comparison
     public boolean getResult() {
         return result;
+    }
+
+    /// If the processor is speculatively branching this instruction
+    public void speculativeBranch() {
+        speculativeBranch = true;
+    }
+
+    /// Whether the instruction was speculatively carried out earlier
+    public boolean getSpeculativeBranch() {
+        return speculativeBranch;
+    }
+
+    /// Get the final address of the branch instruction
+    public int getAddress() {
+        return imm + PC;
     }
 
     @Override

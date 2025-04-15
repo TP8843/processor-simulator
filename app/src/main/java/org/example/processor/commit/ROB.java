@@ -1,6 +1,6 @@
 package org.example.processor.commit;
 
-import org.example.processor.*;
+import org.example.processor.branch.BranchUnit;
 import org.example.processor.buffers.CircularQueue;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.data.Registers;
@@ -128,10 +128,7 @@ public class ROB implements Flushable {
         switch (instruction){
             case Branch i -> {
                 // If it has its result, and we shouldn't have branched, flush the pipeline
-                if(i.hasResult() && !i.getResult()){
-                    flush();
-                    branchUnit.branchMispredict(i);
-                }
+                if(branchUnit.branchMispredict(i)) flush();
             }
 
             case RegisterWrite i -> registers.setRegister(i.getDestination(), i.getResult());
