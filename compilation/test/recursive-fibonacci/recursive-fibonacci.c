@@ -7,5 +7,5 @@ int fibonacci(int input){
 }
 
 int main(){
-	output(fibonacci(10));
+	output(fibonacci(20));
 }

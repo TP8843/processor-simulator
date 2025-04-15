@@ -1,5 +1,5 @@
 
-iterative-fibonacci/iterative-fibonacci.out:     file format elf32-littleriscv
+iterative-fibonacci/iterative-fibonacci.elf:     file format elf32-littleriscv
 
 
 Disassembly of section .text:
@@ -54,7 +54,7 @@ Disassembly of section .text:
 000000a4 <main>:
   a4:	ff010113          	addi	sp,sp,-16
   a8:	00112623          	sw	ra,12(sp)
-  ac:	00a00513          	li	a0,10
+  ac:	02e00513          	li	a0,46
   b0:	fbdff0ef          	jal	6c <fibonacci>
   b4:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
   b8:	00000513          	li	a0,0

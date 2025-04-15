@@ -1,5 +1,5 @@
 
-./recursive-fibonacci/recursive-fibonacci.out:     file format elf32-littleriscv
+recursive-fibonacci/recursive-fibonacci.elf:     file format elf32-littleriscv
 
 
 Disassembly of section .text:
@@ -58,7 +58,7 @@ Disassembly of section .text:
 000000b4 <main>:
   b4:	ff010113          	addi	sp,sp,-16
   b8:	00112623          	sw	ra,12(sp)
-  bc:	00a00513          	li	a0,10
+  bc:	01400513          	li	a0,20
   c0:	fadff0ef          	jal	6c <fibonacci>
   c4:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
   c8:	00000513          	li	a0,0

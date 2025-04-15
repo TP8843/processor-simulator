@@ -1,6 +1,7 @@
 package org.example.processor.branch.strategies;
 
 import org.example.processor.instructions.BInstructions.BInstruction;
+import org.example.processor.instructions.Branch;
 
 public class BranchBackwards implements BranchStrategy {
     @Override

@@ -1,8 +1,8 @@
 package org.example.processor.branch;
 
 import org.example.processor.InstructionFetch;
-import org.example.processor.branch.strategies.BranchBackwards;
 import org.example.processor.branch.strategies.BranchStrategy;
+import org.example.processor.branch.strategies.TwoBitPredictor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.instructions.BInstructions.*;
@@ -27,7 +27,7 @@ public class BranchUnit {
     private final Buffer<UndecodedInstruction> fetchDecodeBuffer;
 
     /// Default to always predict backwards branches
-    public final BranchStrategy branchStrategy = new BranchBackwards();
+    public final BranchStrategy branchStrategy = new TwoBitPredictor();
 
     public Buffer<Instruction> decodeInput;
 
@@ -62,10 +62,13 @@ public class BranchUnit {
     /// Called if a branch shouldn't have occurred.
     /// Updates the PC and flushes buffers
     public boolean branchMispredict(Branch instruction) {
+        if(!instruction.hasResult()) return false;
+
         branchCount += 1;
+        branchStrategy.update(instruction, instruction.getResult());
 
         // If we shouldn't have branched, panic (or, update the PC, flush the required buffers, and chill)
-        if(instruction.hasResult() && (instruction.getResult() != instruction.getSpeculativeBranch())){
+        if(instruction.getResult() != instruction.getSpeculativeBranch()){
             mispredictCount += 1;
 
             if(instruction.getResult()) instructionFetch.updatePC(instruction.getAddress());
