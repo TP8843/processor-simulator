@@ -1,6 +1,8 @@
 package org.example.processor.branch;
 
 import org.example.processor.InstructionFetch;
+import org.example.processor.branch.strategies.BranchBackwards;
+import org.example.processor.branch.strategies.BranchStrategy;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.instructions.BInstructions.*;
@@ -24,8 +26,8 @@ public class BranchUnit {
     /// Allow the fetch decode buffer to be released on a branch misprediction
     private final Buffer<UndecodedInstruction> fetchDecodeBuffer;
 
-    /// Default to always predict true
-    public final BranchPredictor branchPredictor = (i) -> true;
+    /// Default to always predict backwards branches
+    public final BranchStrategy branchStrategy = new BranchBackwards();
 
     public Buffer<Instruction> decodeInput;
 
@@ -99,7 +101,7 @@ public class BranchUnit {
             }
 
             case BInstruction i -> {
-                if(branchPredictor.predict(i)){
+                if(branchStrategy.predict(i)){
                     i.speculativeBranch();
                     instructionFetch.updatePC(i.getAddress());
                     for (Flushable f : jumpBuffers) f.flush();
