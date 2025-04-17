@@ -86,7 +86,7 @@ public abstract class IInstruction implements RegisterWrite {
     }
 
     
-    static private int decodeImmediate(int instruction) {
+    static public int decodeImmediate(int instruction) {
         return (instruction >> 20);
     }
     

@@ -70,9 +70,8 @@ public class Debugger {
             } else if (line.startsWith("continue")) {
                 do {
                     runProcessorCycle();
-                } while (!simulator.rob.getHalted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
+                } while (!simulator.environmentHandler.halted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
             } else if (line.startsWith("exit")) {
-                System.out.println("Final value: " + simulator.memory.getWord(0));
                 return;
             } else if (line.startsWith("breakpoint")) {
                 processBreakpoint(line.substring("breakpoint".length()).trim());
@@ -131,7 +130,7 @@ public class Debugger {
         simulator.branchUnit.getBranchCount(),
         simulator.branchUnit.getMispredictCount(),
         1f - (float) simulator.branchUnit.getMispredictCount() / (float) simulator.branchUnit.getBranchCount(),
-        simulator.rob.getHalted() ? "True" : "False");
+        simulator.environmentHandler.halted() ? "True" : "False");
     }
 
     private void processBreakpoint(String command){

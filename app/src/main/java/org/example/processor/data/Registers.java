@@ -1,6 +1,60 @@
 package org.example.processor.data;
 
 public class Registers {
+    /// Zero Register
+    public static final byte ZERO = 0;
+
+    /// Return Address
+    public static final byte RA = 1;
+
+    /// Stack Pointer
+    public static final byte SP = 2;
+
+    /// Global Pointer
+    public static final byte GP = 3;
+
+    /// Thread Pointer
+    public static final byte TP = 4;
+
+    /// Temporary Register 0
+    public static final byte T0 = 5;
+
+    /// Temporary Register 1
+    public static final byte T1 = 6;
+
+    /// Temporary Register 2
+    public static final byte T2 = 7;
+
+    /// Saved / Frame Pointer
+    public static final byte S0 = 8;
+
+    /// Saved Register
+    public static final byte S1 = 9;
+
+    /// Function Argument 0 / Return Value
+    public static final byte A0 = 10;
+
+    /// Function Argument 1 / Return Value
+    public static final byte A1 = 11;
+
+    /// Function Argument 2
+    public static final byte A2 = 12;
+
+    /// Function Argument 3
+    public static final byte A3 = 13;
+
+    /// Function Argument 4
+    public static final byte A4 = 14;
+
+    /// Function Argument 5
+    public static final byte A5 = 15;
+
+    /// Function Argument 6
+    public static final byte A6 = 16;
+
+    /// Function Argument 7
+    public static final byte A7 = 17;
+
     /// Stores all register values in the processor
     private final int[] registers;
     

@@ -29,9 +29,9 @@ public class Memory {
     
     public int getHalfWord(int pos, boolean unsigned) {
         if (pos % (wordLength / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
-        
-        int value = (memory[pos / 4] >> ((2 - pos % 4) * 8) & 0b1111111111111111);
-        
+
+        int value = (memory[pos / 4] >> ((pos % 4) * 8)) & 0xffff;
+
         if (unsigned) {
             previousLoad = String.format("Unsigned half word loaded from byte %s, array location %s, value %s",
                     pos, pos / 4, value);
@@ -44,8 +44,8 @@ public class Memory {
     }
 
     public int getByte(int pos, boolean unsigned) {
-        int value = (memory[pos / 4] >> ((3 - pos % 4) * 8) & 0b11111111);
-        
+        int value = (memory[pos / 4] >> ((pos % 4) * 8)) & 0xff;
+
         if (unsigned) {
             previousLoad = String.format("Unsigned byte loaded from byte %s, array location %s, value %s",
                     pos, pos / 4, value);
@@ -64,32 +64,25 @@ public class Memory {
 
         previousStore = String.format("Word stored into byte %s, array location %s, value %s",
                 pos, pos / 4, input);
-
-        System.out.println(previousStore);
     }
 
     public void storeHalfWord(int pos, int input) {
         if (pos % (4 / 2) != 0) throw new IllegalArgumentException("Memory access is not half word aligned");
+        final int transformedInput = (input & 0xFFFF) << ((pos % 4) * 8);
 
-        final int transformedInput = (input & 0xFF) << ((2 - pos % 4) * 8);
-        
         memory[pos / 4] = memory[pos / 4] | transformedInput;
 
         previousStore = String.format("Half word stored into byte %s, array location %s, value %s",
                 pos, pos / 4, transformedInput);
-
-        System.out.println(previousStore);
     }
 
     public void storeByte(int pos, int input) {
-        final int transformedInput = ((input & 0xF) << ((3 - pos % 4) * 8));
-        
+        final int transformedInput = (input & 0xFF) << ((pos % 4) * 8);
+
         memory[pos / 4] = memory[pos / 4] | transformedInput;
 
         previousStore = String.format("Byte stored into byte %s, array location %s, value %s",
                 pos, pos / 4, transformedInput);
-        
-        System.out.println(previousStore);
     }
 
     /// Load program into memory, starting at 0
@@ -107,7 +100,7 @@ public class Memory {
 
                 lineCount += 1;
             }
-            
+
             // TODO: Allow current program instructions to be printed to terminal
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -118,8 +111,7 @@ public class Memory {
     public String toString() {
         return String.format("""
                 Memory:
-                    Output Location: %s
                     Previous Store: %s
-                    Previous Load: %s""", memory[0], previousStore, previousLoad);
+                    Previous Load: %s""", previousStore, previousLoad);
     }
 }

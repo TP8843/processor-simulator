@@ -1,51 +1,76 @@
 
-multiply-test/multiply.out:     file format elf32-littleriscv
+multiply-test/multiply.elf:     file format elf32-littleriscv
 
 
 Disassembly of section .text:
 
-00000008 <_start>:
-   8:	00001197          	auipc	gp,0x1
-   c:	80018193          	addi	gp,gp,-2048 # 808 <__global_pointer$>
-  10:	00001117          	auipc	sp,0x1
-  14:	7f810113          	addi	sp,sp,2040 # 1808 <__stack_top>
-  18:	00000093          	li	ra,0
-  1c:	00000213          	li	tp,0
-  20:	00000293          	li	t0,0
-  24:	00000313          	li	t1,0
-  28:	00000393          	li	t2,0
-  2c:	00000413          	li	s0,0
-  30:	00000493          	li	s1,0
-  34:	00000513          	li	a0,0
-  38:	00000593          	li	a1,0
-  3c:	00000613          	li	a2,0
-  40:	00000693          	li	a3,0
-  44:	00000713          	li	a4,0
-  48:	00000793          	li	a5,0
-  4c:	008000ef          	jal	54 <main>
+00000000 <_start>:
+   0:	00001197          	auipc	gp,0x1
+   4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
+   8:	00001117          	auipc	sp,0x1
+   c:	7f810113          	addi	sp,sp,2040 # 1800 <__stack_top>
+  10:	00000093          	li	ra,0
+  14:	00000213          	li	tp,0
+  18:	00000293          	li	t0,0
+  1c:	00000313          	li	t1,0
+  20:	00000393          	li	t2,0
+  24:	00000413          	li	s0,0
+  28:	00000493          	li	s1,0
+  2c:	00000513          	li	a0,0
+  30:	00000593          	li	a1,0
+  34:	00000613          	li	a2,0
+  38:	00000693          	li	a3,0
+  3c:	00000713          	li	a4,0
+  40:	00000793          	li	a5,0
+  44:	05c000ef          	jal	a0 <main>
 
-00000050 <_eoc>:
+00000048 <_eoc>:
+  48:	00100073          	ebreak
+
+0000004c <printc>:
+  4c:	00100893          	li	a7,1
   50:	00000073          	ecall
+  54:	00008067          	ret
 
-00000054 <main>:
-  54:	ff010113          	addi	sp,sp,-16
-  58:	00500793          	li	a5,5
-  5c:	00f12623          	sw	a5,12(sp)
-  60:	00c12703          	lw	a4,12(sp)
-  64:	00000513          	li	a0,0
-  68:	00371793          	slli	a5,a4,0x3
-  6c:	40e787b3          	sub	a5,a5,a4
-  70:	00179793          	slli	a5,a5,0x1
-  74:	00f12623          	sw	a5,12(sp)
-  78:	00c12783          	lw	a5,12(sp)
-  7c:	00f02023          	sw	a5,0(zero) # 0 <_start-0x8>
-  80:	01010113          	addi	sp,sp,16
-  84:	00008067          	ret
+00000058 <printInt>:
+  58:	00300893          	li	a7,3
+  5c:	00000073          	ecall
+  60:	00008067          	ret
 
-00000088 <output>:
-  88:	ff010113          	addi	sp,sp,-16
-  8c:	00a12623          	sw	a0,12(sp)
-  90:	00c12783          	lw	a5,12(sp)
-  94:	00f02023          	sw	a5,0(zero) # 0 <_start-0x8>
+00000064 <print>:
+  64:	ff010113          	addi	sp,sp,-16
+  68:	00112623          	sw	ra,12(sp)
+  6c:	00812423          	sw	s0,8(sp)
+  70:	00050413          	mv	s0,a0
+  74:	00054503          	lbu	a0,0(a0)
+  78:	00050c63          	beqz	a0,90 <print+0x2c>
+  7c:	00140413          	addi	s0,s0,1
+  80:	fcdff0ef          	jal	4c <printc>
+  84:	00140413          	addi	s0,s0,1
+  88:	fff44503          	lbu	a0,-1(s0)
+  8c:	fe051ae3          	bnez	a0,80 <print+0x1c>
+  90:	00c12083          	lw	ra,12(sp)
+  94:	00812403          	lw	s0,8(sp)
   98:	01010113          	addi	sp,sp,16
   9c:	00008067          	ret
+
+000000a0 <main>:
+  a0:	fe010113          	addi	sp,sp,-32
+  a4:	00112e23          	sw	ra,28(sp)
+  a8:	00500793          	li	a5,5
+  ac:	00f12623          	sw	a5,12(sp)
+  b0:	00c12703          	lw	a4,12(sp)
+  b4:	00371793          	slli	a5,a4,0x3
+  b8:	40e787b3          	sub	a5,a5,a4
+  bc:	00179793          	slli	a5,a5,0x1
+  c0:	00f12623          	sw	a5,12(sp)
+  c4:	0ec00513          	li	a0,236
+  c8:	f9dff0ef          	jal	64 <print>
+  cc:	00c12503          	lw	a0,12(sp)
+  d0:	f89ff0ef          	jal	58 <printInt>
+  d4:	00a00513          	li	a0,10
+  d8:	f75ff0ef          	jal	4c <printc>
+  dc:	00000513          	li	a0,0
+  e0:	01c12083          	lw	ra,28(sp)
+  e4:	02010113          	addi	sp,sp,32
+  e8:	00008067          	ret

@@ -1,11 +1,7 @@
 #include "../tplib.c"
 
-int square(int num) {
-    return num + num;
-}
+static const char hello[] = "Hello World\n";
 
 int main() {
-    int result = square(4);
-    
-    output(result);
+   print(hello);
 }

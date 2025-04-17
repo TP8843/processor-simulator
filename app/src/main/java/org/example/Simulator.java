@@ -8,8 +8,13 @@ import org.example.processor.commit.ROB;
 import org.example.processor.data.Memory;
 import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.*;
+import org.example.processor.instructions.Environment;
+import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
+import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
+
+import java.io.IOException;
 
 public class Simulator {
     public final Memory memory = new Memory();
@@ -25,7 +30,7 @@ public class Simulator {
     public final ReservationStation multiplyReservationStation = new ReservationStation(16);
 
     public final ReservationStation aguReservationStation = new ReservationStation(16);
-    public final ReservationStation aguLoadBuffer = new ReservationStation(16);
+    public final MemoryLoadBuffer aguLoadBuffer = new MemoryLoadBuffer(16);
 
     /// Initial buffers to flush for jumps and branches
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
@@ -47,10 +52,11 @@ public class Simulator {
 
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
-    public final InstructionFetch instructionFetch = new InstructionFetch(memory, 8, fetchDecodeBuffer);
+    public final InstructionFetch instructionFetch = new InstructionFetch(memory, 0, fetchDecodeBuffer);
     public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
 
-    public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers);
+    public final EnvironmentHandler environmentHandler = new EnvironmentHandler(registers);
+    public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers, environmentHandler);
     public final Decode decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
     public final IssueUnit issueUnit = new IssueUnit(
             decodeIssueBuffer,
@@ -75,7 +81,6 @@ public class Simulator {
             // Commit head of ROB
             if(rob.processHead()){
                 instructions += 1;
-                System.out.println("Commited instruction 0x" + Integer.toHexString(rob.getPrevious().getPC()));
             }
         }
 
@@ -116,7 +121,7 @@ public class Simulator {
 
     static public Simulator createSimulator(String fileName) {
         Simulator simulator = new Simulator();
-        simulator.memory.loadProgram(fileName, 8);
+        simulator.memory.loadProgram(fileName, 0);
 
         return simulator;
     }

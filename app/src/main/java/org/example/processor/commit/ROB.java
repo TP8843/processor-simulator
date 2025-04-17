@@ -1,5 +1,7 @@
 package org.example.processor.commit;
 
+import org.example.EnvironmentHandler;
+import org.example.Simulator;
 import org.example.processor.branch.BranchUnit;
 import org.example.processor.buffers.CircularQueue;
 import org.example.processor.buffers.Flushable;
@@ -30,16 +32,18 @@ public class ROB implements Flushable {
     /// Allows for writing to registers on commit
     private final Registers registers;
 
-    private boolean halted;
+    /// Handles environment calls
+    private final EnvironmentHandler environmentHandler;
 
-    public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers) {
-        this(branchUnit, memoryUnit, registers, 128);
+    public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers, EnvironmentHandler environmentHandler) {
+        this(branchUnit, memoryUnit, registers, environmentHandler, 128);
     }
 
-    public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers, int size) {
+    public ROB(BranchUnit branchUnit, MemoryWriteUnit memoryUnit, Registers registers, EnvironmentHandler environmentHandler, int size) {
         this.branchUnit = branchUnit;
         this.memoryUnit = memoryUnit;
         this.registers = registers;
+        this.environmentHandler = environmentHandler;
         this.size = size;
         this.queue = new CircularQueue<>(size);
     }
@@ -47,11 +51,6 @@ public class ROB implements Flushable {
     /// Gets instruction just commited by ROB
     public Instruction getPrevious() {
         return previous;
-    }
-
-    /// Whether the program has halted
-    public boolean getHalted() {
-        return halted;
     }
 
     /// Adds an instruction to the ROB if there is space
@@ -135,7 +134,7 @@ public class ROB implements Flushable {
 
             case MemoryWrite i -> memoryUnit.writeMemory(i);
 
-            case Environment i -> halted = true;
+            case Environment i -> environmentHandler.processEnvironment(i);
 
             default -> {}
         }

@@ -10,5 +10,9 @@ int factorial(int input){
 }
 
 int main(){
-	output(factorial(5));
+    print("The ");
+    printInt(5);
+    print("th factorial using iteration is ");
+	printInt(factorial(5));
+	printc('\n');
 }

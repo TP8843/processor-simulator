@@ -12,37 +12,35 @@ public class MemoryLoadUnit {
     private final Memory memory;
 
     /// Input buffer for instructions (generally will come from AGU)
-    private final Buffer<Instruction> input;
+    private final Buffer<LoadInstruction> input;
 
-    public MemoryLoadUnit(Memory memory, Buffer<Instruction> input) {
+    public MemoryLoadUnit(Memory memory, Buffer<LoadInstruction> input) {
         this.memory = memory;
         this.input = input;
     }
 
     public void execute(){
-        Optional<Instruction> value = input.pop();
+        Optional<LoadInstruction> value = input.pop();
         if(value.isEmpty()) return;
-        Instruction instruction = value.get();
+        LoadInstruction instruction = value.get();
 
-        if(instruction instanceof LoadInstruction i){
-            int memoryMask = i.getMemoryMask();
+        int memoryMask = instruction.getMemoryMask();
 
-            if(memoryMask == 0xffffffff) {
-                i.addResult(i.getResult());
-                return;
-            }
-
-            int memoryLoad = switch (instruction) {
-                case LBInstruction _ -> memory.getByte(i.getAddress(), false);
-                case LBUInstruction _ -> memory.getByte(i.getAddress(), true);
-                case LHWInstruction _ -> memory.getHalfWord(i.getAddress(), false);
-                case LHWUInstruction _ -> memory.getHalfWord(i.getAddress(), true);
-                case LWInstruction _ -> memory.getWord(i.getAddress());
-
-                default -> 0;
-            };
-
-            i.addResult(i.getResult() | memoryLoad & ~memoryMask);
+        if(memoryMask == 0xffffffff) {
+            instruction.addResult(instruction.getResult());
+            return;
         }
+
+        int memoryLoad = switch (instruction) {
+            case LBInstruction _ -> memory.getByte(instruction.getAddress(), false);
+            case LBUInstruction _ -> memory.getByte(instruction.getAddress(), true);
+            case LHWInstruction _ -> memory.getHalfWord(instruction.getAddress(), false);
+            case LHWUInstruction _ -> memory.getHalfWord(instruction.getAddress(), true);
+            case LWInstruction _ -> memory.getWord(instruction.getAddress());
+
+            default -> 0;
+        };
+
+        instruction.addResult(instruction.getResult() | memoryLoad & ~memoryMask);
     }
 }

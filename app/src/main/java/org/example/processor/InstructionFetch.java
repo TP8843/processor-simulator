@@ -26,7 +26,6 @@ public class InstructionFetch {
 
     public void updatePC(int PC) {
         // TODO: Make it stall a cycle if the PC has been updated
-        System.out.println("Updated PC to: 0x" + Integer.toHexString(PC));
         this.PC = PC;
     }
 

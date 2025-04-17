@@ -3,6 +3,8 @@ package org.example.processor.branch.strategies;
 import org.example.processor.instructions.BInstructions.BInstruction;
 import org.example.processor.instructions.Branch;
 
+import java.util.Arrays;
+
 public class TwoBitPredictor implements BranchStrategy{
     /// The number of bits of the address to use
     private static final int BITS = 8;
@@ -12,12 +14,14 @@ public class TwoBitPredictor implements BranchStrategy{
     /// Table of predicted values
     private final byte[] lookupTable = new byte[SIZE];
 
+    public TwoBitPredictor() {
+        Arrays.fill(lookupTable, (byte) 0b10);
+    }
+
     @Override
     public boolean predict(BInstruction instruction) {
         int lookupAddress = instruction.getPC() & (SIZE - 1);
         int lookupValue = lookupTable[lookupAddress];
-
-        System.out.printf("Current lookup value for %s: %s\n", lookupAddress, lookupValue);
 
         return lookupValue == 0b11 || lookupValue == 0b10;
     }

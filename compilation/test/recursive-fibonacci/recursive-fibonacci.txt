@@ -4,64 +4,91 @@ recursive-fibonacci/recursive-fibonacci.elf:     file format elf32-littleriscv
 
 Disassembly of section .text:
 
-00000008 <_start>:
-   8:	00001197          	auipc	gp,0x1
-   c:	80018193          	addi	gp,gp,-2048 # 808 <__global_pointer$>
-  10:	00001117          	auipc	sp,0x1
-  14:	7f810113          	addi	sp,sp,2040 # 1808 <__stack_top>
-  18:	00000093          	li	ra,0
-  1c:	00000213          	li	tp,0
-  20:	00000293          	li	t0,0
-  24:	00000313          	li	t1,0
-  28:	00000393          	li	t2,0
-  2c:	00000413          	li	s0,0
-  30:	00000493          	li	s1,0
-  34:	00000513          	li	a0,0
-  38:	00000593          	li	a1,0
-  3c:	00000613          	li	a2,0
-  40:	00000693          	li	a3,0
-  44:	00000713          	li	a4,0
-  48:	00000793          	li	a5,0
-  4c:	068000ef          	jal	b4 <main>
+00000000 <_start>:
+   0:	00001197          	auipc	gp,0x1
+   4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
+   8:	00001117          	auipc	sp,0x1
+   c:	7f810113          	addi	sp,sp,2040 # 1800 <__stack_top>
+  10:	00000093          	li	ra,0
+  14:	00000213          	li	tp,0
+  18:	00000293          	li	t0,0
+  1c:	00000313          	li	t1,0
+  20:	00000393          	li	t2,0
+  24:	00000413          	li	s0,0
+  28:	00000493          	li	s1,0
+  2c:	00000513          	li	a0,0
+  30:	00000593          	li	a1,0
+  34:	00000613          	li	a2,0
+  38:	00000693          	li	a3,0
+  3c:	00000713          	li	a4,0
+  40:	00000793          	li	a5,0
+  44:	0a4000ef          	jal	e8 <main>
 
-00000050 <_eoc>:
+00000048 <_eoc>:
+  48:	00100073          	ebreak
+
+0000004c <printc>:
+  4c:	00100893          	li	a7,1
   50:	00000073          	ecall
+  54:	00008067          	ret
 
-00000054 <output>:
-  54:	ff010113          	addi	sp,sp,-16
-  58:	00a12623          	sw	a0,12(sp)
-  5c:	00c12783          	lw	a5,12(sp)
-  60:	00f02023          	sw	a5,0(zero) # 0 <_start-0x8>
-  64:	01010113          	addi	sp,sp,16
-  68:	00008067          	ret
+00000058 <printInt>:
+  58:	00300893          	li	a7,3
+  5c:	00000073          	ecall
+  60:	00008067          	ret
 
-0000006c <fibonacci>:
-  6c:	ff010113          	addi	sp,sp,-16
-  70:	00112623          	sw	ra,12(sp)
-  74:	00812423          	sw	s0,8(sp)
-  78:	00050413          	mv	s0,a0
-  7c:	00100793          	li	a5,1
-  80:	02a7d263          	bge	a5,a0,a4 <fibonacci+0x38>
-  84:	00912223          	sw	s1,4(sp)
-  88:	fff50513          	addi	a0,a0,-1
-  8c:	fe1ff0ef          	jal	6c <fibonacci>
-  90:	00050493          	mv	s1,a0
-  94:	ffe40513          	addi	a0,s0,-2
-  98:	fd5ff0ef          	jal	6c <fibonacci>
-  9c:	00a48533          	add	a0,s1,a0
-  a0:	00412483          	lw	s1,4(sp)
-  a4:	00c12083          	lw	ra,12(sp)
-  a8:	00812403          	lw	s0,8(sp)
-  ac:	01010113          	addi	sp,sp,16
-  b0:	00008067          	ret
+00000064 <print>:
+  64:	ff010113          	addi	sp,sp,-16
+  68:	00112623          	sw	ra,12(sp)
+  6c:	00812423          	sw	s0,8(sp)
+  70:	00050413          	mv	s0,a0
+  74:	00054503          	lbu	a0,0(a0)
+  78:	00050c63          	beqz	a0,90 <print+0x2c>
+  7c:	00140413          	addi	s0,s0,1
+  80:	fcdff0ef          	jal	4c <printc>
+  84:	00140413          	addi	s0,s0,1
+  88:	fff44503          	lbu	a0,-1(s0)
+  8c:	fe051ae3          	bnez	a0,80 <print+0x1c>
+  90:	00c12083          	lw	ra,12(sp)
+  94:	00812403          	lw	s0,8(sp)
+  98:	01010113          	addi	sp,sp,16
+  9c:	00008067          	ret
 
-000000b4 <main>:
-  b4:	ff010113          	addi	sp,sp,-16
-  b8:	00112623          	sw	ra,12(sp)
-  bc:	01400513          	li	a0,20
-  c0:	fadff0ef          	jal	6c <fibonacci>
-  c4:	00a02023          	sw	a0,0(zero) # 0 <_start-0x8>
-  c8:	00000513          	li	a0,0
-  cc:	00c12083          	lw	ra,12(sp)
-  d0:	01010113          	addi	sp,sp,16
-  d4:	00008067          	ret
+000000a0 <fibonacci>:
+  a0:	ff010113          	addi	sp,sp,-16
+  a4:	00112623          	sw	ra,12(sp)
+  a8:	00812423          	sw	s0,8(sp)
+  ac:	00050413          	mv	s0,a0
+  b0:	00100793          	li	a5,1
+  b4:	02a7d263          	bge	a5,a0,d8 <fibonacci+0x38>
+  b8:	00912223          	sw	s1,4(sp)
+  bc:	fff50513          	addi	a0,a0,-1
+  c0:	fe1ff0ef          	jal	a0 <fibonacci>
+  c4:	00050493          	mv	s1,a0
+  c8:	ffe40513          	addi	a0,s0,-2
+  cc:	fd5ff0ef          	jal	a0 <fibonacci>
+  d0:	00a48533          	add	a0,s1,a0
+  d4:	00412483          	lw	s1,4(sp)
+  d8:	00c12083          	lw	ra,12(sp)
+  dc:	00812403          	lw	s0,8(sp)
+  e0:	01010113          	addi	sp,sp,16
+  e4:	00008067          	ret
+
+000000e8 <main>:
+  e8:	ff010113          	addi	sp,sp,-16
+  ec:	00112623          	sw	ra,12(sp)
+  f0:	12c00513          	li	a0,300
+  f4:	f71ff0ef          	jal	64 <print>
+  f8:	01400513          	li	a0,20
+  fc:	f5dff0ef          	jal	58 <printInt>
+ 100:	13400513          	li	a0,308
+ 104:	f61ff0ef          	jal	64 <print>
+ 108:	01400513          	li	a0,20
+ 10c:	f95ff0ef          	jal	a0 <fibonacci>
+ 110:	f49ff0ef          	jal	58 <printInt>
+ 114:	00a00513          	li	a0,10
+ 118:	f35ff0ef          	jal	4c <printc>
+ 11c:	00000513          	li	a0,0
+ 120:	00c12083          	lw	ra,12(sp)
+ 124:	01010113          	addi	sp,sp,16
+ 128:	00008067          	ret

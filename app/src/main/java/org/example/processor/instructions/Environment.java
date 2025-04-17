@@ -3,6 +3,7 @@ package org.example.processor.instructions;
 import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
 import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
+import org.example.processor.instructions.IInstructions.IInstruction;
 
 public abstract class Environment implements Instruction{
     private final Opcode opcode;
@@ -45,7 +46,7 @@ public abstract class Environment implements Instruction{
     static public Environment decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
 
-        return switch (Instruction.decodeFunct7(instruction)) {
+        return switch (IInstruction.decodeImmediate(instruction)) {
             case 0x0 -> new ECallInstruction(opcode, PC);
             case 0x1 -> new EBreakInstruction(opcode, PC);
             default -> throw new IllegalArgumentException("invalid opcode for Environment instruction " + instruction);

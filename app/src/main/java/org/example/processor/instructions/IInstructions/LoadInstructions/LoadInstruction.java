@@ -36,9 +36,14 @@ public class LoadInstruction extends IInstruction {
         sources.put(s.getAddress(), s);
     }
 
-    /// Get any new available data from the memory sources
+    /// Get data for register
     @Override
     public void getDataIfAvailable(){
+        rs1.getDataWhenAvailable();
+    }
+
+    /// Get any new available data from the memory sources
+    public void getMemoryDataIfAvailable(){
         for (Map.Entry<Integer, SInstruction> entry : sources.entrySet()) {
             if(!entry.getValue().isReady()) continue;
 
@@ -51,12 +56,12 @@ public class LoadInstruction extends IInstruction {
                     this.memoryMask |= 0xffff;
                 }
                 case SHWInstruction i -> {
-                    this.result = (i.getValue() & 0xffff) << ((2 - offset) * 8);
-                    this.memoryMask |= 0xffff << ((2 - offset) * 8);
+                    this.result = (i.getValue() & 0xffff) << (offset * 8);
+                    this.memoryMask |= 0xffff << (offset * 8);
                 }
                 case SBInstruction i -> {
-                    this.result = (i.getValue() & 0xff) << ((3 - offset) * 8);
-                    this.memoryMask |= 0xff << ((3 - offset) * 8);
+                    this.result = (i.getValue() & 0xff) << (offset * 8);
+                    this.memoryMask |= 0xff << (offset * 8);
                 }
                 default -> {}
             }
@@ -73,6 +78,10 @@ public class LoadInstruction extends IInstruction {
     /// Whether the instruction is ready for a load from memory
     @Override
     public boolean hasData() {
+        return rs1.hasData();
+    }
+
+    public boolean hasMemoryData() {
         return hasData;
     }
 

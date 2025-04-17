@@ -7,5 +7,9 @@ int fibonacci(int input){
 }
 
 int main(){
-	output(fibonacci(20));
+    print("The ");
+    printInt(20);
+    print("th fibonacci number using recursion is ");
+	printInt(fibonacci(20));
+	printc('\n');
 }
