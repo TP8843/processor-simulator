@@ -22,3 +22,11 @@ void print(const char* string) {
         i += 1;
     }
 }
+
+void printIntArray(int* array, int count) {
+    for(int i = 0; i < count - 1; i++) {
+        printInt(array[i]);
+        print(", ");
+    }
+    printInt(array[count - 1]);
+}

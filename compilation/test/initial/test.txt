@@ -7,8 +7,8 @@ Disassembly of section .text:
 00000000 <_start>:
    0:	00001197          	auipc	gp,0x1
    4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
-   8:	00001117          	auipc	sp,0x1
-   c:	7f810113          	addi	sp,sp,2040 # 1800 <__stack_top>
+   8:	00003117          	auipc	sp,0x3
+   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
   10:	00000093          	li	ra,0
   14:	00000213          	li	tp,0
   18:	00000293          	li	t0,0
@@ -22,7 +22,7 @@ Disassembly of section .text:
   38:	00000693          	li	a3,0
   3c:	00000713          	li	a4,0
   40:	00000793          	li	a5,0
-  44:	05c000ef          	jal	a0 <main>
+  44:	0e8000ef          	jal	12c <main>
 
 00000048 <_eoc>:
   48:	00100073          	ebreak
@@ -54,12 +54,69 @@ Disassembly of section .text:
   98:	01010113          	addi	sp,sp,16
   9c:	00008067          	ret
 
-000000a0 <main>:
-  a0:	ff010113          	addi	sp,sp,-16
-  a4:	00112623          	sw	ra,12(sp)
-  a8:	0c000513          	li	a0,192
-  ac:	fb9ff0ef          	jal	64 <print>
-  b0:	00000513          	li	a0,0
-  b4:	00c12083          	lw	ra,12(sp)
-  b8:	01010113          	addi	sp,sp,16
-  bc:	00008067          	ret
+000000a0 <printIntArray>:
+  a0:	fe010113          	addi	sp,sp,-32
+  a4:	00112e23          	sw	ra,28(sp)
+  a8:	01412423          	sw	s4,8(sp)
+  ac:	01512223          	sw	s5,4(sp)
+  b0:	00050a93          	mv	s5,a0
+  b4:	00058a13          	mv	s4,a1
+  b8:	00100793          	li	a5,1
+  bc:	04b7d663          	bge	a5,a1,108 <printIntArray+0x68>
+  c0:	00812c23          	sw	s0,24(sp)
+  c4:	00912a23          	sw	s1,20(sp)
+  c8:	01212823          	sw	s2,16(sp)
+  cc:	01312623          	sw	s3,12(sp)
+  d0:	00050493          	mv	s1,a0
+  d4:	fff58993          	addi	s3,a1,-1
+  d8:	00000413          	li	s0,0
+  dc:	0004a503          	lw	a0,0(s1)
+  e0:	f79ff0ef          	jal	58 <printInt>
+  e4:	19c00513          	li	a0,412
+  e8:	f7dff0ef          	jal	64 <print>
+  ec:	00140413          	addi	s0,s0,1
+  f0:	00448493          	addi	s1,s1,4
+  f4:	ff3414e3          	bne	s0,s3,dc <printIntArray+0x3c>
+  f8:	01812403          	lw	s0,24(sp)
+  fc:	01412483          	lw	s1,20(sp)
+ 100:	01012903          	lw	s2,16(sp)
+ 104:	00c12983          	lw	s3,12(sp)
+ 108:	002a1a13          	slli	s4,s4,0x2
+ 10c:	014a8ab3          	add	s5,s5,s4
+ 110:	ffcaa503          	lw	a0,-4(s5)
+ 114:	f45ff0ef          	jal	58 <printInt>
+ 118:	01c12083          	lw	ra,28(sp)
+ 11c:	00812a03          	lw	s4,8(sp)
+ 120:	00412a83          	lw	s5,4(sp)
+ 124:	02010113          	addi	sp,sp,32
+ 128:	00008067          	ret
+
+0000012c <main>:
+ 12c:	ff010113          	addi	sp,sp,-16
+ 130:	00112623          	sw	ra,12(sp)
+ 134:	1a000513          	li	a0,416
+ 138:	f2dff0ef          	jal	64 <print>
+ 13c:	1a400513          	li	a0,420
+ 140:	f25ff0ef          	jal	64 <print>
+ 144:	1a800513          	li	a0,424
+ 148:	f1dff0ef          	jal	64 <print>
+ 14c:	1b000513          	li	a0,432
+ 150:	f15ff0ef          	jal	64 <print>
+ 154:	1b800513          	li	a0,440
+ 158:	f0dff0ef          	jal	64 <print>
+ 15c:	1c000513          	li	a0,448
+ 160:	f05ff0ef          	jal	64 <print>
+ 164:	1cc00513          	li	a0,460
+ 168:	efdff0ef          	jal	64 <print>
+ 16c:	1d800513          	li	a0,472
+ 170:	ef5ff0ef          	jal	64 <print>
+ 174:	1e400513          	li	a0,484
+ 178:	eedff0ef          	jal	64 <print>
+ 17c:	1f000513          	li	a0,496
+ 180:	ee5ff0ef          	jal	64 <print>
+ 184:	20000513          	li	a0,512
+ 188:	eddff0ef          	jal	64 <print>
+ 18c:	00000513          	li	a0,0
+ 190:	00c12083          	lw	ra,12(sp)
+ 194:	01010113          	addi	sp,sp,16
+ 198:	00008067          	ret

@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 
 public class Memory {
     /// Number of words in memory
-    public final int size = 6 * 1024 + 10;
+    public final int size = 12 * 1024;
     
     /// Number of bytes in word of memory
     public final int wordLength = 4;
@@ -93,7 +93,7 @@ public class Memory {
 
             ByteBuffer buffer = ByteBuffer.wrap(new byte[4]).order(ByteOrder.LITTLE_ENDIAN);
             
-            while(inputStream.available() >= 4) {
+            while(inputStream.available() > 0) {
                 inputStream.read(buffer.array());
                 buffer.rewind();
                 memory[lineCount + (startPosition / 4)] = buffer.getInt();
