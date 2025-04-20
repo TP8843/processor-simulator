@@ -26,7 +26,7 @@ public class MultiValueBuffer<T> implements Buffer<T>, Flushable {
     @Override
     public Optional<T> peek() {
         if(!queue.isEmpty() && !stalled) {
-            return Optional.of(queue.dequeue().get());
+            return Optional.of(queue.peek().get());
         }
 
         return Optional.empty();

@@ -8,6 +8,7 @@ import org.example.processor.commit.ROB;
 import org.example.processor.data.Memory;
 import org.example.processor.data.Registers;
 import org.example.processor.executionUnits.*;
+import org.example.processor.executionUnits.builders.*;
 import org.example.processor.instructions.Environment;
 import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
 import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
@@ -17,6 +18,8 @@ import org.example.processor.instructions.UndecodedInstruction;
 import java.io.IOException;
 
 public class Simulator {
+    public final Config config;
+
     public final Memory memory = new Memory();
     public final Registers registers = new Registers();
 
@@ -36,72 +39,87 @@ public class Simulator {
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
 
     /// Buffers to flush for a branch mispredict
-    public final Flushable[] mispredictBuffers = new Flushable[]{
-            fetchDecodeBuffer,
-            decodeBranchBuffer,
-            decodeIssueBuffer,
-            aluReservationStation,
-            compareReservationStation,
-            aguReservationStation,
-            multiplyReservationStation
-    };
+    public final Flushable[] mispredictBuffers;
 
-    public final Alu alu = new Alu(aluReservationStation);
-    public final CompareUnit compareUnit = new CompareUnit(compareReservationStation);
-    public final MultiplyUnit multiplyUnit = new MultiplyUnit(multiplyReservationStation);
+    public final AluBuilder alus;
+    public final AguBuilder agus;
+    public final LoadUnitBuilder loadUnits;
+    public final CompareBuilder compareUnits;
+    public final MultiplyBuilder multiplyUnits;
 
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
     public final InstructionFetch instructionFetch = new InstructionFetch(memory, 0, fetchDecodeBuffer);
-    public final BranchUnit branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
+    public final BranchUnit branchUnit;
 
     public final EnvironmentHandler environmentHandler = new EnvironmentHandler(registers);
-    public final ROB rob = new ROB(branchUnit, memoryWriteUnit, registers, environmentHandler);
-    public final Decode decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
-    public final IssueUnit issueUnit = new IssueUnit(
-            decodeIssueBuffer,
-            aluReservationStation,
-            compareReservationStation,
-            aguReservationStation,
-            multiplyReservationStation,
-            rob);
-
-    public final Agu agu = new Agu(aguReservationStation, aguLoadBuffer, rob);
-    public final MemoryLoadUnit memoryLoadUnit = new MemoryLoadUnit(memory, aguLoadBuffer);
+    public final ROB rob;
+    public final Decode decode;
+    public final IssueUnit issueUnit;
     
     /// Counts the number of instructions ran through the pipeline
     private int instructions = 0;
+
+
+    public Simulator(Config config) {
+        this.config = config;
+        this.multiplyUnits = new MultiplyBuilder(multiplyReservationStation, config.multiply);
+
+        this.mispredictBuffers = new Flushable[]{
+                fetchDecodeBuffer,
+                decodeBranchBuffer,
+                decodeIssueBuffer,
+                aluReservationStation,
+                compareReservationStation,
+                aguReservationStation,
+                multiplyReservationStation,
+                multiplyUnits
+        };
+
+        this.branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
+        this.rob = new ROB(branchUnit, memoryWriteUnit, registers, environmentHandler);
+        this.decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+        this.issueUnit = new IssueUnit(
+                decodeIssueBuffer,
+                aluReservationStation,
+                compareReservationStation,
+                aguReservationStation,
+                multiplyReservationStation,
+                rob);
+
+        this.alus = new AluBuilder(aluReservationStation, config.alu);
+        this.agus = new AguBuilder(aguReservationStation, aguLoadBuffer, rob, config.agu);
+        this.compareUnits = new CompareBuilder(compareReservationStation, config.compare);
+        this.loadUnits = new LoadUnitBuilder(memory, aguLoadBuffer, config.load);
+    }
     
     public int getInstructions() {
         return instructions;
     }
 
     public void runCycle() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < config.commitWidth; i++) {
             // Commit head of ROB
             if(rob.processHead()){
                 instructions += 1;
             }
         }
 
-        compareUnit.execute();
+        loadUnits.execute();
 
-        memoryLoadUnit.execute();
         aguLoadBuffer.addData();
-        agu.execute();
 
-        multiplyUnit.execute();
-
-        for (int i = 0; i < 4; i++) {
-            alu.execute();
-        }
+        multiplyUnits.execute();
+        compareUnits.execute();
+        agus.execute();
+        alus.execute();
 
         compareReservationStation.addData();
         aguReservationStation.addData();
         aluReservationStation.addData();
         multiplyReservationStation.addData();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < config.fetchDecodeWidth; i++) {
             // Branch and issue should happen in same cycle after decode (so in this order)
             // Stall fetching while jump / branch instruction is processing
             if(decode.decode()) fetchDecodeBuffer.stall();
@@ -109,18 +127,20 @@ public class Simulator {
             decodeBranchBuffer.addData();
 
             // Release fetching once address has been updated
-            if(branchUnit.generateAddress()) fetchDecodeBuffer.release();
+            if(branchUnit.generateAddress()) {
+                fetchDecodeBuffer.release();
+            }
 
             issueUnit.issue();
         }
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < config.fetchDecodeWidth; i++) {
             instructionFetch.process();
         }
     }
 
-    static public Simulator createSimulator(String fileName) {
-        Simulator simulator = new Simulator();
+    static public Simulator createSimulator(String fileName, Config config) {
+        Simulator simulator = new Simulator(config);
         simulator.memory.loadProgram(fileName, 0);
 
         return simulator;

@@ -123,8 +123,7 @@ public class CircularQueue<T> implements Flushable, Iterable<T> {
 
             @Override
             public T next() {
-                i = i - 1;
-                if(i < 0) i += size;
+                i = Math.floorMod(i - 1, size);
 
                 @SuppressWarnings("unchecked")
                 T value = (T) data[i];

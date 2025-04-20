@@ -16,8 +16,8 @@ int fibonacci(int input){
 
 int main(){
     print("The ");
-    printInt(46);
+    printInt(19);
     print("th fibonacci number using iteration is ");
-	printInt(fibonacci(46));
+	printInt(fibonacci(19));
 	printc('\n');
 }

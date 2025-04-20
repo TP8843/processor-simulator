@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Properties;
+
 public class Main {
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -7,7 +9,9 @@ public class Main {
             return;
         }
 
-        Simulator simulator = Simulator.createSimulator(args[0]);
+        Config config = Config.init("config.properties");
+
+        Simulator simulator = Simulator.createSimulator(args[0], config);
         Debugger debugger = new Debugger(simulator);
         debugger.run();
     }

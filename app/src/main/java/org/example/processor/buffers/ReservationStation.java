@@ -72,7 +72,7 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
 
     @Override
     public boolean put(Instruction value) {
-        if(instructions.size() >= size) return false;
+        if(!hasSpace()) return false;
 
         instructions.add(value);
         return true;

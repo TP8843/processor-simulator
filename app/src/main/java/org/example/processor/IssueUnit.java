@@ -62,6 +62,7 @@ public class IssueUnit {
 
             case NONE -> {
                 rob.add(instruction);
+                decodeIssueBuffer.pop();
             }
 
             default -> {}

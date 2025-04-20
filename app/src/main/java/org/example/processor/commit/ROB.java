@@ -55,7 +55,7 @@ public class ROB implements Flushable {
 
     /// Adds an instruction to the ROB if there is space
     public void add(Instruction instruction) {
-        if(queue.isFull()) return;
+        if(queue.isFull()) throw new IllegalStateException("Queue is full");
         queue.enqueue(instruction);
     }
 
@@ -72,10 +72,10 @@ public class ROB implements Flushable {
         // Only process the head if the instruction is ready
         if(!instruction.isReady()) return false;
 
+        queue.dequeue();
         previous = instruction;
 
         handleInstruction(instruction);
-        queue.dequeue();
 
         return true;
     }

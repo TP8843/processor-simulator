@@ -1,12 +1,13 @@
 package org.example.processor.executionUnits;
 
 import org.example.processor.buffers.Buffer;
+import org.example.processor.buffers.Flushable;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RInstructions.multiply.*;
 
 import java.util.Optional;
 
-public class MultiplyUnit {
+public class MultiplyUnit implements Flushable {
     /// Input to the multiply unit (normally a reservation station)
     public final Buffer<Instruction> input;
 
@@ -84,5 +85,12 @@ public class MultiplyUnit {
             }
             default -> {}
         }
+    }
+
+    @Override
+    public void flush() {
+        this.remainingCycles = 0;
+        this.currentInstruction = null;
+        this.currentResult = 0;
     }
 }
