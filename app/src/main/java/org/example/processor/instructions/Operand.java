@@ -9,7 +9,7 @@ public class Operand {
     public final byte register;
 
     /// The data from the associated register
-    private int data = 0;
+    public int data = 0;
 
     /// Whether the data has been added for the operand
     private boolean hasData = false;
@@ -40,6 +40,7 @@ public class Operand {
     /// Get the data from source once it is ready
     public void getDataWhenAvailable() {
         if(hasData || !source.hasResult()) return;
+//        System.out.println("Data now available from 0x" + Integer.toHexString(source.getPC()) + ": " + source.getResult());
         addData(source.getResult());
     }
 
@@ -55,12 +56,6 @@ public class Operand {
 
     @Override
     public String toString() {
-        return String.format("""
-                    Operand:
-                        Register: %s
-                        Has Data: %s
-                        Data: %s
-                        Source: %s
-                """, register, hasData, data, source);
+        return String.format("Operand: %s(%s:%s)[%s]", register, hasData, getData(), source);
     }
 }

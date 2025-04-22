@@ -86,6 +86,7 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
     /// Adds the data to the currently stored instruction
     public void addData() {
         for(Instruction instruction : instructions){
+//            System.out.println("Attempting to add data for " + Integer.toHexString(instruction.getPC()));
             instruction.getDataIfAvailable();
         }
     }

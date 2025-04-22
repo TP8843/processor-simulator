@@ -3,13 +3,17 @@ package org.example.processor;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.commit.ROB;
 import org.example.processor.data.Registers;
+import org.example.processor.instructions.IInstructions.LoadInstructions.LoadInstruction;
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.SInstructions.SInstruction;
 
 import java.util.Optional;
 
 public class IssueUnit {
     public final Buffer<Instruction> decodeIssueBuffer;
-    
+
+    public final Buffer<Instruction> branchOutput;
+
     public final Buffer<Instruction> aluReservationStation;
     public final Buffer<Instruction> compareReservationStation;
     public final Buffer<Instruction> aguReservationStation;
@@ -46,6 +50,10 @@ public class IssueUnit {
             }
             case AGU -> {
                 if(aguReservationStation.hasSpace()){
+                    if(instruction instanceof LoadInstruction l) {
+                        rob.initLoad(l);
+                    }
+
                     // Add instruction to ROB before adding to RS
                     rob.add(instruction);
                     decodeIssueBuffer.pop();
@@ -67,15 +75,21 @@ public class IssueUnit {
 
             default -> {}
         }
+
+        if(instruction.canBranch()){
+            branchOutput.put(instruction);
+        }
     }
     
     public IssueUnit(Buffer<Instruction> decodeIssueBuffer,
+                     Buffer<Instruction> branchOutput,
                      Buffer<Instruction> aluReservationStation,
                      Buffer<Instruction> compareReservationStation,
                      Buffer<Instruction> aguReservationStation,
                      Buffer<Instruction> multiplyReservationStation,
                      ROB rob) {
         this.decodeIssueBuffer = decodeIssueBuffer;
+        this.branchOutput = branchOutput;
         this.aluReservationStation = aluReservationStation;
         this.compareReservationStation = compareReservationStation;
         this.aguReservationStation = aguReservationStation;

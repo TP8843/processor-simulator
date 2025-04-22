@@ -18,7 +18,6 @@ public record Agu(Buffer<Instruction> input, Buffer<LoadInstruction> loadOutput,
         switch (instruction) {
             case LoadInstruction i -> {
                 i.addAddress(i.rs1.getData() + i.imm);
-                rob.initLoad(i);
                 loadOutput.put(i);
             }
             case SInstruction i -> i.addAddress(i.rs1.getData() + i.imm);

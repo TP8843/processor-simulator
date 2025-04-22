@@ -78,9 +78,10 @@ public class Simulator {
 
         this.branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
         this.rob = new ROB(branchUnit, memoryWriteUnit, registers, environmentHandler);
-        this.decode = new Decode(registers, rob, fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+        this.decode = new Decode(fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
         this.issueUnit = new IssueUnit(
                 decodeIssueBuffer,
+                decodeBranchBuffer,
                 aluReservationStation,
                 compareReservationStation,
                 aguReservationStation,

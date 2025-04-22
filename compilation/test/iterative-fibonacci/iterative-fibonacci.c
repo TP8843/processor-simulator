@@ -15,9 +15,11 @@ int fibonacci(int input){
 }
 
 int main(){
-    print("The ");
-    printInt(19);
-    print("th fibonacci number using iteration is ");
-	printInt(fibonacci(19));
-	printc('\n');
+    for(int i = 1; i < 37; i++) {
+        print("The ");
+        printInt(i);
+        print("th fibonacci number using iteration is ");
+     	printInt(fibonacci(i));
+     	printc('\n');
+    }
 }

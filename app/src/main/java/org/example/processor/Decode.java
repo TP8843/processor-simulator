@@ -16,22 +16,13 @@ import java.util.Optional;
 import static org.example.processor.instructions.Instruction.*;
 
 public class Decode {
-    private final Registers registers;
-
-    /// For initialising instructions
-    private final ROB rob;
-
     public final Buffer<UndecodedInstruction> input;
     public final Buffer<Instruction> output;
     public final Buffer<Instruction> branchOutput;
 
-    public Decode(Registers registers,
-                  ROB rob,
-                  Buffer<UndecodedInstruction> input, 
+    public Decode(Buffer<UndecodedInstruction> input,
                   Buffer<Instruction> output, 
                   Buffer<Instruction> branchOutput) {
-        this.registers = registers;
-        this.rob = rob;
         this.input = input;
         this.output = output;
         this.branchOutput = branchOutput;
@@ -58,13 +49,9 @@ public class Decode {
                 case ENVIRONMENT -> Environment.decode(instruction.instruction(), instruction.PC());
             };
 
-            // Add data if available, and if data is not available (returned instruction has not got data) output = null
-            currentInstruction.initOperands(rob);
-
             output.put(currentInstruction);
 
             if(currentInstruction.canBranch()){
-                branchOutput.put(currentInstruction);
                 return true;
             }
 

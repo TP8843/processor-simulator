@@ -97,16 +97,16 @@ public class CircularQueue<T> implements Flushable, Iterable<T> {
 
             @Override
             public boolean hasNext() {
-                return i <= tail;
+                return i < tail;
             }
 
             @Override
             public T next() {
-                i = i + 1;
-                if(i >= size) i -= size;
-
                 @SuppressWarnings("unchecked")
                 T value = (T) data[i];
+
+                i = (i + 1) % size;
+
                 return value;
             }
         };

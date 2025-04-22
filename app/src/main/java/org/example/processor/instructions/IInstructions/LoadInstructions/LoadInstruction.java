@@ -8,8 +8,7 @@ import org.example.processor.instructions.SInstructions.SHWInstruction;
 import org.example.processor.instructions.SInstructions.SInstruction;
 import org.example.processor.instructions.SInstructions.SWInstruction;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class LoadInstruction extends IInstruction {
     /// Whether an address has been calculated for loading
@@ -18,8 +17,15 @@ public class LoadInstruction extends IInstruction {
     /// Address to load data from
     private int address;
 
+    /// True when all initial sources have addresses (and current instruction has address)
+    private boolean initialSourcesFinalised = false;
+
+    private final List<SInstruction> initialSources = new LinkedList<>();
+
     /// Map to store all sources of data for instruction
-    private final Map<Integer, SInstruction> sources = new HashMap<>();
+    private final List<SInstruction> sources = new LinkedList<>();
+
+    private final List<Integer> masks = new LinkedList<>();
 
     /// What parts of memory to mask on the memory load
     private int memoryMask;
@@ -31,9 +37,33 @@ public class LoadInstruction extends IInstruction {
         super(opcode, PC, rs1, imm, rd);
     }
 
+    /// Add initial sources before filtering and checking
+    public void addInitialSource(SInstruction s){
+        initialSources.add(s);
+    }
+
     /// Adds a store instruction as a source for the load
-    public void addSource(SInstruction s) {
-        sources.put(s.getAddress(), s);
+    private void addSource(SInstruction s) {
+        if(memoryMask == -1) return;
+
+        sources.add(s);
+
+        int offset = s.getAddress() - getAddress();
+        int initialMask = switch (s){
+            case SWInstruction _ -> 0xffffffff;
+            case SHWInstruction _ -> 0xffff << (offset * 8);
+            case SBInstruction _ -> 0xff << (offset * 8);
+            default -> 0x0;
+        };
+
+        // Get the mask for the specific instruction. Gives more recent instructions priority
+        var uniqueMask = (memoryMask ^ initialMask) & initialMask;
+
+        masks.add(uniqueMask);
+
+        memoryMask |= initialMask;
+
+//        System.out.printf("Added source for instruction 0x%x (%s): 0x%x, hash code %s\n", getPC(), hashCode(), s.getPC(), s.hashCode());
     }
 
     /// Get data for register
@@ -44,30 +74,54 @@ public class LoadInstruction extends IInstruction {
 
     /// Get any new available data from the memory sources
     public void getMemoryDataIfAvailable(){
-        for (Map.Entry<Integer, SInstruction> entry : sources.entrySet()) {
-            if(!entry.getValue().isReady()) continue;
+        if(!initialSourcesFinalised) {
+            // Start with initial sources until all have addresses
+            for(SInstruction s : initialSources) {
+                // Return if a source does not yet have its address
+                if(!s.hasAddress()) return;
+            }
 
-            sources.remove(entry.getKey());
+            // Only run once all instructions have addresses
+            this.initialSourcesFinalised = true;
 
-            int offset = entry.getKey() - address;
-            switch (entry.getValue()) {
-                case SWInstruction i -> {
-                    this.result = i.getValue();
-                    this.memoryMask |= 0xffff;
+            byte bytes = switch (this) {
+                case LHWInstruction _, LHWUInstruction _ -> 2;
+                case LBInstruction _, LBUInstruction _ -> 1;
+                default -> 4;
+            };
+
+//            System.out.println("Adding sources for instruction 0x" + Integer.toHexString(getPC()));
+
+            for(SInstruction s : initialSources) {
+
+//                System.out.printf("Checking store instruction 0x%x: its address is 0x%x and my address is 0x%x\n", s.getPC(), s.getAddress(), getAddress());
+
+                // If instruction is a load instruction in the correct range of addresses
+                if(getAddress() >= s.getAddress() &&
+                   getAddress() < s.getAddress() + bytes){
+                    addSource(s);
                 }
-                case SHWInstruction i -> {
-                    this.result = (i.getValue() & 0xffff) << (offset * 8);
-                    this.memoryMask |= 0xffff << (offset * 8);
-                }
-                case SBInstruction i -> {
-                    this.result = (i.getValue() & 0xff) << (offset * 8);
-                    this.memoryMask |= 0xff << (offset * 8);
-                }
-                default -> {}
             }
         }
 
-        if(sources.isEmpty()) this.hasData = true;
+        // Else for when finalised sources have been initialised
+        else {
+            // Reserved so items can be removed without affecting iteration
+            for (int j = sources.size() - 1; j >= 0; j--) {
+                SInstruction entry = sources.get(j);
+                int mask = masks.get(j);
+
+                if(!entry.isReady()) continue;
+
+                sources.remove(j);
+                masks.remove(j);
+
+                int offset = entry.getAddress() - address;
+                this.result |= ((entry.getValue() << offset * 8) & mask);
+            }
+
+            if(sources.isEmpty()) this.hasData = true;
+        }
     }
 
     /// Get the current memory mask
@@ -116,6 +170,8 @@ public class LoadInstruction extends IInstruction {
                         RS1: %s
                         Has Data: %s
                         Memory Mask: %s
+                        Initial Sources: %s
+                        Initial Sources Finalised: %s
                         Sources: %s
                         IMM: %s
                         RD: %s
@@ -127,6 +183,8 @@ public class LoadInstruction extends IInstruction {
                 rs1,
                 hasData() ? "True" : "False",
                 memoryMask,
+                initialSources,
+                initialSourcesFinalised ? "True" : "False",
                 sources,
                 imm,
                 rd,

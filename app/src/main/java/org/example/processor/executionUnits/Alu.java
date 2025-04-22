@@ -26,7 +26,10 @@ public record Alu(Buffer<Instruction> input) {
             case SLTIInstruction i -> i.addResult(i.rs1.getData() < i.imm ? 1 : 0);
             case SLTIUInstruction i -> i.addResult(Integer.compareUnsigned(i.rs1.getData(), i.imm) < 0 ? 1 : 0);
 
-            case AddIInstruction i -> i.addResult(i.rs1.getData() + i.imm);
+            case AddIInstruction i -> {
+                i.addResult(i.rs1.getData() + i.imm);
+//                System.out.println("0x" + Integer.toHexString(i.getPC()) + ": Adding " + i.rs1.getData() + " to " + i.imm);
+            }
 
             case ANDIInstruction i -> i.addResult(i.rs1.getData() & i.imm);
             case ORIInstruction i -> i.addResult(i.rs1.getData() | i.imm);

@@ -1,7 +1,6 @@
 package org.example.processor.commit;
 
 import org.example.EnvironmentHandler;
-import org.example.Simulator;
 import org.example.processor.branch.BranchUnit;
 import org.example.processor.buffers.CircularQueue;
 import org.example.processor.buffers.Flushable;
@@ -56,7 +55,15 @@ public class ROB implements Flushable {
     /// Adds an instruction to the ROB if there is space
     public void add(Instruction instruction) {
         if(queue.isFull()) throw new IllegalStateException("Queue is full");
+
+        instruction.initOperands(this);
         queue.enqueue(instruction);
+
+//        System.out.println("Added " + Integer.toHexString(instruction.getPC()) + " to ROB");
+
+//        if(instruction.getPC() == 0x140){
+//            System.out.println("Adding sus: " + instruction);
+//        }
     }
 
     /// Process instruction at the head of the ROB. True if instruction commited
@@ -90,7 +97,9 @@ public class ROB implements Flushable {
 
         for (Iterator<Instruction> it = queue.reverseIterator(); it.hasNext(); ) {
             Instruction instruction = it.next();
+//            System.out.printf("Checking instruction 0x%x for matching destination\n", instruction.getPC());
             if(instruction instanceof RegisterWrite i && i.getDestination() == operand.register){
+//                System.out.printf("Found instruction 0x%x with matching destination. Adding as source and returning\n", i.getPC());
                 if(i.hasResult()) operand.addData(i.getResult());
                 else operand.addSource(i);
 
@@ -104,20 +113,13 @@ public class ROB implements Flushable {
 
     /// Initialise the sources for a load instruction
     public void initLoad(LoadInstruction loadInstruction) {
-        byte bytes = switch (loadInstruction) {
-            case LHWInstruction _, LHWUInstruction _ -> 2;
-            case LBInstruction _, LBUInstruction _ -> 1;
-            default -> 4;
-        };
+//        System.out.println("Initializing load 0x" + Integer.toHexString(loadInstruction.getPC()));
 
-        for (Iterator<Instruction> it = queue.reverseIterator(); it.hasNext(); ) {
+        for(Iterator<Instruction> it = queue.reverseIterator(); it.hasNext(); ) {
             Instruction instruction = it.next();
 
-            // If instruction is a load instruction in the correct range of addresses
-            if(instruction instanceof SInstruction i &&
-               i.getAddress() >= loadInstruction.getAddress() &&
-               i.getAddress() < loadInstruction.getAddress() + bytes){
-                loadInstruction.addSource(i);
+            if(instruction instanceof SInstruction s){
+                loadInstruction.addInitialSource(s);
             }
         }
     }
@@ -130,7 +132,13 @@ public class ROB implements Flushable {
                 if(branchUnit.branchMispredict(i)) flush();
             }
 
-            case RegisterWrite i -> registers.setRegister(i.getDestination(), i.getResult());
+            case RegisterWrite i -> {
+//                if(i instanceof AddIInstruction add){
+//                    System.out.printf("Commiting add at 0x%s: %s + %s = %s\n", Integer.toHexString(add.getPC()), add.rs1.getData(), add.imm, add.getResult());
+//                }
+
+                registers.setRegister(i.getDestination(), i.getResult());
+            }
 
             case MemoryWrite i -> memoryUnit.writeMemory(i);
 

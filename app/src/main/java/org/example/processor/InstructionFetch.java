@@ -27,6 +27,7 @@ public class InstructionFetch {
     public void updatePC(int PC) {
         // TODO: Make it stall a cycle if the PC has been updated
         this.PC = PC;
+//        System.out.println("Updated PC: " + PC);
     }
 
     public int getPC() {

@@ -85,6 +85,11 @@ public abstract class RInstruction implements RegisterWrite {
     }
 
     @Override
+    public boolean isReady() {
+        return hasResult();
+    }
+
+    @Override
     public byte getDestination() {
         return rd;
     }

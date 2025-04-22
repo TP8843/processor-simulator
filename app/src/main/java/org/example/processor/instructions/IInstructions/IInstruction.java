@@ -81,10 +81,14 @@ public abstract class IInstruction implements RegisterWrite {
     }
 
     @Override
+    public boolean isReady() {
+        return hasResult();
+    }
+
+    @Override
     public void initOperands(ROB rob) {
         rob.initOperand(this.rs1);
     }
-
     
     static public int decodeImmediate(int instruction) {
         return (instruction >> 20);
@@ -146,7 +150,8 @@ public abstract class IInstruction implements RegisterWrite {
                         IMM: %s
                         RD: %s
                         Has Result: %s
-                        Result:  %s""",
+                        Result:  %s
+                        Hash: %s""",
                 opcode,
                 PC,
                 isReady() ? "True" : "False",
@@ -155,6 +160,7 @@ public abstract class IInstruction implements RegisterWrite {
                 imm,
                 rd,
                 hasResult ? "True" : "False",
-                result);
+                result,
+                System.identityHashCode(this));
     }
 }
