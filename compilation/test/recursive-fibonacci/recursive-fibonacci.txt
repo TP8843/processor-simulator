@@ -7,8 +7,8 @@ Disassembly of section .text:
 00000000 <_start>:
    0:	00001197          	auipc	gp,0x1
    4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
-   8:	00001117          	auipc	sp,0x1
-   c:	7f810113          	addi	sp,sp,2040 # 1800 <__stack_top>
+   8:	00003117          	auipc	sp,0x3
+   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
   10:	00000093          	li	ra,0
   14:	00000213          	li	tp,0
   18:	00000293          	li	t0,0
@@ -22,7 +22,7 @@ Disassembly of section .text:
   38:	00000693          	li	a3,0
   3c:	00000713          	li	a4,0
   40:	00000793          	li	a5,0
-  44:	0a4000ef          	jal	e8 <main>
+  44:	130000ef          	jal	174 <main>
 
 00000048 <_eoc>:
   48:	00100073          	ebreak
@@ -54,41 +54,90 @@ Disassembly of section .text:
   98:	01010113          	addi	sp,sp,16
   9c:	00008067          	ret
 
-000000a0 <fibonacci>:
-  a0:	ff010113          	addi	sp,sp,-16
-  a4:	00112623          	sw	ra,12(sp)
-  a8:	00812423          	sw	s0,8(sp)
-  ac:	00050413          	mv	s0,a0
-  b0:	00100793          	li	a5,1
-  b4:	02a7d263          	bge	a5,a0,d8 <fibonacci+0x38>
-  b8:	00912223          	sw	s1,4(sp)
-  bc:	fff50513          	addi	a0,a0,-1
-  c0:	fe1ff0ef          	jal	a0 <fibonacci>
-  c4:	00050493          	mv	s1,a0
-  c8:	ffe40513          	addi	a0,s0,-2
-  cc:	fd5ff0ef          	jal	a0 <fibonacci>
-  d0:	00a48533          	add	a0,s1,a0
-  d4:	00412483          	lw	s1,4(sp)
-  d8:	00c12083          	lw	ra,12(sp)
-  dc:	00812403          	lw	s0,8(sp)
-  e0:	01010113          	addi	sp,sp,16
-  e4:	00008067          	ret
-
-000000e8 <main>:
-  e8:	ff010113          	addi	sp,sp,-16
-  ec:	00112623          	sw	ra,12(sp)
-  f0:	12c00513          	li	a0,300
-  f4:	f71ff0ef          	jal	64 <print>
-  f8:	01400513          	li	a0,20
-  fc:	f5dff0ef          	jal	58 <printInt>
- 100:	13400513          	li	a0,308
- 104:	f61ff0ef          	jal	64 <print>
- 108:	01400513          	li	a0,20
- 10c:	f95ff0ef          	jal	a0 <fibonacci>
- 110:	f49ff0ef          	jal	58 <printInt>
- 114:	00a00513          	li	a0,10
- 118:	f35ff0ef          	jal	4c <printc>
- 11c:	00000513          	li	a0,0
- 120:	00c12083          	lw	ra,12(sp)
- 124:	01010113          	addi	sp,sp,16
+000000a0 <printIntArray>:
+  a0:	fe010113          	addi	sp,sp,-32
+  a4:	00112e23          	sw	ra,28(sp)
+  a8:	01412423          	sw	s4,8(sp)
+  ac:	01512223          	sw	s5,4(sp)
+  b0:	00050a93          	mv	s5,a0
+  b4:	00058a13          	mv	s4,a1
+  b8:	00100793          	li	a5,1
+  bc:	04b7d663          	bge	a5,a1,108 <printIntArray+0x68>
+  c0:	00812c23          	sw	s0,24(sp)
+  c4:	00912a23          	sw	s1,20(sp)
+  c8:	01212823          	sw	s2,16(sp)
+  cc:	01312623          	sw	s3,12(sp)
+  d0:	00050493          	mv	s1,a0
+  d4:	fff58993          	addi	s3,a1,-1
+  d8:	00000413          	li	s0,0
+  dc:	0004a503          	lw	a0,0(s1)
+  e0:	f79ff0ef          	jal	58 <printInt>
+  e4:	1e800513          	li	a0,488
+  e8:	f7dff0ef          	jal	64 <print>
+  ec:	00140413          	addi	s0,s0,1
+  f0:	00448493          	addi	s1,s1,4
+  f4:	ff3414e3          	bne	s0,s3,dc <printIntArray+0x3c>
+  f8:	01812403          	lw	s0,24(sp)
+  fc:	01412483          	lw	s1,20(sp)
+ 100:	01012903          	lw	s2,16(sp)
+ 104:	00c12983          	lw	s3,12(sp)
+ 108:	002a1a13          	slli	s4,s4,0x2
+ 10c:	014a8ab3          	add	s5,s5,s4
+ 110:	ffcaa503          	lw	a0,-4(s5)
+ 114:	f45ff0ef          	jal	58 <printInt>
+ 118:	01c12083          	lw	ra,28(sp)
+ 11c:	00812a03          	lw	s4,8(sp)
+ 120:	00412a83          	lw	s5,4(sp)
+ 124:	02010113          	addi	sp,sp,32
  128:	00008067          	ret
+
+0000012c <fibonacci>:
+ 12c:	ff010113          	addi	sp,sp,-16
+ 130:	00112623          	sw	ra,12(sp)
+ 134:	00812423          	sw	s0,8(sp)
+ 138:	00050413          	mv	s0,a0
+ 13c:	00100793          	li	a5,1
+ 140:	02a7d263          	bge	a5,a0,164 <fibonacci+0x38>
+ 144:	00912223          	sw	s1,4(sp)
+ 148:	fff50513          	addi	a0,a0,-1
+ 14c:	fe1ff0ef          	jal	12c <fibonacci>
+ 150:	00050493          	mv	s1,a0
+ 154:	ffe40513          	addi	a0,s0,-2
+ 158:	fd5ff0ef          	jal	12c <fibonacci>
+ 15c:	00a48533          	add	a0,s1,a0
+ 160:	00412483          	lw	s1,4(sp)
+ 164:	00c12083          	lw	ra,12(sp)
+ 168:	00812403          	lw	s0,8(sp)
+ 16c:	01010113          	addi	sp,sp,16
+ 170:	00008067          	ret
+
+00000174 <main>:
+ 174:	fe010113          	addi	sp,sp,-32
+ 178:	00112e23          	sw	ra,28(sp)
+ 17c:	00812c23          	sw	s0,24(sp)
+ 180:	00912a23          	sw	s1,20(sp)
+ 184:	01212823          	sw	s2,16(sp)
+ 188:	01312623          	sw	s3,12(sp)
+ 18c:	00100413          	li	s0,1
+ 190:	01f00493          	li	s1,31
+ 194:	1ec00513          	li	a0,492
+ 198:	ecdff0ef          	jal	64 <print>
+ 19c:	00040513          	mv	a0,s0
+ 1a0:	eb9ff0ef          	jal	58 <printInt>
+ 1a4:	1f400513          	li	a0,500
+ 1a8:	ebdff0ef          	jal	64 <print>
+ 1ac:	00040513          	mv	a0,s0
+ 1b0:	f7dff0ef          	jal	12c <fibonacci>
+ 1b4:	ea5ff0ef          	jal	58 <printInt>
+ 1b8:	00a00513          	li	a0,10
+ 1bc:	e91ff0ef          	jal	4c <printc>
+ 1c0:	00140413          	addi	s0,s0,1
+ 1c4:	fc9418e3          	bne	s0,s1,194 <main+0x20>
+ 1c8:	00000513          	li	a0,0
+ 1cc:	01c12083          	lw	ra,28(sp)
+ 1d0:	01812403          	lw	s0,24(sp)
+ 1d4:	01412483          	lw	s1,20(sp)
+ 1d8:	01012903          	lw	s2,16(sp)
+ 1dc:	00c12983          	lw	s3,12(sp)
+ 1e0:	02010113          	addi	sp,sp,32
+ 1e4:	00008067          	ret

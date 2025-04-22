@@ -7,7 +7,7 @@ int fibonacci(int input){
 }
 
 int main(){
-    for(int i = 1; i < 21; i++) {
+    for(int i = 1; i < 31; i++) {
         print("The ");
         printInt(i);
         print("th fibonacci number using recursion is ");
