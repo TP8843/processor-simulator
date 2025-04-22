@@ -94,7 +94,9 @@ public class MemoryLoadBuffer implements Buffer<LoadInstruction>, Flushable{
     @Override
     public String toString() {
         return String.format("""
+                Capacity: %s
+                Size: %s
                 Current Values: %s
-                Stalled: %s""", instructions, stalled ? "True" : "False");
+                Stalled: %s""", instructions.size(), size, instructions, stalled ? "True" : "False");
     }
 }

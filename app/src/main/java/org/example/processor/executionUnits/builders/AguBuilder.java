@@ -1,6 +1,7 @@
 package org.example.processor.executionUnits.builders;
 
 import org.example.processor.buffers.Buffer;
+import org.example.processor.buffers.ManualReleaseReservationStation;
 import org.example.processor.commit.ROB;
 import org.example.processor.executionUnits.Agu;
 import org.example.processor.instructions.IInstructions.LoadInstructions.LoadInstruction;
@@ -14,7 +15,7 @@ public class AguBuilder {
 
     private final List<Agu> aguList;
 
-    public AguBuilder(Buffer<Instruction> input, Buffer<LoadInstruction> output, ROB rob, int quantity) {
+    public AguBuilder(ManualReleaseReservationStation input, Buffer<LoadInstruction> output, ROB rob, int quantity) {
         this.quantity = quantity;
         this.aguList = new ArrayList<>(quantity);
 

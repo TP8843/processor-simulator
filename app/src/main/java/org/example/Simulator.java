@@ -32,8 +32,8 @@ public class Simulator {
     public final ReservationStation compareReservationStation = new ReservationStation(16);
     public final ReservationStation multiplyReservationStation = new ReservationStation(16);
 
-    public final ReservationStation aguReservationStation = new ReservationStation(16);
-    public final MemoryLoadBuffer aguLoadBuffer = new MemoryLoadBuffer(16);
+    public final ManualReleaseReservationStation aguReservationStation = new ManualReleaseReservationStation(16);
+    public final MemoryLoadBuffer aguLoadBuffer = new MemoryLoadBuffer(32);
 
     /// Initial buffers to flush for jumps and branches
     public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
@@ -72,6 +72,7 @@ public class Simulator {
                 aluReservationStation,
                 compareReservationStation,
                 aguReservationStation,
+                aguLoadBuffer,
                 multiplyReservationStation,
                 multiplyUnits
         };
@@ -91,7 +92,7 @@ public class Simulator {
         this.alus = new AluBuilder(aluReservationStation, config.alu);
         this.agus = new AguBuilder(aguReservationStation, aguLoadBuffer, rob, config.agu);
         this.compareUnits = new CompareBuilder(compareReservationStation, config.compare);
-        this.loadUnits = new LoadUnitBuilder(memory, aguLoadBuffer, config.load);
+        this.loadUnits = new LoadUnitBuilder(memory, aguLoadBuffer, aguReservationStation, config.load);
     }
     
     public int getInstructions() {

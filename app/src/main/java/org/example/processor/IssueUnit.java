@@ -38,6 +38,7 @@ public class IssueUnit {
                     rob.add(instruction);
                     decodeIssueBuffer.pop();
                     aluReservationStation.put(instruction);
+                    addToBranch(instruction);
                 }
             }
             case COMPARE -> {
@@ -46,6 +47,7 @@ public class IssueUnit {
                     rob.add(instruction);
                     decodeIssueBuffer.pop();
                     compareReservationStation.put(instruction);
+                    addToBranch(instruction);
                 }
             }
             case AGU -> {
@@ -58,6 +60,7 @@ public class IssueUnit {
                     rob.add(instruction);
                     decodeIssueBuffer.pop();
                     aguReservationStation.put(instruction);
+                    addToBranch(instruction);
                 }
             }
             case MULTIPLY -> {
@@ -65,17 +68,21 @@ public class IssueUnit {
                     rob.add(instruction);
                     decodeIssueBuffer.pop();
                     multiplyReservationStation.put(instruction);
+                    addToBranch(instruction);
                 }
             }
 
             case NONE -> {
                 rob.add(instruction);
                 decodeIssueBuffer.pop();
+                addToBranch(instruction);
             }
 
             default -> {}
         }
+    }
 
+    private void addToBranch(Instruction instruction){
         if(instruction.canBranch()){
             branchOutput.put(instruction);
         }

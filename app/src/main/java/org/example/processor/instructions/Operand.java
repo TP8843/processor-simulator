@@ -9,7 +9,7 @@ public class Operand {
     public final byte register;
 
     /// The data from the associated register
-    public int data = 0;
+    private int data = 0;
 
     /// Whether the data has been added for the operand
     private boolean hasData = false;
@@ -24,6 +24,9 @@ public class Operand {
 
     /// Add a source for the data
     public void addSource(RegisterWrite source) {
+        if(source == null){
+            throw new IllegalArgumentException("Source is null");
+        }
         this.source = source;
     }
 

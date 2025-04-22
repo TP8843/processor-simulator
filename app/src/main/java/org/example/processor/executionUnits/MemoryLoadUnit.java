@@ -1,5 +1,6 @@
 package org.example.processor.executionUnits;
 
+import org.example.processor.buffers.ManualReleaseReservationStation;
 import org.example.processor.data.Memory;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.instructions.IInstructions.LoadInstructions.*;
@@ -11,18 +12,24 @@ public class MemoryLoadUnit {
     /// Memory to load data from
     private final Memory memory;
 
+    /// Reservation station to release when instruction finishes processing
+    private final ManualReleaseReservationStation reservationStation;
+
     /// Input buffer for instructions (generally will come from AGU)
     private final Buffer<LoadInstruction> input;
 
-    public MemoryLoadUnit(Memory memory, Buffer<LoadInstruction> input) {
+    public MemoryLoadUnit(Memory memory, Buffer<LoadInstruction> input, ManualReleaseReservationStation reservationStation) {
         this.memory = memory;
         this.input = input;
+        this.reservationStation = reservationStation;
     }
 
     public void execute(){
         Optional<LoadInstruction> value = input.pop();
         if(value.isEmpty()) return;
         LoadInstruction instruction = value.get();
+
+        reservationStation.release();
 
         int memoryMask = instruction.getMemoryMask();
 

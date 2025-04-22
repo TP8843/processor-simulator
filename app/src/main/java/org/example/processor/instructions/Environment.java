@@ -1,5 +1,6 @@
 package org.example.processor.instructions;
 
+import org.example.processor.commit.ROB;
 import org.example.processor.executionUnits.EU;
 import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
 import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
@@ -34,6 +35,9 @@ public abstract class Environment implements Instruction{
     public boolean hasData() {
         return true;
     }
+
+    @Override
+    public void initOperands(ROB rob) {}
 
     @Override
     public void getDataIfAvailable() {}

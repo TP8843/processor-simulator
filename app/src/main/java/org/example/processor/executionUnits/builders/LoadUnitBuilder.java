@@ -1,6 +1,7 @@
 package org.example.processor.executionUnits.builders;
 
 import org.example.processor.buffers.Buffer;
+import org.example.processor.buffers.ManualReleaseReservationStation;
 import org.example.processor.data.Memory;
 import org.example.processor.executionUnits.Alu;
 import org.example.processor.executionUnits.MemoryLoadUnit;
@@ -15,12 +16,12 @@ public class LoadUnitBuilder {
 
     private final List<MemoryLoadUnit> mluList;
 
-    public LoadUnitBuilder(Memory memory, Buffer<LoadInstruction> input, int quantity) {
+    public LoadUnitBuilder(Memory memory, Buffer<LoadInstruction> input, ManualReleaseReservationStation reservationStation, int quantity) {
         this.quantity = quantity;
         this.mluList = new ArrayList<>(quantity);
 
         for (int i = 0; i < quantity; i++) {
-            this.mluList.add(new MemoryLoadUnit(memory, input));
+            this.mluList.add(new MemoryLoadUnit(memory, input, reservationStation));
         }
     }
 

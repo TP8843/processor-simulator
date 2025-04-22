@@ -18,7 +18,7 @@ public class LoadInstruction extends IInstruction {
     private int address;
 
     /// True when all initial sources have addresses (and current instruction has address)
-    private boolean initialSourcesFinalised = false;
+    private boolean initialSourcesFinalised = true;
 
     private final List<SInstruction> initialSources = new LinkedList<>();
 
@@ -40,6 +40,7 @@ public class LoadInstruction extends IInstruction {
     /// Add initial sources before filtering and checking
     public void addInitialSource(SInstruction s){
         initialSources.add(s);
+        this.initialSourcesFinalised = false;
     }
 
     /// Adds a store instruction as a source for the load
@@ -62,8 +63,6 @@ public class LoadInstruction extends IInstruction {
         masks.add(uniqueMask);
 
         memoryMask |= initialMask;
-
-//        System.out.printf("Added source for instruction 0x%x (%s): 0x%x, hash code %s\n", getPC(), hashCode(), s.getPC(), s.hashCode());
     }
 
     /// Get data for register
@@ -90,18 +89,15 @@ public class LoadInstruction extends IInstruction {
                 default -> 4;
             };
 
-//            System.out.println("Adding sources for instruction 0x" + Integer.toHexString(getPC()));
-
             for(SInstruction s : initialSources) {
-
-//                System.out.printf("Checking store instruction 0x%x: its address is 0x%x and my address is 0x%x\n", s.getPC(), s.getAddress(), getAddress());
-
                 // If instruction is a load instruction in the correct range of addresses
                 if(getAddress() >= s.getAddress() &&
                    getAddress() < s.getAddress() + bytes){
                     addSource(s);
                 }
             }
+
+            initialSources.clear();
         }
 
         // Else for when finalised sources have been initialised

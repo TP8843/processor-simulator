@@ -68,8 +68,20 @@ public class Debugger {
                 runProcessorCycle();
                 printState();
             } else if (line.startsWith("continue")) {
+                int currentCycles = 0;
+                int previousPC = simulator.instructionFetch.getPC();
                 do {
                     runProcessorCycle();
+                    if(previousPC == simulator.instructionFetch.getPC()){
+                        currentCycles += 1;
+                        if(currentCycles == 100){
+                            System.out.println("Seem to be stuck. Pausing execution");
+                            break;
+                        }
+                    } else {
+                        previousPC = simulator.instructionFetch.getPC();
+                        currentCycles = 0;
+                    }
                 } while (!simulator.environmentHandler.halted() && !breakPoints.contains(simulator.instructionFetch.getPC() - 4));
             } else if (line.startsWith("exit")) {
                 return;

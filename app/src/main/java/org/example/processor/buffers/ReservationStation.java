@@ -1,6 +1,7 @@
 package org.example.processor.buffers;
 
 import org.example.processor.instructions.Instruction;
+import org.example.processor.instructions.SInstructions.SInstruction;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -9,9 +10,9 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
     /// Maximum number of items in reservation station
     public final int size;
     
-    private boolean stalled;
+    protected boolean stalled;
 
-    private final ArrayList<Instruction> instructions;
+    protected final ArrayList<Instruction> instructions;
     
     public ReservationStation() {
         this(16);
@@ -94,7 +95,9 @@ public class ReservationStation implements Buffer<Instruction>, Flushable {
     @Override
     public String toString() {
         return String.format("""
+                Size: %s
+                Capacity: %s
                 Current Values: %s
-                Stalled: %s""", instructions, stalled ? "True" : "False");
+                Stalled: %s""", instructions.size(), size, instructions, stalled ? "True" : "False");
     }
 }

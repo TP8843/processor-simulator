@@ -1,5 +1,6 @@
 package org.example.processor.instructions.UInstructions;
 
+import org.example.processor.commit.ROB;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.RegisterWrite;
 
@@ -66,6 +67,9 @@ public abstract class UInstruction implements RegisterWrite {
     public boolean hasData() {
         return true;
     }
+
+    @Override
+    public void initOperands(ROB rob) {}
     
     @Override
     public void getDataIfAvailable() {}

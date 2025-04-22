@@ -83,7 +83,7 @@ public interface Instruction {
     void getDataIfAvailable();
 
     /// Initialise all operands with either data or source instructions
-    default void initOperands(ROB rob) {}
+    void initOperands(ROB rob);
 
     /// Whether the instruction is currently ready to be committed
     default boolean isReady() { return true; }
