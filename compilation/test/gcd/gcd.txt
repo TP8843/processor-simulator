@@ -1,0 +1,131 @@
+
+gcd/gcd.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	00001197          	auipc	gp,0x1
+   4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
+   8:	00003117          	auipc	sp,0x3
+   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
+  10:	00000093          	li	ra,0
+  14:	00000213          	li	tp,0
+  18:	00000293          	li	t0,0
+  1c:	00000313          	li	t1,0
+  20:	00000393          	li	t2,0
+  24:	00000413          	li	s0,0
+  28:	00000493          	li	s1,0
+  2c:	00000513          	li	a0,0
+  30:	00000593          	li	a1,0
+  34:	00000613          	li	a2,0
+  38:	00000693          	li	a3,0
+  3c:	00000713          	li	a4,0
+  40:	00000793          	li	a5,0
+  44:	108000ef          	jal	14c <main>
+
+00000048 <_eoc>:
+  48:	00100073          	ebreak
+
+0000004c <printc>:
+  4c:	00100893          	li	a7,1
+  50:	00000073          	ecall
+  54:	00008067          	ret
+
+00000058 <printInt>:
+  58:	00300893          	li	a7,3
+  5c:	00000073          	ecall
+  60:	00008067          	ret
+
+00000064 <print>:
+  64:	ff010113          	addi	sp,sp,-16
+  68:	00112623          	sw	ra,12(sp)
+  6c:	00812423          	sw	s0,8(sp)
+  70:	00050413          	mv	s0,a0
+  74:	00054503          	lbu	a0,0(a0)
+  78:	00050c63          	beqz	a0,90 <print+0x2c>
+  7c:	00140413          	addi	s0,s0,1
+  80:	fcdff0ef          	jal	4c <printc>
+  84:	00140413          	addi	s0,s0,1
+  88:	fff44503          	lbu	a0,-1(s0)
+  8c:	fe051ae3          	bnez	a0,80 <print+0x1c>
+  90:	00c12083          	lw	ra,12(sp)
+  94:	00812403          	lw	s0,8(sp)
+  98:	01010113          	addi	sp,sp,16
+  9c:	00008067          	ret
+
+000000a0 <printIntArray>:
+  a0:	fe010113          	addi	sp,sp,-32
+  a4:	00112e23          	sw	ra,28(sp)
+  a8:	01412423          	sw	s4,8(sp)
+  ac:	01512223          	sw	s5,4(sp)
+  b0:	00050a93          	mv	s5,a0
+  b4:	00058a13          	mv	s4,a1
+  b8:	00100793          	li	a5,1
+  bc:	04b7d663          	bge	a5,a1,108 <printIntArray+0x68>
+  c0:	00812c23          	sw	s0,24(sp)
+  c4:	00912a23          	sw	s1,20(sp)
+  c8:	01212823          	sw	s2,16(sp)
+  cc:	01312623          	sw	s3,12(sp)
+  d0:	00050493          	mv	s1,a0
+  d4:	fff58993          	addi	s3,a1,-1
+  d8:	00000413          	li	s0,0
+  dc:	0004a503          	lw	a0,0(s1)
+  e0:	f79ff0ef          	jal	58 <printInt>
+  e4:	1b800513          	li	a0,440
+  e8:	f7dff0ef          	jal	64 <print>
+  ec:	00140413          	addi	s0,s0,1
+  f0:	00448493          	addi	s1,s1,4
+  f4:	ff3414e3          	bne	s0,s3,dc <printIntArray+0x3c>
+  f8:	01812403          	lw	s0,24(sp)
+  fc:	01412483          	lw	s1,20(sp)
+ 100:	01012903          	lw	s2,16(sp)
+ 104:	00c12983          	lw	s3,12(sp)
+ 108:	002a1a13          	slli	s4,s4,0x2
+ 10c:	014a8ab3          	add	s5,s5,s4
+ 110:	ffcaa503          	lw	a0,-4(s5)
+ 114:	f45ff0ef          	jal	58 <printInt>
+ 118:	01c12083          	lw	ra,28(sp)
+ 11c:	00812a03          	lw	s4,8(sp)
+ 120:	00412a83          	lw	s5,4(sp)
+ 124:	02010113          	addi	sp,sp,32
+ 128:	00008067          	ret
+
+0000012c <gcd>:
+ 12c:	00050793          	mv	a5,a0
+ 130:	00058c63          	beqz	a1,148 <gcd+0x1c>
+ 134:	00058513          	mv	a0,a1
+ 138:	02b7e5b3          	rem	a1,a5,a1
+ 13c:	00050793          	mv	a5,a0
+ 140:	fe059ae3          	bnez	a1,134 <gcd+0x8>
+ 144:	00008067          	ret
+ 148:	00008067          	ret
+
+0000014c <main>:
+ 14c:	ff010113          	addi	sp,sp,-16
+ 150:	00112623          	sw	ra,12(sp)
+ 154:	1bc00513          	li	a0,444
+ 158:	f0dff0ef          	jal	64 <print>
+ 15c:	00001537          	lui	a0,0x1
+ 160:	85550513          	addi	a0,a0,-1963 # 855 <__global_pointer$+0x55>
+ 164:	ef5ff0ef          	jal	58 <printInt>
+ 168:	1c800513          	li	a0,456
+ 16c:	ef9ff0ef          	jal	64 <print>
+ 170:	1f400513          	li	a0,500
+ 174:	ee5ff0ef          	jal	58 <printInt>
+ 178:	1d000513          	li	a0,464
+ 17c:	ee9ff0ef          	jal	64 <print>
+ 180:	1f400793          	li	a5,500
+ 184:	00001737          	lui	a4,0x1
+ 188:	85570713          	addi	a4,a4,-1963 # 855 <__global_pointer$+0x55>
+ 18c:	00078513          	mv	a0,a5
+ 190:	02f767b3          	rem	a5,a4,a5
+ 194:	00050713          	mv	a4,a0
+ 198:	fe079ae3          	bnez	a5,18c <main+0x40>
+ 19c:	ebdff0ef          	jal	58 <printInt>
+ 1a0:	00a00513          	li	a0,10
+ 1a4:	ea9ff0ef          	jal	4c <printc>
+ 1a8:	00000513          	li	a0,0
+ 1ac:	00c12083          	lw	ra,12(sp)
+ 1b0:	01010113          	addi	sp,sp,16
+ 1b4:	00008067          	ret

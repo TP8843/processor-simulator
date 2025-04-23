@@ -65,22 +65,26 @@ public class MultiplyUnit implements Flushable {
             }
             case DIVInstruction i -> {
                 this.remainingCycles = 15;
-                this.currentResult = i.rs1.getData() / i.rs2.getData();
+                if(i.rs2.getData() == 0) this.currentResult = -1;
+                else this.currentResult = i.rs1.getData() / i.rs2.getData();
                 this.currentInstruction = i;
             }
             case DIVUInstruction i -> {
                 this.remainingCycles = 15;
-                this.currentResult = Integer.divideUnsigned(i.rs1.getData(), i.rs2.getData());
+                if(i.rs2.getData() == 0) this.currentResult = -1;
+                else this.currentResult = Integer.divideUnsigned(i.rs1.getData(), i.rs2.getData());
                 this.currentInstruction = i;
             }
             case REMInstruction i -> {
                 this.remainingCycles = 15;
-                this.currentResult = i.rs1.getData() % i.rs2.getData();
+                if(i.rs2.getData() == 0) this.currentResult = -1;
+                else this.currentResult = i.rs1.getData() % i.rs2.getData();
                 this.currentInstruction = i;
             }
             case REMUInstruction i -> {
                 this.remainingCycles = 15;
-                this.currentResult = Integer.remainderUnsigned(i.rs1.getData(), i.rs2.getData());
+                if(i.rs2.getData() == 0) this.currentResult = -1;
+                else this.currentResult = Integer.remainderUnsigned(i.rs1.getData(), i.rs2.getData());
                 this.currentInstruction = i;
             }
             default -> {}

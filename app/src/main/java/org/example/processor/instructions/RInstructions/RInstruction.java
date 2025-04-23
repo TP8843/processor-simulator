@@ -7,41 +7,6 @@ import org.example.processor.instructions.RInstructions.multiply.*;
 import org.example.processor.instructions.RegisterWrite;
 
 public abstract class RInstruction implements RegisterWrite {
-    public enum Type {
-        ADD,
-        SUB,
-        XOR,
-        OR,
-        AND,
-        SHIFT_LEFT_LOGICAL,
-        SHIFT_RIGHT_LOGICAL,
-        SHIFT_RIGHT_ARITHMETIC,
-        SET_LESS_THAN,
-        SET_LESS_THAN_UNSIGNED;
-        
-        static public Type decodeType(int instruction) {
-            if (Instruction.decodeFunct7(instruction) == 0x00) {
-                return switch (Instruction.decodeFunct3(instruction)) {
-                    case 0x00 -> ADD;
-                    case 0x01 -> SHIFT_LEFT_LOGICAL;
-                    case 0x02 -> SET_LESS_THAN;
-                    case 0x03 -> SET_LESS_THAN_UNSIGNED;
-                    case 0x04 -> XOR;
-                    case 0x05 -> SHIFT_RIGHT_LOGICAL;
-                    case 0x06 -> OR;
-                    case 0x07 -> AND;
-                    default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
-                };
-            } else {
-                return switch (Instruction.decodeFunct3(instruction)) {
-                    case 0x00 -> SUB;
-                    case 0x05 -> SHIFT_RIGHT_ARITHMETIC;
-                    default -> throw new IllegalArgumentException("Invalid funct: " + instruction);
-                };
-            }
-        }
-    }
-    
     private final Opcode opcode;
     
     private final int PC;
@@ -128,7 +93,6 @@ public abstract class RInstruction implements RegisterWrite {
     
     static public RInstruction decode(int instruction, int PC) {
         Opcode opcode = Opcode.getOpcode(instruction);
-        Type type = Type.decodeType(instruction);
         byte rs1 = Instruction.decodeRs1(instruction);
         byte rs2 = Instruction.decodeRs2(instruction);
         byte rd = Instruction.decodeRd(instruction);
