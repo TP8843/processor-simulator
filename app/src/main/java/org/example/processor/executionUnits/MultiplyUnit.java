@@ -25,8 +25,8 @@ public class MultiplyUnit implements Flushable {
     }
 
     public void execute() {
-        // Reduce count every clock cycle
-        if(this.remainingCycles > 0){
+        // Reduce count every clock cycle. Go to one to ensure that cycle count is correct
+        if(this.remainingCycles > 1){
             this.remainingCycles -= 1;
             return;
         }

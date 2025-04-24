@@ -1,5 +1,5 @@
 // Print character to terminal
-void printc(char character) {
+void printc(const char character) {
     // Loads number for putc
     register int call asm("a7") = 1;
     register char value asm("a0") = character;
@@ -7,7 +7,7 @@ void printc(char character) {
     asm volatile("ecall" : : "r"(call), "r"(value));
 }
 
-void printInt(int number) {
+void printInt(const int number) {
     register int call asm("a7") = 3;
     register int value asm("a0") = number;
 
@@ -23,7 +23,7 @@ void print(const char* string) {
     }
 }
 
-void printIntArray(int* array, int count) {
+void printIntArray(const int array[], int count) {
     for(int i = 0; i < count - 1; i++) {
         printInt(array[i]);
         print(", ");

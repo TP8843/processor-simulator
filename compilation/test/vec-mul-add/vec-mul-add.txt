@@ -1,0 +1,129 @@
+
+vec-mul-add/vec-mul-add.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	00001197          	auipc	gp,0x1
+   4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
+   8:	00003117          	auipc	sp,0x3
+   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
+  10:	00000093          	li	ra,0
+  14:	00000213          	li	tp,0
+  18:	00000293          	li	t0,0
+  1c:	00000313          	li	t1,0
+  20:	00000393          	li	t2,0
+  24:	00000413          	li	s0,0
+  28:	00000493          	li	s1,0
+  2c:	00000513          	li	a0,0
+  30:	00000593          	li	a1,0
+  34:	00000613          	li	a2,0
+  38:	00000693          	li	a3,0
+  3c:	00000713          	li	a4,0
+  40:	00000793          	li	a5,0
+  44:	130000ef          	jal	174 <main>
+
+00000048 <_eoc>:
+  48:	00100073          	ebreak
+
+0000004c <printc>:
+  4c:	00100893          	li	a7,1
+  50:	00000073          	ecall
+  54:	00008067          	ret
+
+00000058 <printInt>:
+  58:	00300893          	li	a7,3
+  5c:	00000073          	ecall
+  60:	00008067          	ret
+
+00000064 <print>:
+  64:	ff010113          	addi	sp,sp,-16
+  68:	00112623          	sw	ra,12(sp)
+  6c:	00812423          	sw	s0,8(sp)
+  70:	00050413          	mv	s0,a0
+  74:	00054503          	lbu	a0,0(a0)
+  78:	00050c63          	beqz	a0,90 <print+0x2c>
+  7c:	00140413          	addi	s0,s0,1
+  80:	fcdff0ef          	jal	4c <printc>
+  84:	00140413          	addi	s0,s0,1
+  88:	fff44503          	lbu	a0,-1(s0)
+  8c:	fe051ae3          	bnez	a0,80 <print+0x1c>
+  90:	00c12083          	lw	ra,12(sp)
+  94:	00812403          	lw	s0,8(sp)
+  98:	01010113          	addi	sp,sp,16
+  9c:	00008067          	ret
+
+000000a0 <printIntArray>:
+  a0:	fe010113          	addi	sp,sp,-32
+  a4:	00112e23          	sw	ra,28(sp)
+  a8:	01412423          	sw	s4,8(sp)
+  ac:	01512223          	sw	s5,4(sp)
+  b0:	00050a93          	mv	s5,a0
+  b4:	00058a13          	mv	s4,a1
+  b8:	00100793          	li	a5,1
+  bc:	04b7d863          	bge	a5,a1,10c <printIntArray+0x6c>
+  c0:	00812c23          	sw	s0,24(sp)
+  c4:	00912a23          	sw	s1,20(sp)
+  c8:	01212823          	sw	s2,16(sp)
+  cc:	01312623          	sw	s3,12(sp)
+  d0:	00050493          	mv	s1,a0
+  d4:	fff58993          	addi	s3,a1,-1
+  d8:	00000413          	li	s0,0
+  dc:	00001937          	lui	s2,0x1
+  e0:	0004a503          	lw	a0,0(s1)
+  e4:	f75ff0ef          	jal	58 <printInt>
+  e8:	14890513          	addi	a0,s2,328 # 1148 <x1.1+0x7d0>
+  ec:	f79ff0ef          	jal	64 <print>
+  f0:	00140413          	addi	s0,s0,1
+  f4:	00448493          	addi	s1,s1,4
+  f8:	ff3414e3          	bne	s0,s3,e0 <printIntArray+0x40>
+  fc:	01812403          	lw	s0,24(sp)
+ 100:	01412483          	lw	s1,20(sp)
+ 104:	01012903          	lw	s2,16(sp)
+ 108:	00c12983          	lw	s3,12(sp)
+ 10c:	002a1a13          	slli	s4,s4,0x2
+ 110:	014a8ab3          	add	s5,s5,s4
+ 114:	ffcaa503          	lw	a0,-4(s5)
+ 118:	f41ff0ef          	jal	58 <printInt>
+ 11c:	01c12083          	lw	ra,28(sp)
+ 120:	00812a03          	lw	s4,8(sp)
+ 124:	00412a83          	lw	s5,4(sp)
+ 128:	02010113          	addi	sp,sp,32
+ 12c:	00008067          	ret
+
+00000130 <mulAdd>:
+ 130:	02b50533          	mul	a0,a0,a1
+ 134:	00c50533          	add	a0,a0,a2
+ 138:	00008067          	ret
+
+0000013c <vecMulAdd>:
+ 13c:	02e05a63          	blez	a4,170 <vecMulAdd+0x34>
+ 140:	00058813          	mv	a6,a1
+ 144:	00271713          	slli	a4,a4,0x2
+ 148:	00e585b3          	add	a1,a1,a4
+ 14c:	00082783          	lw	a5,0(a6)
+ 150:	02f507b3          	mul	a5,a0,a5
+ 154:	00062703          	lw	a4,0(a2)
+ 158:	00e787b3          	add	a5,a5,a4
+ 15c:	00f6a023          	sw	a5,0(a3)
+ 160:	00480813          	addi	a6,a6,4
+ 164:	00460613          	addi	a2,a2,4
+ 168:	00468693          	addi	a3,a3,4
+ 16c:	feb810e3          	bne	a6,a1,14c <vecMulAdd+0x10>
+ 170:	00008067          	ret
+
+00000174 <main>:
+ 174:	82010113          	addi	sp,sp,-2016
+ 178:	7c112e23          	sw	ra,2012(sp)
+ 17c:	1a800593          	li	a1,424
+ 180:	1f400713          	li	a4,500
+ 184:	00010693          	mv	a3,sp
+ 188:	1a800613          	li	a2,424
+ 18c:	7d058593          	addi	a1,a1,2000
+ 190:	00500513          	li	a0,5
+ 194:	fa9ff0ef          	jal	13c <vecMulAdd>
+ 198:	00000513          	li	a0,0
+ 19c:	7dc12083          	lw	ra,2012(sp)
+ 1a0:	7e010113          	addi	sp,sp,2016
+ 1a4:	00008067          	ret
