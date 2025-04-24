@@ -24,19 +24,19 @@ public class Simulator {
     public final Registers registers = new Registers();
 
     // Buffers
-    public final Buffer<UndecodedInstruction> fetchDecodeBuffer = new MultiValueBuffer<>(16);
-    public final Buffer<Instruction> decodeIssueBuffer = new MultiValueBuffer<>(16);
-    public final BranchBuffer decodeBranchBuffer = new BranchBuffer();
+    public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
+    public final Buffer<Instruction> decodeIssueBuffer;
+    public final BranchBuffer decodeBranchBuffer;
 
-    public final ReservationStation aluReservationStation = new ReservationStation(16);
-    public final ReservationStation compareReservationStation = new ReservationStation(16);
-    public final ReservationStation multiplyReservationStation = new ReservationStation(16);
+    public final ReservationStation aluReservationStation;
+    public final ReservationStation compareReservationStation;
+    public final ReservationStation multiplyReservationStation;
 
-    public final ManualReleaseReservationStation aguReservationStation = new ManualReleaseReservationStation(16);
-    public final MemoryLoadBuffer aguLoadBuffer = new MemoryLoadBuffer(32);
+    public final ManualReleaseReservationStation aguReservationStation;
+    public final MemoryLoadBuffer aguLoadBuffer;
 
     /// Initial buffers to flush for jumps and branches
-    public final Flushable[] jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
+    public final Flushable[] jumpBuffers;
 
     /// Buffers to flush for a branch mispredict
     public final Flushable[] mispredictBuffers;
@@ -49,7 +49,7 @@ public class Simulator {
 
     public final MemoryWriteUnit memoryWriteUnit = new MemoryWriteUnit(memory);
 
-    public final InstructionFetch instructionFetch = new InstructionFetch(memory, 0, fetchDecodeBuffer);
+    public final InstructionFetch instructionFetch;
     public final BranchUnit branchUnit;
 
     public final EnvironmentHandler environmentHandler = new EnvironmentHandler(registers);
@@ -63,6 +63,22 @@ public class Simulator {
 
     public Simulator(Config config) {
         this.config = config;
+
+        this.fetchDecodeBuffer = new MultiValueBuffer<>(config.fetchDecodeBuffer);
+        this.decodeIssueBuffer = new MultiValueBuffer<>(config.decodeIssueBuffer);
+        this.decodeBranchBuffer = new BranchBuffer();
+
+        this.aluReservationStation = new ReservationStation(config.aluRs);
+        this.compareReservationStation = new ReservationStation(config.compareRs);
+        this.multiplyReservationStation = new ReservationStation(config.multiplyRs);
+
+        this.aguReservationStation = new ManualReleaseReservationStation(config.aguRs);
+        this.aguLoadBuffer = new MemoryLoadBuffer(config.aguLoadBuffer);
+
+        this.instructionFetch = new InstructionFetch(memory, 0, fetchDecodeBuffer);
+
+        this.jumpBuffers = new Flushable[]{ fetchDecodeBuffer };
+
         this.multiplyUnits = new MultiplyBuilder(multiplyReservationStation, config.multiply);
 
         this.mispredictBuffers = new Flushable[]{
