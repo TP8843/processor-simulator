@@ -1,12 +1,12 @@
 #include "../tplib.c"
 
 // Calculates ax1 + x2
-int mulAdd(int a, int x1, int x2) {
+static int mulAdd(int a, int x1, int x2) {
     return a * x1 + x2;
 }
 
 // Calculates y = ax1 + x2
-void vecMulAdd(int a, const int x1[], const int x2[], int* restrict y, int len) {
+static void vecMulAdd(int a, const int x1[], const int x2[], int* restrict y, int len) {
     for (int i = 0; i < len; i++) {
         y[i] = a * x1[i] + x2[i];
     }
@@ -27,7 +27,7 @@ int main() {
     int y[500];
 
     vecMulAdd(5, x1, x2, y, 500);
-//    print("Y = a * X1 + X2: ");
-//    printIntArray(y, 500);
-//    printc('\n');
+    print("Y = a * X1 + X2: ");
+    printIntArray(y, 500);
+    printc('\n');
 }

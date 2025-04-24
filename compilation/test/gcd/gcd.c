@@ -1,10 +1,10 @@
 #include "../tplib.c"
 
-static const int a = 2133;
-static const int b = 500;
+static const int a = 729398;
+static const int b = 324550;
 
 // From https://en.wikipedia.org/wiki/Euclidean_algorithm
-int gcd(int a, int b) {
+static int gcd(int a, int b) {
     int t;
     int i = 0;
     while (b != 0 ) {

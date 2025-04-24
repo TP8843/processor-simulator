@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 
 public class Memory {
     /// Number of words in memory
-    public final int size = 12 * 1024;
+    public final int size = 1024 * 1024;
     
     /// Number of bytes in word of memory
     public final int wordLength = 4;

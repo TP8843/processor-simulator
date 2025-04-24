@@ -1,6 +1,6 @@
 #include "../tplib.c"
 
-int fibonacci(int input){
+static int fibonacci(int input){
 	if(input < 2) return input;
 	
 	return fibonacci(input - 1) + fibonacci(input - 2);
