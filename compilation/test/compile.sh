@@ -15,7 +15,7 @@ BIN="$DIR/$FILENAME.bin"
 echo "Compiling $FILE..."
 
 # To see the linker script, add the `-Wl,--verbose` option
-if riscv64-unknown-elf-gcc -mabi=ilp32 -march=rv32im -no-pie -fno-delete-null-pointer-checks -nostdlib -Wl,-T,link.ld -e main -O3 -o "$ELF" crt0.s "$FILE_PATH" ; then
+if riscv64-unknown-elf-gcc -mabi=ilp32 -march=rv32im -no-pie -fno-delete-null-pointer-checks -nostdlib -Wl,-T,link.ld -e main -O2 -o "$ELF" crt0.s "$FILE_PATH" ; then
     echo "Finished compilation of ELF to $ELF"
     riscv64-unknown-elf-objcopy -O binary $ELF $BIN
     echo "Finished binary dump to $BIN"

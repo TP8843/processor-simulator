@@ -7,8 +7,8 @@ Disassembly of section .text:
 00000000 <_start>:
    0:	00001197          	auipc	gp,0x1
    4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
-   8:	00003117          	auipc	sp,0x3
-   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
+   8:	00100117          	auipc	sp,0x100
+   c:	ff810113          	addi	sp,sp,-8 # 100000 <__stack_top>
   10:	00000093          	li	ra,0
   14:	00000213          	li	tp,0
   18:	00000293          	li	t0,0

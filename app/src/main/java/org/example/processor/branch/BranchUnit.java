@@ -1,8 +1,7 @@
 package org.example.processor.branch;
 
 import org.example.processor.InstructionFetch;
-import org.example.processor.branch.strategies.BranchStrategy;
-import org.example.processor.branch.strategies.TwoBitPredictor;
+import org.example.processor.branch.strategies.*;
 import org.example.processor.buffers.Buffer;
 import org.example.processor.buffers.Flushable;
 import org.example.processor.instructions.BInstructions.*;

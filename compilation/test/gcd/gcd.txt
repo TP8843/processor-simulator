@@ -28,47 +28,15 @@ Disassembly of section .text:
   48:	00100073          	ebreak
 
 0000004c <main>:
-  4c:	0fd00793          	li	a5,253
-  50:	05400513          	li	a0,84
-  54:	00100893          	li	a7,1
-  58:	00000073          	ecall
-  5c:	0007c503          	lbu	a0,0(a5)
-  60:	00178793          	addi	a5,a5,1
-  64:	fe0518e3          	bnez	a0,54 <main+0x8>
-  68:	000b2537          	lui	a0,0xb2
+  4c:	008cd7b7          	lui	a5,0x8cd
+  50:	00e3d537          	lui	a0,0xe3d
+  54:	cc978793          	addi	a5,a5,-823 # 8cccc9 <__stack_top+0x7cccc9>
+  58:	1b050513          	addi	a0,a0,432 # e3d1b0 <__stack_top+0xd3d1b0>
+  5c:	00078713          	mv	a4,a5
+  60:	02f567b3          	rem	a5,a0,a5
+  64:	00070513          	mv	a0,a4
+  68:	fe079ae3          	bnez	a5,5c <main+0x10>
   6c:	00300893          	li	a7,3
-  70:	13650513          	addi	a0,a0,310 # b2136 <__global_pointer$+0xb1936>
-  74:	00000073          	ecall
-  78:	10900793          	li	a5,265
-  7c:	02000513          	li	a0,32
-  80:	00100893          	li	a7,1
-  84:	00000073          	ecall
-  88:	0007c503          	lbu	a0,0(a5)
-  8c:	00178793          	addi	a5,a5,1
-  90:	fe0518e3          	bnez	a0,80 <main+0x34>
-  94:	0004f537          	lui	a0,0x4f
-  98:	00300893          	li	a7,3
-  9c:	3c650513          	addi	a0,a0,966 # 4f3c6 <__global_pointer$+0x4ebc6>
-  a0:	00000073          	ecall
-  a4:	11100793          	li	a5,273
-  a8:	02000513          	li	a0,32
-  ac:	00100893          	li	a7,1
-  b0:	00000073          	ecall
-  b4:	0007c503          	lbu	a0,0(a5)
-  b8:	00178793          	addi	a5,a5,1
-  bc:	fe0518e3          	bnez	a0,ac <main+0x60>
-  c0:	0004f7b7          	lui	a5,0x4f
-  c4:	000b2537          	lui	a0,0xb2
-  c8:	3c678793          	addi	a5,a5,966 # 4f3c6 <__global_pointer$+0x4ebc6>
-  cc:	13650513          	addi	a0,a0,310 # b2136 <__global_pointer$+0xb1936>
-  d0:	00078713          	mv	a4,a5
-  d4:	02f567b3          	rem	a5,a0,a5
-  d8:	00070513          	mv	a0,a4
-  dc:	fe079ae3          	bnez	a5,d0 <main+0x84>
-  e0:	00300893          	li	a7,3
-  e4:	00000073          	ecall
-  e8:	00100893          	li	a7,1
-  ec:	00a00513          	li	a0,10
-  f0:	00000073          	ecall
-  f4:	00000513          	li	a0,0
-  f8:	00008067          	ret
+  70:	00000073          	ecall
+  74:	00000513          	li	a0,0
+  78:	00008067          	ret

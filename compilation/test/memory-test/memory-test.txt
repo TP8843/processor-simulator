@@ -7,8 +7,8 @@ Disassembly of section .text:
 00000000 <_start>:
    0:	00001197          	auipc	gp,0x1
    4:	80018193          	addi	gp,gp,-2048 # 800 <__global_pointer$>
-   8:	00003117          	auipc	sp,0x3
-   c:	ff810113          	addi	sp,sp,-8 # 3000 <__stack_top>
+   8:	00100117          	auipc	sp,0x100
+   c:	ff810113          	addi	sp,sp,-8 # 100000 <__stack_top>
   10:	00000093          	li	ra,0
   14:	00000213          	li	tp,0
   18:	00000293          	li	t0,0
@@ -30,24 +30,15 @@ Disassembly of section .text:
 0000004c <main>:
   4c:	ff010113          	addi	sp,sp,-16
   50:	00012623          	sw	zero,12(sp)
-  54:	00c12783          	lw	a5,12(sp)
-  58:	00300893          	li	a7,3
-  5c:	00278793          	addi	a5,a5,2
-  60:	00f12623          	sw	a5,12(sp)
-  64:	00c12783          	lw	a5,12(sp)
-  68:	00278793          	addi	a5,a5,2
-  6c:	00f12623          	sw	a5,12(sp)
-  70:	00c12783          	lw	a5,12(sp)
-  74:	00278793          	addi	a5,a5,2
-  78:	00f12623          	sw	a5,12(sp)
-  7c:	00c12783          	lw	a5,12(sp)
-  80:	00278793          	addi	a5,a5,2
-  84:	00f12623          	sw	a5,12(sp)
-  88:	00c12783          	lw	a5,12(sp)
-  8c:	00278793          	addi	a5,a5,2
-  90:	00f12623          	sw	a5,12(sp)
-  94:	00c12503          	lw	a0,12(sp)
-  98:	00000073          	ecall
-  9c:	00000513          	li	a0,0
-  a0:	01010113          	addi	sp,sp,16
-  a4:	00008067          	ret
+  54:	00500713          	li	a4,5
+  58:	00c12783          	lw	a5,12(sp)
+  5c:	fff70713          	addi	a4,a4,-1
+  60:	00278793          	addi	a5,a5,2
+  64:	00f12623          	sw	a5,12(sp)
+  68:	fe0718e3          	bnez	a4,58 <main+0xc>
+  6c:	00c12503          	lw	a0,12(sp)
+  70:	00300893          	li	a7,3
+  74:	00000073          	ecall
+  78:	00000513          	li	a0,0
+  7c:	01010113          	addi	sp,sp,16
+  80:	00008067          	ret
