@@ -22,109 +22,107 @@ Disassembly of section .text:
   38:	00000693          	li	a3,0
   3c:	00000713          	li	a4,0
   40:	00000793          	li	a5,0
-  44:	11c000ef          	jal	160 <main>
+  44:	008000ef          	jal	4c <main>
 
 00000048 <_eoc>:
   48:	00100073          	ebreak
 
-0000004c <printc>:
-  4c:	00100893          	li	a7,1
-  50:	00000073          	ecall
-  54:	00008067          	ret
+0000004c <main>:
+  4c:	82010113          	addi	sp,sp,-2016
+  50:	000017b7          	lui	a5,0x1
+  54:	7c112e23          	sw	ra,2012(sp)
+  58:	7c812c23          	sw	s0,2008(sp)
+  5c:	7c912a23          	sw	s1,2004(sp)
+  60:	17178793          	addi	a5,a5,369 # 1171 <x2.0+0x7d5>
+  64:	05800513          	li	a0,88
+  68:	00100893          	li	a7,1
+  6c:	00000073          	ecall
+  70:	0007c503          	lbu	a0,0(a5)
+  74:	00178793          	addi	a5,a5,1
+  78:	fe0518e3          	bnez	a0,68 <main+0x1c>
+  7c:	1cc00513          	li	a0,460
+  80:	0f8000ef          	jal	178 <printIntArray.constprop.0>
+  84:	00100893          	li	a7,1
+  88:	00a00513          	li	a0,10
+  8c:	00000073          	ecall
+  90:	000017b7          	lui	a5,0x1
+  94:	18978793          	addi	a5,a5,393 # 1189 <x2.0+0x7ed>
+  98:	05800513          	li	a0,88
+  9c:	00100893          	li	a7,1
+  a0:	00000073          	ecall
+  a4:	0007c503          	lbu	a0,0(a5)
+  a8:	00178793          	addi	a5,a5,1
+  ac:	fe0518e3          	bnez	a0,9c <main+0x50>
+  b0:	1cc00493          	li	s1,460
+  b4:	7d048493          	addi	s1,s1,2000
+  b8:	00048513          	mv	a0,s1
+  bc:	0bc000ef          	jal	178 <printIntArray.constprop.0>
+  c0:	00100893          	li	a7,1
+  c4:	00a00513          	li	a0,10
+  c8:	00000073          	ecall
+  cc:	1cc00713          	li	a4,460
+  d0:	00048613          	mv	a2,s1
+  d4:	00010693          	mv	a3,sp
+  d8:	00072583          	lw	a1,0(a4)
+  dc:	00062503          	lw	a0,0(a2)
+  e0:	00470713          	addi	a4,a4,4
+  e4:	00259793          	slli	a5,a1,0x2
+  e8:	00b787b3          	add	a5,a5,a1
+  ec:	00a787b3          	add	a5,a5,a0
+  f0:	00f6a023          	sw	a5,0(a3)
+  f4:	00460613          	addi	a2,a2,4
+  f8:	00468693          	addi	a3,a3,4
+  fc:	fce49ee3          	bne	s1,a4,d8 <main+0x8c>
+ 100:	000017b7          	lui	a5,0x1
+ 104:	17978793          	addi	a5,a5,377 # 1179 <x2.0+0x7dd>
+ 108:	05900513          	li	a0,89
+ 10c:	00100893          	li	a7,1
+ 110:	00000073          	ecall
+ 114:	0007c503          	lbu	a0,0(a5)
+ 118:	00178793          	addi	a5,a5,1
+ 11c:	fe0518e3          	bnez	a0,10c <main+0xc0>
+ 120:	00300893          	li	a7,3
+ 124:	00500513          	li	a0,5
+ 128:	00000073          	ecall
+ 12c:	000017b7          	lui	a5,0x1
+ 130:	18178793          	addi	a5,a5,385 # 1181 <x2.0+0x7e5>
+ 134:	02000513          	li	a0,32
+ 138:	00100893          	li	a7,1
+ 13c:	00000073          	ecall
+ 140:	0007c503          	lbu	a0,0(a5)
+ 144:	00178793          	addi	a5,a5,1
+ 148:	fe0518e3          	bnez	a0,138 <main+0xec>
+ 14c:	00010513          	mv	a0,sp
+ 150:	028000ef          	jal	178 <printIntArray.constprop.0>
+ 154:	00100893          	li	a7,1
+ 158:	00a00513          	li	a0,10
+ 15c:	00000073          	ecall
+ 160:	7dc12083          	lw	ra,2012(sp)
+ 164:	7d812403          	lw	s0,2008(sp)
+ 168:	7d412483          	lw	s1,2004(sp)
+ 16c:	00000513          	li	a0,0
+ 170:	7e010113          	addi	sp,sp,2016
+ 174:	00008067          	ret
 
-00000058 <printInt>:
-  58:	00300893          	li	a7,3
-  5c:	00000073          	ecall
-  60:	00008067          	ret
-
-00000064 <print>:
-  64:	ff010113          	addi	sp,sp,-16
-  68:	00112623          	sw	ra,12(sp)
-  6c:	00812423          	sw	s0,8(sp)
-  70:	00912223          	sw	s1,4(sp)
-  74:	00050493          	mv	s1,a0
-  78:	00000413          	li	s0,0
-  7c:	00c0006f          	j	88 <print+0x24>
-  80:	fcdff0ef          	jal	4c <printc>
-  84:	00140413          	addi	s0,s0,1
-  88:	008487b3          	add	a5,s1,s0
-  8c:	0007c503          	lbu	a0,0(a5)
-  90:	fe0518e3          	bnez	a0,80 <print+0x1c>
-  94:	00c12083          	lw	ra,12(sp)
-  98:	00812403          	lw	s0,8(sp)
-  9c:	00412483          	lw	s1,4(sp)
-  a0:	01010113          	addi	sp,sp,16
-  a4:	00008067          	ret
-
-000000a8 <printIntArray>:
-  a8:	ff010113          	addi	sp,sp,-16
-  ac:	00112623          	sw	ra,12(sp)
-  b0:	00812423          	sw	s0,8(sp)
-  b4:	00912223          	sw	s1,4(sp)
-  b8:	01212023          	sw	s2,0(sp)
-  bc:	00050913          	mv	s2,a0
-  c0:	00058493          	mv	s1,a1
-  c4:	00000413          	li	s0,0
-  c8:	0240006f          	j	ec <printIntArray+0x44>
-  cc:	00241793          	slli	a5,s0,0x2
-  d0:	00f907b3          	add	a5,s2,a5
-  d4:	0007a503          	lw	a0,0(a5)
-  d8:	f81ff0ef          	jal	58 <printInt>
-  dc:	00001537          	lui	a0,0x1
-  e0:	15450513          	addi	a0,a0,340 # 1154 <x1.1+0x7d0>
-  e4:	f81ff0ef          	jal	64 <print>
-  e8:	00140413          	addi	s0,s0,1
-  ec:	fff48793          	addi	a5,s1,-1
-  f0:	fcf44ee3          	blt	s0,a5,cc <printIntArray+0x24>
-  f4:	400007b7          	lui	a5,0x40000
-  f8:	fff78793          	addi	a5,a5,-1 # 3fffffff <__stack_top+0x3fefffff>
-  fc:	00f484b3          	add	s1,s1,a5
- 100:	00249493          	slli	s1,s1,0x2
- 104:	00990933          	add	s2,s2,s1
- 108:	00092503          	lw	a0,0(s2)
- 10c:	f4dff0ef          	jal	58 <printInt>
- 110:	00c12083          	lw	ra,12(sp)
- 114:	00812403          	lw	s0,8(sp)
- 118:	00412483          	lw	s1,4(sp)
- 11c:	00012903          	lw	s2,0(sp)
- 120:	01010113          	addi	sp,sp,16
- 124:	00008067          	ret
-
-00000128 <vecMulAdd>:
- 128:	00000893          	li	a7,0
- 12c:	02c0006f          	j	158 <vecMulAdd+0x30>
- 130:	00289793          	slli	a5,a7,0x2
- 134:	00f58833          	add	a6,a1,a5
- 138:	00082803          	lw	a6,0(a6)
- 13c:	02a80833          	mul	a6,a6,a0
- 140:	00f60333          	add	t1,a2,a5
- 144:	00032303          	lw	t1,0(t1)
- 148:	00f687b3          	add	a5,a3,a5
- 14c:	00680833          	add	a6,a6,t1
- 150:	0107a023          	sw	a6,0(a5)
- 154:	00188893          	addi	a7,a7,1
- 158:	fce8cce3          	blt	a7,a4,130 <vecMulAdd+0x8>
- 15c:	00008067          	ret
-
-00000160 <main>:
- 160:	82010113          	addi	sp,sp,-2016
- 164:	7c112e23          	sw	ra,2012(sp)
- 168:	1b400593          	li	a1,436
- 16c:	1f400713          	li	a4,500
- 170:	00010693          	mv	a3,sp
- 174:	1b400613          	li	a2,436
- 178:	7d058593          	addi	a1,a1,2000
- 17c:	00500513          	li	a0,5
- 180:	fa9ff0ef          	jal	128 <vecMulAdd>
- 184:	00001537          	lui	a0,0x1
- 188:	15850513          	addi	a0,a0,344 # 1158 <x1.1+0x7d4>
- 18c:	ed9ff0ef          	jal	64 <print>
- 190:	1f400593          	li	a1,500
- 194:	00010513          	mv	a0,sp
- 198:	f11ff0ef          	jal	a8 <printIntArray>
- 19c:	00a00513          	li	a0,10
- 1a0:	eadff0ef          	jal	4c <printc>
- 1a4:	00000513          	li	a0,0
- 1a8:	7dc12083          	lw	ra,2012(sp)
- 1ac:	7e010113          	addi	sp,sp,2016
- 1b0:	00008067          	ret
+00000178 <printIntArray.constprop.0>:
+ 178:	000016b7          	lui	a3,0x1
+ 17c:	00050593          	mv	a1,a0
+ 180:	00050713          	mv	a4,a0
+ 184:	7cc50613          	addi	a2,a0,1996
+ 188:	16d68693          	addi	a3,a3,365 # 116d <x2.0+0x7d1>
+ 18c:	00300893          	li	a7,3
+ 190:	00072503          	lw	a0,0(a4)
+ 194:	00000073          	ecall
+ 198:	02c00513          	li	a0,44
+ 19c:	00068793          	mv	a5,a3
+ 1a0:	00100893          	li	a7,1
+ 1a4:	00000073          	ecall
+ 1a8:	0007c503          	lbu	a0,0(a5)
+ 1ac:	00178793          	addi	a5,a5,1
+ 1b0:	fe0518e3          	bnez	a0,1a0 <printIntArray.constprop.0+0x28>
+ 1b4:	00470713          	addi	a4,a4,4
+ 1b8:	fcc71ae3          	bne	a4,a2,18c <printIntArray.constprop.0+0x14>
+ 1bc:	7cc5a503          	lw	a0,1996(a1)
+ 1c0:	00300893          	li	a7,3
+ 1c4:	00000073          	ecall
+ 1c8:	00008067          	ret

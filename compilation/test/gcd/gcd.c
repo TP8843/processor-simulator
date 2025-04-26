@@ -16,11 +16,11 @@ static int gcd(int a, int b) {
 }
 
 int main() {
-//    print("The GCD of ");
-//    printInt(a);
-//    print(" and ");
-//    printInt(b);
-//    print(" is: ");
+    print("The GCD of ");
+    printInt(a);
+    print(" and ");
+    printInt(b);
+    print(" is: ");
     printInt(gcd(a, b));
-//    printc('\n');
+    printc('\n');
 }

@@ -16,10 +16,10 @@ static int fibonacci(int input){
 
 int main(){
     for(int i = 1; i < 37; i++) {
-//        print("The ");
-//        printInt(i);
-//        print("th fibonacci number using iteration is ");
+        print("The ");
+        printInt(i);
+        print("th fibonacci number using iteration is ");
      	printInt(fibonacci(i));
-//     	printc('\n');
+     	printc('\n');
     }
 }
