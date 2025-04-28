@@ -14,10 +14,11 @@ public class Debugger {
             Possible Commands:
                 instruction-fetch/instructionFetch/fetch  - Instruction Fetch Unit
                 fetch-decode/fetchDecode                  - Fetch to Decode Buffer
-                decode-branch/decodeBranch                - Decode to Branch Buffer
+                issue-branch/issueBranch                  - Issue to Branch Buffer
                 decode-issue/decodeIssue                  - Decode to Issue Buffer
             
                 alu-rs/aluRs                              - ALU Reservation Station
+                multiply-rs/multiplyRs                    - Multiply Unit Reservation Station
                 agu-rs/aguRs                              - AGU Reservation Station
                 compare-rs/compareRs                      - Compare Reservation Station
             
@@ -103,12 +104,13 @@ public class Debugger {
         switch (unit) {
             case "instruction-fetch", "fetch", "instructionfetch": System.out.println(simulator.instructionFetch); break;
             case "fetch-decode", "fetchdecode": System.out.println(simulator.fetchDecodeBuffer); break;
-            case "decode-branch", "decodebranch": System.out.println(simulator.decodeBranchBuffer); break;
+            case "issue-branch", "issuebranch": System.out.println(simulator.issueBranchBuffer); break;
             case "decode-issue", "decodeissue": System.out.println(simulator.decodeIssueBuffer); break;
 
             case "alu-rs", "alurs": System.out.println(simulator.aluReservationStation); break;
             case "agu-rs", "agus": System.out.println(simulator.aguReservationStation); break;
             case "compare-rs", "comparers": System.out.println(simulator.compareReservationStation); break;
+            case "multiply-rs", "multiplyrs": System.out.println(simulator.multiplyReservationStation); break;
 
             case "agu-memory", "agumemory": System.out.println(simulator.aguLoadBuffer); break;
 

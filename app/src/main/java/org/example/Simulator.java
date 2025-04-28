@@ -7,15 +7,9 @@ import org.example.processor.commit.MemoryWriteUnit;
 import org.example.processor.commit.ROB;
 import org.example.processor.data.Memory;
 import org.example.processor.data.Registers;
-import org.example.processor.executionUnits.*;
 import org.example.processor.executionUnits.builders.*;
-import org.example.processor.instructions.Environment;
-import org.example.processor.instructions.IInstructions.EInstructions.EBreakInstruction;
-import org.example.processor.instructions.IInstructions.EInstructions.ECallInstruction;
 import org.example.processor.instructions.Instruction;
 import org.example.processor.instructions.UndecodedInstruction;
-
-import java.io.IOException;
 
 public class Simulator {
     public final Config config;
@@ -26,7 +20,7 @@ public class Simulator {
     // Buffers
     public final Buffer<UndecodedInstruction> fetchDecodeBuffer;
     public final Buffer<Instruction> decodeIssueBuffer;
-    public final BranchBuffer decodeBranchBuffer;
+    public final BranchBuffer issueBranchBuffer;
 
     public final ReservationStation aluReservationStation;
     public final ReservationStation compareReservationStation;
@@ -66,7 +60,7 @@ public class Simulator {
 
         this.fetchDecodeBuffer = new MultiValueBuffer<>(config.fetchDecodeBuffer);
         this.decodeIssueBuffer = new MultiValueBuffer<>(config.decodeIssueBuffer);
-        this.decodeBranchBuffer = new BranchBuffer();
+        this.issueBranchBuffer = new BranchBuffer();
 
         this.aluReservationStation = new ReservationStation(config.aluRs);
         this.compareReservationStation = new ReservationStation(config.compareRs);
@@ -83,7 +77,7 @@ public class Simulator {
 
         this.mispredictBuffers = new Flushable[]{
                 fetchDecodeBuffer,
-                decodeBranchBuffer,
+                issueBranchBuffer,
                 decodeIssueBuffer,
                 aluReservationStation,
                 compareReservationStation,
@@ -93,12 +87,12 @@ public class Simulator {
                 multiplyUnits
         };
 
-        this.branchUnit = new BranchUnit(instructionFetch, decodeBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
+        this.branchUnit = new BranchUnit(instructionFetch, issueBranchBuffer, jumpBuffers, mispredictBuffers, fetchDecodeBuffer);
         this.rob = new ROB(branchUnit, memoryWriteUnit, registers, environmentHandler);
-        this.decode = new Decode(fetchDecodeBuffer, decodeIssueBuffer, decodeBranchBuffer);
+        this.decode = new Decode(fetchDecodeBuffer, decodeIssueBuffer, issueBranchBuffer);
         this.issueUnit = new IssueUnit(
                 decodeIssueBuffer,
-                decodeBranchBuffer,
+                issueBranchBuffer,
                 aluReservationStation,
                 compareReservationStation,
                 aguReservationStation,
@@ -142,7 +136,7 @@ public class Simulator {
             // Stall fetching while jump / branch instruction is processing
             if(decode.decode()) fetchDecodeBuffer.stall();
 
-            decodeBranchBuffer.addData();
+            issueBranchBuffer.addData();
 
             // Release fetching once address has been updated
             if(branchUnit.generateAddress()) {
