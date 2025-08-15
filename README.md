@@ -1,4 +1,9 @@
-# Processor Simulator
+# RV32IM Processor Simulator
+
+- Supports all of the RV32IM specification (ignoring system calls required for running an OS).
+- Has system calls for printing characters and numbers to the terminal.
+- Has an included console for breakpoints (partial), stepping through the code, and seeing program output.
+- Supports displaying state of all components of the processor.
 
 ## Running the simulator
 
