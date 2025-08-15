@@ -4,6 +4,7 @@
 - Has system calls for printing characters and numbers to the terminal.
 - Has an included console for breakpoints (partial), stepping through the code, and seeing program output.
 - Supports displaying state of all components of the processor.
+- Supports loading program from raw binary file (`.bin` file)
 
 ## Running the simulator
 
