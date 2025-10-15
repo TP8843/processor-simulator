@@ -6,6 +6,10 @@
 - Supports displaying state of all components of the processor.
 - Supports loading program from raw binary file (`.bin` file)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TP8843/processor-simulator/85ebe977b584db76525d1a1da9a4021c5a0d3376/Processor%20Final.drawio.svg?sanitize=true" width=70% title="Diagram" alt="Diagram" />
+</p>
+
 ## Running the simulator
 
 1. Install Java 23 SDK.
